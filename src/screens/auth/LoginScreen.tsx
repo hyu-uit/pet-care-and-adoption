@@ -1,10 +1,11 @@
 import { View, Text, StyleSheet } from 'react-native';
 import React from 'react';
+import { FONTS } from '../../config';
 
 const LoginScreen = () => {
   return (
     <View style={styles.container}>
-      <Text>LoginScreen</Text>
+      <Text style={styles.text}>LoginScreen</Text>
     </View>
   );
 };
@@ -17,5 +18,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  text: {
+    ...FONTS.h1,
   },
 });
