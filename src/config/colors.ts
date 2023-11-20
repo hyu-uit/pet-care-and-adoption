@@ -9,6 +9,8 @@ export default {
   grayLight: '#DCDCE7',
   grayPrimary: '#9F9DA8',
   whitePrimary: '#FFF',
+  grayC2C2CE: '#C2CECE',
+  gray828282: '#828282',
 
   blackPrimary: '#000',
   blackTitle: '#1C1C1E',
