@@ -7,3 +7,9 @@ export type AuthStackParamList = {
   [SCREEN.FORGOT_PASSWORD]: undefined;
   [SCREEN.NEW_PASSWORD]: undefined;
 };
+
+export type HomeStackParamList = {
+  [SCREEN.HOME]: undefined;
+  [SCREEN.SEARCH]: undefined;
+  [SCREEN.PET_CARE_VIDEOS]: undefined;
+};

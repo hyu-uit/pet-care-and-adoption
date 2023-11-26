@@ -11,10 +11,15 @@ export default {
   whitePrimary: '#FFF',
   grayC2C2CE: '#C2CECE',
   gray828282: '#828282',
+  grayABABAB: '#ABABAB',
 
   blackPrimary: '#000',
   blackTitle: '#1C1C1E',
   blackContent: '#3C3C43',
 
   placeHolder: '#C1C1CF',
+
+  blue8EB1E5: '#8EB1E5',
+
+  yellowPrimay: '#FFCC00',
 };
