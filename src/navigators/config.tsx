@@ -12,4 +12,12 @@ export type HomeStackParamList = {
   [SCREEN.HOME]: undefined;
   [SCREEN.SEARCH]: undefined;
   [SCREEN.PET_CARE_VIDEOS]: undefined;
+  [SCREEN.NEARBY_CLINIC]: undefined;
+  [SCREEN.LOST_PETS]: undefined;
+  [SCREEN.NOTIFICATION]: undefined;
+  [SCREEN.MENU]: undefined;
+};
+
+export type AdoptionStackParamList = {
+  [SCREEN.ADD_POST]: undefined;
 };

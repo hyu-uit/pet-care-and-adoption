@@ -3,6 +3,7 @@ export default {
   secondary: '#AFA3FA',
   tertiary: '#F1EFFF',
   quaternary: '#2B3570',
+  purpleF1EFFF: '#F1EFFF',
 
   background: '#FAFAFF',
 
@@ -12,10 +13,12 @@ export default {
   grayC2C2CE: '#C2CECE',
   gray828282: '#828282',
   grayABABAB: '#ABABAB',
+  grayA8A8B7: '#A8A8B7',
 
   blackPrimary: '#000',
   blackTitle: '#1C1C1E',
   blackContent: '#3C3C43',
+  black2A3738: '#2A3738',
 
   placeHolder: '#C1C1CF',
 

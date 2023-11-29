@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   Image,
+  StatusBar,
 } from 'react-native';
 import React from 'react';
 import { COLORS, STYLES, FONTS, SIZES, IMAGES } from '../../config';
@@ -57,6 +58,7 @@ const SearchScreen = () => {
 
   return (
     <View style={styles.container}>
+      <StatusBar barStyle='dark-content' />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.searchWrapper}>
           <TextInput style={styles.input} placeholder='Location' />

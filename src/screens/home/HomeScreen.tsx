@@ -101,6 +101,22 @@ const HomeScreen = ({
   const onPetCareVideos = () => {
     navigation.navigate(SCREEN.PET_CARE_VIDEOS);
   };
+
+  const onNearlyClinic = () => {
+    navigation.navigate(SCREEN.NEARBY_CLINIC);
+  };
+
+  const onLostPets = () => {
+    navigation.navigate(SCREEN.LOST_PETS);
+  };
+
+  const onNotification = () => {
+    navigation.navigate(SCREEN.NOTIFICATION);
+  };
+
+  const onMenu = () => {
+    navigation.navigate(SCREEN.MENU);
+  };
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -120,14 +136,14 @@ const HomeScreen = ({
           />
         </View>
         <View style={styles.logoWrapper}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onNotification}>
             <Ionicons
               name='notifications-outline'
               size={scaleSize(22)}
               color={COLORS.grayPrimary}
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onMenu}>
             <Ionicons
               name='menu-sharp'
               size={scaleSize(22)}
@@ -190,7 +206,7 @@ const HomeScreen = ({
 
         <PetCareVideosSlider />
 
-        <Title title='Nearby veterinary clinic' onSeeAll={() => {}} />
+        <Title title='Nearby veterinary clinic' onSeeAll={onNearlyClinic} />
 
         <View style={styles.nearByContainer}>
           {clinicList.map((item, index) => (
@@ -205,7 +221,7 @@ const HomeScreen = ({
           ))}
         </View>
 
-        <Title title='Lost pets' onSeeAll={() => {}} />
+        <Title title='Lost pets' onSeeAll={onLostPets} />
 
         <View style={styles.adoptedContainer}>
           {adoptedList.map((item, index) => (

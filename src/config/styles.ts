@@ -18,4 +18,17 @@ export default StyleSheet.create({
     width: scaleSize(24),
     height: scaleSize(24),
   },
+  button: {
+    backgroundColor: COLORS.primary,
+    width: '100%',
+    height: scaleSize(55),
+    borderRadius: scaleSize(17),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    ...FONTS.body2,
+    fontWeight: 'bold',
+    color: COLORS.whitePrimary,
+  },
 });
