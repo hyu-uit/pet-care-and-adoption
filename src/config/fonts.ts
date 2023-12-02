@@ -21,6 +21,12 @@ export default StyleSheet.create({
     fontFamily: 'CercoDEMO-Medium',
     fontWeight: '500',
   },
+  h4: {
+    color: COLORS.blackContent,
+    fontSize: scaleSize(20),
+    fontFamily: 'CercoDEMO-Medium',
+    fontWeight: '600',
+  },
   h5: {
     color: COLORS.blackContent,
     fontSize: scaleSize(18),

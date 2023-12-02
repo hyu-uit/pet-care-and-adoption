@@ -25,4 +25,6 @@ export default {
   blue8EB1E5: '#8EB1E5',
 
   yellowPrimay: '#FFCC00',
+
+  popupBackground: 'rgba(0,0,0,0.5)',
 };

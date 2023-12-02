@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import React from 'react';
-import { COLORS, SIZES, STYLES, FONTS } from '../../config';
+import { COLORS, SIZES, STYLES, FONTS, IMAGES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 
@@ -42,6 +42,7 @@ const MenuScreen = () => {
           color={COLORS.blackContent}
         />
       </TouchableOpacity>
+      <Image source={IMAGES.CAT_MENU} style={styles.catMenu} />
     </View>
   );
 };
@@ -52,7 +53,6 @@ const styles = StyleSheet.create({
     display: 'flex',
     flex: 1,
     backgroundColor: COLORS.background,
-    paddingHorizontal: SIZES.padding,
   },
   menuWrapper: {
     display: 'flex',
@@ -61,6 +61,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     minHeight: scaleSize(39),
     marginTop: scaleSize(30),
+    paddingHorizontal: SIZES.padding,
   },
   menuTitle: {
     ...FONTS.body1,
@@ -69,5 +70,14 @@ const styles = StyleSheet.create({
   subTitle: {
     ...FONTS.body7,
     marginTop: scaleSize(5),
+  },
+  catMenu: {
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    height: scaleSize(208),
+
+    backgroundColor: COLORS.background,
+    alignSelf: 'center',
   },
 });

@@ -13,6 +13,7 @@ export default StyleSheet.create({
     borderRadius: SIZES.radius,
     height: scaleSize(50),
     ...FONTS.body1,
+    paddingHorizontal: scaleSize(20),
   },
   icon: {
     width: scaleSize(24),
@@ -30,5 +31,11 @@ export default StyleSheet.create({
     ...FONTS.body2,
     fontWeight: 'bold',
     color: COLORS.whitePrimary,
+  },
+  horizontal: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
   },
 });

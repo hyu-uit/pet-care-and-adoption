@@ -1,5 +1,5 @@
 import { View, Text, Image, StyleSheet } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { scaleSize } from '../../../../utils/DeviceUtils';
 import { COLORS } from '../../../../config';
@@ -14,17 +14,17 @@ const PetCareVideosSlider = () => {
     {
       title: 'Slide 2',
       image:
-        'https://hips.hearstapps.com/goodhousekeeping/assets/17/30/pembroke-welsh-corgi.jpg',
+        'https://i.pinimg.com/736x/a0/b8/f9/a0b8f9f0626229914b1716a94d9533e8.jpg',
     },
     {
       title: 'Slide 3',
       image:
-        'https://hips.hearstapps.com/goodhousekeeping/assets/17/30/pembroke-welsh-corgi.jpg',
+        'https://i.pinimg.com/originals/0f/3f/e4/0f3fe4c1901f2784b9e2a42b6b8b99db.jpg',
     },
     {
       title: 'Slide 4',
       image:
-        'https://hips.hearstapps.com/goodhousekeeping/assets/17/30/pembroke-welsh-corgi.jpg',
+        'https://i.pinimg.com/736x/14/cc/8e/14cc8e5b7285693cf637aee8660d7ed1.jpg',
     },
     {
       title: 'Slide 5',
@@ -33,13 +33,8 @@ const PetCareVideosSlider = () => {
     },
   ];
 
-  const [activeSlide, setActiveSlide] = React.useState(0);
+  const [activeSlide, setActiveSlide] = useState<number>(0);
 
-  // const renderCarouselItem = ({ item }) => (
-  //   <View style={styles.slide}>
-  //     <Image source={{ uri: item.image }} style={styles.image} />
-  //   </View>
-  // );
   const renderCarouselItem = ({ item, index }) => {
     const isMainImage = index === activeSlide;
 
@@ -66,19 +61,8 @@ const PetCareVideosSlider = () => {
         ref={carouselRef}
         data={carouselData}
         renderItem={renderCarouselItem}
-        sliderWidth={300}
-        itemWidth={103} // Initial item width
-        onSnapToItem={(index) => {
-          // Adjust the width on snap to center
-          const isCenter = index === 2;
-          const itemWidth = isCenter ? scaleSize(124) : scaleSize(103);
-          carouselRef.current._snapToItem(index, false, false);
-          carouselRef.current._setScrollHandler({
-            ...carouselRef.current._scrollInterpolator,
-            inputRange: [index - 1, index, index + 1],
-            outputRange: [itemWidth, itemWidth * 1.3, itemWidth],
-          });
-        }}
+        sliderWidth={scaleSize(300)}
+        itemWidth={scaleSize(110)}
         autoplay={true}
         loop={true}
         autoplayInterval={3000} // Adjust the interval for auto slide (in milliseconds)

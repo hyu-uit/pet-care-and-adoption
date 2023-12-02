@@ -20,4 +20,5 @@ export type HomeStackParamList = {
 
 export type AdoptionStackParamList = {
   [SCREEN.ADD_POST]: undefined;
+  [SCREEN.LOCATION]: undefined;
 };

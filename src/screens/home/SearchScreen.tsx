@@ -8,15 +8,17 @@ import {
   Image,
   StatusBar,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { COLORS, STYLES, FONTS, SIZES, IMAGES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { Ionicons } from '@expo/vector-icons';
 import CategoryItem from './components/search/CategoryItem';
 import PetSearchCard from './components/search/PetSearchCard';
 import FilterItem from './components/search/FilterItem';
+import FilterModal from '../../components/FilterModal';
 
 const SearchScreen = () => {
+  const [filterShown, setFilterShown] = useState<boolean>(false);
   const data = [
     {
       image:
@@ -56,9 +58,18 @@ const SearchScreen = () => {
     },
   ];
 
+  const onFilter = () => {
+    setFilterShown(true);
+  };
+
+  const onCloseFilter = () => {
+    setFilterShown(false);
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle='dark-content' />
+      <FilterModal open={filterShown} onClose={onCloseFilter} />
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.searchWrapper}>
           <TextInput style={styles.input} placeholder='Location' />
@@ -85,17 +96,33 @@ const SearchScreen = () => {
           style={{
             display: 'flex',
             flexDirection: 'row',
-            gap: scaleSize(10),
             marginTop: scaleSize(20),
             alignItems: 'center',
+            justifyContent: 'space-between',
           }}
         >
-          <TouchableOpacity style={styles.filterButton}>
-            <Image source={IMAGES.FILTER} style={styles.filterIcon} />
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'row',
+              gap: scaleSize(10),
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            <TouchableOpacity style={styles.filterButton} onPress={onFilter}>
+              <Image source={IMAGES.FILTER} style={styles.filterIcon} />
+            </TouchableOpacity>
+            <FilterItem title='Male' />
+            <FilterItem title='4 months' />
+            <FilterItem title='Puppy' />
+          </View>
+
+          <TouchableOpacity
+            style={{ alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Text style={styles.clear}>Clear</Text>
           </TouchableOpacity>
-          <FilterItem title='Male' />
-          <FilterItem title='4 months' />
-          <FilterItem title='Puppy' />
         </View>
 
         <Text style={styles.title}>Pets near me</Text>
@@ -172,5 +199,10 @@ const styles = StyleSheet.create({
     marginTop: scaleSize(20),
     color: COLORS.primary,
     marginBottom: scaleSize(20),
+  },
+  clear: {
+    ...FONTS.body5,
+    color: COLORS.primary,
+    textDecorationLine: 'underline',
   },
 });

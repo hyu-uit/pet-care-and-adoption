@@ -13,6 +13,9 @@ import {
 import { TouchableOpacity } from 'react-native';
 import AdoptionStack from './AdoptionStackNavigator';
 import AddPostScreen from '../screens/adoption/AddPostScreen';
+import PostStackNavigator from './PostStackNavigator';
+import PetCareHandBookScreen from '../screens/pet-care/PetCareHandBookScreen';
+import { SCREEN } from './AppRoute';
 
 const Tab = createBottomTabNavigator();
 
@@ -82,10 +85,9 @@ const MainNavigator = () => {
       />
       <Tab.Screen
         name='Post'
-        component={AddPostScreen}
+        component={PostStackNavigator}
         options={{
-          headerShown: true,
-          headerTitle: 'Post',
+          headerShown: false,
           headerTintColor: COLORS.blackContent,
           headerStyle: { backgroundColor: COLORS.background },
           headerShadowVisible: false,
@@ -102,8 +104,8 @@ const MainNavigator = () => {
         }}
       />
       <Tab.Screen
-        name='Pet Care'
-        component={HomeStackNavigator}
+        name={'Pet care'}
+        component={PetCareHandBookScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <AntDesign
