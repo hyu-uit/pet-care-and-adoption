@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ViewStyle,
   StyleProp,
+  ActivityIndicator,
 } from 'react-native';
 import React, { FC } from 'react';
 import { COLORS, SIZES, FONTS } from '../config';
@@ -15,9 +16,16 @@ type ButtonProps = {
   title: string;
   onPress: () => void;
   variant?: ButtonVariant;
+  isLoading: boolean;
   style?: StyleProp<ViewStyle>;
 };
-const Button: FC<ButtonProps> = ({ title, onPress, variant, style }) => {
+const Button: FC<ButtonProps> = ({
+  title,
+  onPress,
+  variant,
+  style,
+  isLoading,
+}) => {
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -33,7 +41,11 @@ const Button: FC<ButtonProps> = ({ title, onPress, variant, style }) => {
         style,
       ]}
     >
-      <Text style={styles.title}>{title}</Text>
+      {isLoading ? (
+        <ActivityIndicator color={COLORS.whitePrimary} />
+      ) : (
+        <Text style={styles.title}>{title}</Text>
+      )}
     </TouchableOpacity>
   );
 };

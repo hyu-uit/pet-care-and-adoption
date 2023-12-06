@@ -12,8 +12,14 @@ import {
   persistStore,
 } from 'redux-persist';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
+import { authApi } from './auth/auth.api';
+import Reactotron from '../ReactotronConfig';
+import sharedReducer from './shared/shared.slice';
 
-const rootReducer = combineReducers({});
+const rootReducer = combineReducers({
+  shared: sharedReducer,
+  [authApi.reducerPath]: authApi.reducer,
+});
 
 const persistConfig: PersistConfig<any> = {
   key: 'root',
@@ -31,8 +37,8 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [...reduxPersistActions],
       },
-    }).concat(),
-  // enhancers: [Reactotron.createEnhancer!()],
+    }).concat(authApi.middleware),
+  enhancers: [Reactotron.createEnhancer!()],
   devTools: true,
 });
 

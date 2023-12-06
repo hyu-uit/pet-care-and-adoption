@@ -18,4 +18,7 @@ export enum SCREEN {
   ADD_POST = 'ADD_POST',
 
   HAND_BOOK = 'HAND_BOOK',
+
+  AUTH_STACK = 'AUTH_STACK',
+  BOTTOM_TABS = 'BOTTOM_TABS',
 }

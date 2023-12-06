@@ -3,8 +3,21 @@ import React from 'react';
 import { COLORS, SIZES, STYLES, FONTS, IMAGES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { useDispatch } from 'react-redux';
+import { resetState } from '../../store/shared/shared.slice';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '../../navigators/config';
+import { SCREEN } from '../../navigators/AppRoute';
 
-const MenuScreen = () => {
+const MenuScreen = ({
+  navigation,
+}: NativeStackScreenProps<HomeStackParamList, SCREEN.MENU>) => {
+  const dispatch = useDispatch();
+
+  const onLogout = () => {
+    navigation.reset({ index: 0, routes: [{ name: SCREEN.AUTH_STACK }] });
+    dispatch(resetState());
+  };
   return (
     <View style={styles.container}>
       <TouchableOpacity style={styles.menuWrapper}>
@@ -29,7 +42,7 @@ const MenuScreen = () => {
           color={COLORS.blackContent}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.menuWrapper}>
+      <TouchableOpacity style={styles.menuWrapper} onPress={onLogout}>
         <View>
           <Text style={styles.menuTitle}>Logout</Text>
           <Text style={styles.subTitle}>
