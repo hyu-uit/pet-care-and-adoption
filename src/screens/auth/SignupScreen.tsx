@@ -17,6 +17,8 @@ import { Controller, useForm } from 'react-hook-form';
 import { AuthSignupREQ } from '../../store/auth/request/auth-signup.request';
 import { useSignupMutation } from '../../store/auth/auth.api';
 import Popup from '../../components/Popup';
+import { doc, setDoc } from 'firebase/firestore';
+import { firestoreDB } from '../../../firebaseConfig';
 
 const SignupScreen = ({
   navigation,
@@ -38,9 +40,14 @@ const SignupScreen = ({
   };
 
   const handleSignup = async (data: AuthSignupREQ) => {
-    // navigation.navigate(SCREEN.VERIFY);
     try {
       await signup(data).unwrap();
+      setDoc(doc(firestoreDB, 'users', data.phoneNumber), data).then(() => {
+        console.log('saved to firebase successfully');
+      });
+      setDoc(doc(firestoreDB, 'userChats', data.phoneNumber), {}).then(() => {
+        console.log('add empty userChats to firebase successfully');
+      });
       navigation.navigate(SCREEN.VERIFY, {
         signupInfo: data,
       });

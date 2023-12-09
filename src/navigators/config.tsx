@@ -10,6 +10,10 @@ export type AuthStackParamList = {
     | { name: SCREEN; phoneNumber?: string };
   [SCREEN.FORGOT_PASSWORD]: undefined;
   [SCREEN.NEW_PASSWORD]: undefined | { phoneNumber: string };
+
+  //tam
+  [SCREEN.CHAT_HISTORY]: undefined;
+  [SCREEN.CHAT_DETAIL]: undefined;
 };
 
 export type HomeStackParamList = {

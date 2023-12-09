@@ -27,6 +27,8 @@ import {
 } from '../../utils/helpers/rtk-query.helper';
 import Popup from '../../components/Popup';
 import { RootState } from '../../store';
+import { doc, setDoc } from 'firebase/firestore';
+import { firestoreDB } from '../../../firebaseConfig';
 
 const LoginScreen = ({
   navigation,

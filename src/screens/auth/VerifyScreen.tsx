@@ -26,6 +26,8 @@ import {
 import { AuthSignupREQ } from '../../store/auth/request/auth-signup.request';
 import Popup from '../../components/Popup';
 import { POPUP_TYPE } from '../../types/enum/popup.enum';
+import { doc, setDoc } from 'firebase/firestore';
+import { firestoreDB } from '../../../firebaseConfig';
 
 const CELL_COUNT = 6;
 
@@ -64,11 +66,21 @@ const VerifyScreen = ({
           signupInfo &&
           route.params.name !== SCREEN.FORGOT_PASSWORD
         ) {
-          await verifyPhoneNumber({
-            otp: value,
-            signUpModel: signupInfo,
-          }).unwrap();
+          // await verifyPhoneNumber({
+          //   otp: value,
+          //   signUpModel: signupInfo,
+          // }).unwrap();
+          console.log('signup', signupInfo);
 
+          await setDoc(doc(firestoreDB, 'users', signupInfo.phoneNumber), {
+            name: signupInfo.name,
+            phoneNumber: signupInfo.phoneNumber,
+          });
+
+          await setDoc(
+            doc(firestoreDB, 'userChats', signupInfo.phoneNumber),
+            {}
+          );
           // dispatch(setLoginToken({ user: res.user, token: res.token }));
         }
       } catch (error) {

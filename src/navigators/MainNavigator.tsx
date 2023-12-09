@@ -5,6 +5,8 @@ import BottomTabs from './BottomTabs';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import AuthNavigator from './AuthNavigator';
+import ChatHistoryScreen from '../screens/chats/ChatHistoryScreen';
+import ChatDetailScreen from '../screens/chats/ChatDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,6 +22,8 @@ const MainNavigator = () => {
         <Stack.Screen name={SCREEN.AUTH_STACK} component={AuthNavigator} />
       )}
       <Stack.Screen name={SCREEN.BOTTOM_TABS} component={BottomTabs} />
+      {/* <Stack.Screen name={SCREEN.CHAT_HISTORY} component={ChatHistoryScreen} />
+      <Stack.Screen name={SCREEN.CHAT_DETAIL} component={ChatDetailScreen} /> */}
     </Stack.Navigator>
     // <NavigationContainer>
     //   <Stack.Navigator

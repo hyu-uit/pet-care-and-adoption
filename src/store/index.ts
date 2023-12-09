@@ -15,9 +15,11 @@ import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { authApi } from './auth/auth.api';
 import Reactotron from '../ReactotronConfig';
 import sharedReducer from './shared/shared.slice';
+import chatReducer from './chat/chat.slice';
 
 const rootReducer = combineReducers({
   shared: sharedReducer,
+  chat: chatReducer,
   [authApi.reducerPath]: authApi.reducer,
 });
 

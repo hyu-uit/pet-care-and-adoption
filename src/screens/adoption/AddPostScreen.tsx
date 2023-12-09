@@ -6,36 +6,91 @@ import {
   TouchableOpacity,
   TextInput,
   ScrollView,
+  FlatList,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { Entypo } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AdoptionStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
+import * as ImagePicker from 'expo-image-picker';
+
+type ImageType = {
+  uri: string;
+};
 
 const AddPostScreen = ({
   navigation,
 }: NativeStackScreenProps<AdoptionStackParamList, SCREEN.LOCATION>) => {
+  const [img, setImg] = useState([]);
+
   const onLocation = () => {
     navigation.navigate(SCREEN.LOCATION);
   };
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: false,
+      quality: 1,
+      base64: true,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+      const image = {
+        uri: result.assets[0].uri,
+        base64: result.assets[0].base64,
+      };
+      const isMatch = img.some(
+        (item) => item.base64 === result.assets[0].base64
+      );
+      if (isMatch) {
+        return;
+      }
+
+      setImg([...img, image]);
+    }
+  };
+
+  const renderImage = ({ item }) => {
+    return (
+      <TouchableOpacity
+        style={styles.imageWrapper}
+        onPress={() => {
+          console.log(img);
+        }}
+      >
+        <Image source={{ uri: item.uri }} style={styles.image} />
+      </TouchableOpacity>
+    );
+  };
+
+  const renderListFooter = () => {
+    if (img.length < 6)
+      return (
+        <TouchableOpacity style={styles.imageWrapper} onPress={pickImage}>
+          <Entypo name='plus' size={scaleSize(30)} color={COLORS.primary} />
+        </TouchableOpacity>
+      );
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Text style={styles.title}>Images</Text>
       <View style={styles.imageContainer}>
-        <TouchableOpacity style={styles.imageWrapper}>
-          <Image
-            source={{
-              uri: 'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-            }}
-            style={styles.image}
-          />
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.imageWrapper}>
-          <Entypo name='plus' size={scaleSize(30)} color={COLORS.primary} />
-        </TouchableOpacity>
+        <FlatList
+          data={img}
+          keyExtractor={(item) => item.image}
+          renderItem={renderImage} //method to render the data in the way you want using styling u need
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          ListFooterComponent={renderListFooter}
+        />
       </View>
       <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Name</Text>
       <TextInput
@@ -197,7 +252,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     borderRadius: scaleSize(30),
   },
   imageWrapper: {
@@ -209,13 +264,14 @@ const styles = StyleSheet.create({
     borderStyle: 'dashed',
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: scaleSize(10),
   },
   imageContainer: {
     display: 'flex',
     flexDirection: 'row',
     gap: scaleSize(10),
     alignItems: 'center',
-    marginTop: scaleSize(5),
+    marginTop: scaleSize(10),
   },
   input: {
     ...STYLES.input,

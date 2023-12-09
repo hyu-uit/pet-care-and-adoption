@@ -21,7 +21,7 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   kilometer,
 }) => {
   return (
-    <View style={styles.container}>
+    <TouchableOpacity style={styles.container}>
       <View style={styles.favouriteContainer}>
         <TouchableOpacity>
           <Ionicons
@@ -68,7 +68,7 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
           <Text style={styles.infoText}> ({kilometer}km)</Text>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
@@ -76,12 +76,12 @@ export default PetSearchCard;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: scaleSize(227),
+    height: scaleSize(350),
     marginBottom: scaleSize(20),
   },
   image: {
     width: '100%',
-    height: scaleSize(171),
+    height: scaleSize(300),
     borderRadius: scaleSize(20),
   },
   infoContainer: {

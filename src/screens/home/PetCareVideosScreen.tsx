@@ -52,7 +52,7 @@ const PetCareVideosScreen = () => {
   };
   return (
     <View style={styles.container}>
-      <View
+      {/* <View
         style={[
           styles.horizontalWrapper,
           { gap: scaleSize(10), marginBottom: scaleSize(20) },
@@ -66,7 +66,7 @@ const PetCareVideosScreen = () => {
             color={COLORS.whitePrimary}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
 
       <FlatList
         data={data}
@@ -74,6 +74,7 @@ const PetCareVideosScreen = () => {
         renderItem={renderItem} //method to render the data in the way you want using styling u need
         horizontal={false}
         numColumns={2}
+        showsVerticalScrollIndicator={false}
       />
     </View>
   );

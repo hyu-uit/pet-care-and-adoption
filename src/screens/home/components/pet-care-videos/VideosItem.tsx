@@ -11,8 +11,8 @@ type VideoItemProps = {
 };
 const VideosItem: FC<VideoItemProps> = ({ image, title, link }) => {
   return (
-    <View style={styles.container}>
-      <View style={styles.favouriteContainer}>
+    <TouchableOpacity style={styles.container}>
+      {/* <View style={styles.favouriteContainer}>
         <TouchableOpacity>
           <Ionicons
             name='heart'
@@ -20,10 +20,10 @@ const VideosItem: FC<VideoItemProps> = ({ image, title, link }) => {
             color={COLORS.whitePrimary}
           />
         </TouchableOpacity>
-      </View>
+      </View> */}
       <Image source={{ uri: image }} style={styles.image} />
       <Text style={styles.title}>{title}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
     minHeight: scaleSize(174),
     backgroundColor: COLORS.whitePrimary,
     borderRadius: scaleSize(8),
+    marginRight: scaleSize(20),
   },
   image: {
     width: '100%',

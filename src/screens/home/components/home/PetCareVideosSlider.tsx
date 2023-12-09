@@ -44,7 +44,7 @@ const PetCareVideosSlider = () => {
           styles.slide,
           {
             height: isMainImage ? scaleSize(165) : scaleSize(140),
-            width: isMainImage ? scaleSize(124) : scaleSize(103),
+            width: isMainImage ? scaleSize(130) : scaleSize(103),
           },
         ]}
       >
@@ -61,8 +61,8 @@ const PetCareVideosSlider = () => {
         ref={carouselRef}
         data={carouselData}
         renderItem={renderCarouselItem}
-        sliderWidth={scaleSize(300)}
-        itemWidth={scaleSize(110)}
+        sliderWidth={390}
+        itemWidth={110}
         autoplay={true}
         loop={true}
         autoplayInterval={3000} // Adjust the interval for auto slide (in milliseconds)
@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   image: {
     width: '100%',
     height: '100%',
-    resizeMode: 'cover',
+    resizeMode: 'stretch',
     borderRadius: scaleSize(20),
   },
 });
