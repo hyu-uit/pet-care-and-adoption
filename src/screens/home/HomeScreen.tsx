@@ -178,6 +178,11 @@ const HomeScreen = ({
       />
     );
   };
+
+  const onChat = () => {
+    navigation.navigate(SCREEN.CHAT_HISTORY);
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -197,6 +202,16 @@ const HomeScreen = ({
           />
         </View>
         <View style={styles.logoWrapper}>
+          <TouchableOpacity
+            onPress={onChat}
+            style={{ marginRight: scaleSize(3) }}
+          >
+            <Ionicons
+              name='ios-chatbubble-ellipses-outline'
+              size={scaleSize(20)}
+              color={COLORS.grayPrimary}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={onNotification}>
             <Ionicons
               name='notifications-outline'

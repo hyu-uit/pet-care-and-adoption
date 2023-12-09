@@ -13,6 +13,7 @@ import {
 } from 'redux-persist';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { authApi } from './auth/auth.api';
+import { provinceApi } from './province/province.api';
 import Reactotron from '../ReactotronConfig';
 import sharedReducer from './shared/shared.slice';
 import chatReducer from './chat/chat.slice';
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
   shared: sharedReducer,
   chat: chatReducer,
   [authApi.reducerPath]: authApi.reducer,
+  [provinceApi.reducerPath]: provinceApi.reducer,
 });
 
 const persistConfig: PersistConfig<any> = {
@@ -39,7 +41,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [...reduxPersistActions],
       },
-    }).concat(authApi.middleware),
+    }).concat(authApi.middleware, provinceApi.middleware),
   enhancers: [Reactotron.createEnhancer!()],
   devTools: true,
 });

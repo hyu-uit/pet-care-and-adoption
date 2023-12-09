@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  ScrollView,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -80,11 +81,11 @@ const ChatHistoryScreen = ({
 
   const onSelect = async () => {
     const id1 = '0848867679';
-    const id2 = '0377340140';
+    const id2 = '0393751403';
 
     const combinedId = id1 > id2 ? id1 + id2 : id2 + id1;
 
-    const chatDocRef = doc(firestoreDB, 'chats', '01234');
+    const chatDocRef = doc(firestoreDB, 'chats', combinedId);
     try {
       //Check chats exists or not?
       const chatDocSnapshot = await getDoc(chatDocRef);
@@ -102,14 +103,14 @@ const ChatHistoryScreen = ({
         await updateDoc(doc(firestoreDB, 'userChats', '0848867679'), {
           [combinedId + '.userInfo']: {
             //user ID of oyou
-            id: '0377340140',
-            displayName: 'Hong Le',
+            id: '0393751403',
+            displayName: 'Bin',
           },
           [combinedId + '.date']: serverTimestamp(),
         });
 
         //Update for other user who you chat with as well
-        await updateDoc(doc(firestoreDB, 'userChats', '0377340140'), {
+        await updateDoc(doc(firestoreDB, 'userChats', '0393751403'), {
           [combinedId + '.userInfo']: {
             //user ID of other people who you chat with
             id: '0848867679',
@@ -171,52 +172,53 @@ const ChatHistoryScreen = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <ScrollView style={styles.container}>
       {/* <TouchableOpacity onPress={onSelect}>
         <Text>SSS</Text>
       </TouchableOpacity> */}
-      {Object.entries(chats).map((chat, index) => (
-        <TouchableOpacity
-          onPress={() => {
-            onDetailChat(chat[1]);
-          }}
-          style={styles.chatWrapper}
-          key={index}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: scaleSize(11),
+      {chats &&
+        Object.entries(chats).map((chat, index) => (
+          <TouchableOpacity
+            onPress={() => {
+              onDetailChat(chat[1]);
             }}
+            style={styles.chatWrapper}
+            key={index}
           >
-            <Image
-              source={{
-                uri: 'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: scaleSize(11),
               }}
-              style={styles.image}
-            ></Image>
-            <View>
-              <Text style={styles.name}>{chat[1].userInfo.displayName}</Text>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  gap: scaleSize(20),
+            >
+              <Image
+                source={{
+                  uri: 'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
                 }}
-              >
-                <Text style={styles.message}>
-                  {truncateText(chat[1].lastMessage?.text || '', 20)}
-                </Text>
-                <Text style={styles.message}>
-                  {convertTimeStamp(chat[1].date)}
-                </Text>
+                style={styles.image}
+              ></Image>
+              <View>
+                <Text style={styles.name}>{chat[1].userInfo.displayName}</Text>
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: scaleSize(20),
+                  }}
+                >
+                  <Text style={styles.message}>
+                    {truncateText(chat[1].lastMessage?.text || '', 20)}
+                  </Text>
+                  <Text style={styles.message}>
+                    {convertTimeStamp(chat[1].date)}
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        </TouchableOpacity>
-      ))}
-    </SafeAreaView>
+          </TouchableOpacity>
+        ))}
+    </ScrollView>
   );
 };
 

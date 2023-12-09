@@ -13,6 +13,7 @@ import {
 import AdoptionStack from './AdoptionStackNavigator';
 import PostStackNavigator from './PostStackNavigator';
 import PetCareHandBookScreen from '../screens/pet-care/PetCareHandBookScreen';
+import ProfileScreen from '../screens/profile/ProfileScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -118,7 +119,7 @@ const BottomTabs = () => {
       />
       <Tab.Screen
         name='Profile'
-        component={HomeStackNavigator}
+        component={ProfileScreen}
         options={{
           tabBarIcon: ({ focused }) => (
             <FontAwesome

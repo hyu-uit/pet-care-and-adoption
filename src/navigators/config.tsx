@@ -25,9 +25,15 @@ export type HomeStackParamList = {
   [SCREEN.NOTIFICATION]: undefined;
   [SCREEN.MENU]: undefined;
   [SCREEN.AUTH_STACK]: undefined;
+  [SCREEN.CHAT_HISTORY]: undefined;
 };
 
 export type AdoptionStackParamList = {
   [SCREEN.ADD_POST]: undefined;
   [SCREEN.LOCATION]: undefined;
+};
+
+export type ProfileStackParamList = {
+  [SCREEN.PROFILE]: undefined;
+  [SCREEN.EDIT_PROFILE]: undefined;
 };

@@ -11,6 +11,7 @@ type PetSearchCardProps = {
   type: string;
   location: string;
   kilometer: number;
+  myPet?: boolean;
 };
 const PetSearchCard: FC<PetSearchCardProps> = ({
   image,
@@ -19,18 +20,21 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   type,
   location,
   kilometer,
+  myPet,
 }) => {
   return (
     <TouchableOpacity style={styles.container}>
-      <View style={styles.favouriteContainer}>
-        <TouchableOpacity>
-          <Ionicons
-            name='heart'
-            size={scaleSize(21)}
-            color={COLORS.whitePrimary}
-          />
-        </TouchableOpacity>
-      </View>
+      {!myPet && (
+        <View style={styles.favouriteContainer}>
+          <TouchableOpacity>
+            <Ionicons
+              name='heart'
+              size={scaleSize(21)}
+              color={COLORS.whitePrimary}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
       <Image source={{ uri: image }} style={styles.image} />
       <View style={styles.infoContainer}>
         <View style={styles.horizontalWrapper}>

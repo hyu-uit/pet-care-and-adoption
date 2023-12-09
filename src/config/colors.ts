@@ -27,5 +27,6 @@ export default {
   yellowPrimay: '#FFCC00',
 
   popupBackground: 'rgba(0,0,0,0.5)',
+  transparent: 'rgba(0,0,0,0.0)',
   redPrimary: '#EA0B0B',
 };
