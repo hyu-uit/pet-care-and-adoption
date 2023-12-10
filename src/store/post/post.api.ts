@@ -9,7 +9,7 @@ export const postApi = createApi({
     baseUrl: `https://petcareapi.azurewebsites.net/api/Post/`,
   }),
   endpoints: (build) => ({
-    addPost: build.mutation<void, AddPostREQ>({
+    addPost: build.mutation<string, AddPostREQ>({
       query: (body) => ({
         url: 'AddPost',
         method: HTTP_METHOD.POST,

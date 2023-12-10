@@ -32,11 +32,12 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
         <View style={styles.wrapper}>
           <Dropdown
             data={[
-              { value: 0, label: 'Update history' },
+              { value: 0, label: 'Addd to history' },
               { value: 1, label: 'Next vaccination' },
             ]}
             labelField={'label'}
             valueField={'value'}
+            placeholderStyle={{ color: COLORS.grayPrimary }}
             placeholder='Select type of vaccination'
             style={[
               styles.input,

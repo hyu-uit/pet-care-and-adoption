@@ -18,11 +18,11 @@ export const petTypeApi = createApi({
     }),
     getBreeds: build.query<PetTypeBreedsRESP, void>({
       query: (body) => ({
-        url: `Breeds`,
+        url: `${body}`,
         method: HTTP_METHOD.GET,
       }),
     }),
   }),
 });
 
-export const { useGetSpeciesQuery, useGetBreedsQuery } = petTypeApi;
+export const { useGetSpeciesQuery, useLazyGetBreedsQuery } = petTypeApi;

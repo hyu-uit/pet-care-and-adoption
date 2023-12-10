@@ -1,14 +1,16 @@
 export type AddPostREQ = {
-  petName: string;
-  sex: string;
-  species: string;
-  breed: string;
-  weight: string;
-  latLocation: string;
-  destLocation: string;
-  nameLocation: string;
-  isVaccinated: boolean;
-  isAdopt: boolean;
-  targetFee: string;
-  userID: string;
+  postModel: {
+    petName: string;
+    sex: string;
+    species: string;
+    breed: string;
+    weight: string;
+    district: string;
+    province: string;
+    description: string;
+    isVaccinated: boolean;
+    isAdopt: boolean;
+    userID: string;
+  };
+  images: string[];
 };

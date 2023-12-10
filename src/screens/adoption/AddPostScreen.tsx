@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
-import { Entypo } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AdoptionStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
@@ -22,12 +22,19 @@ import {
   useLazyGetDistrictQuery,
 } from '../../store/province/province.api';
 import {
-  useGetBreedsQuery,
+  useLazyGetBreedsQuery,
   useGetSpeciesQuery,
 } from '../../store/pet-type/pet-type.api';
 import { Controller, useForm } from 'react-hook-form';
 import { AddPostType } from '../../types/add-post.type';
 import { SEX } from '../../types/enum/sex.enum';
+import { useAddPostMutation } from '../../store/post/post.api';
+import { AddPostREQ } from '../../store/post/request/add-post.request';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import Popup from '../../components/Popup';
+import { POPUP_TYPE } from '../../types/enum/popup.enum';
+import Button from '../../components/Button';
 
 type ImageType = {
   uri: string;
@@ -39,18 +46,22 @@ const AddPostScreen = ({
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const { data: dataSpecices } = useGetSpeciesQuery();
-  const { data: dataBreeds } = useGetBreedsQuery();
+  const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
+  const [publishPost, { isLoading }] = useAddPostMutation();
 
   const {
     control,
     handleSubmit,
     setValue,
+    reset,
+    watch,
     formState: { errors },
   } = useForm<AddPostType>({
     defaultValues: {
       sex: SEX.MALE,
       isAdopt: true,
       isVaccinated: false,
+      description: '',
     },
   });
 
@@ -59,6 +70,13 @@ const AddPostScreen = ({
   const [districts, setDistricts] = useState([]);
   const [species, setSpecies] = useState([]);
   const [breeds, setBreeds] = useState([]);
+  const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
+
+  const base64Image = watch('images');
+
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
 
   useEffect(() => {
     if (!dataProvinces) return;
@@ -113,9 +131,8 @@ const AddPostScreen = ({
       base64: true,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
+      // const image = result.assets[0].base64;
       const image = {
         uri: result.assets[0].uri,
         base64: result.assets[0].base64,
@@ -126,22 +143,33 @@ const AddPostScreen = ({
       if (isMatch) {
         return;
       }
-
       setImg([...img, image]);
-      setValue('images', [...img, image]);
+      setValue('images', [...base64Image, image.base64]);
     }
   };
 
-  const renderImage = ({ item }) => {
+  const renderImage = ({ item, index }) => {
     return (
-      <TouchableOpacity
-        style={styles.imageWrapper}
-        onPress={() => {
-          console.log(img);
-        }}
-      >
-        <Image source={{ uri: item.uri }} style={styles.image} />
-      </TouchableOpacity>
+      <View>
+        <TouchableOpacity
+          style={{ position: 'absolute', right: scaleSize(10), zIndex: 1000 }}
+          onPress={() => {
+            const newData = [...img];
+            newData.splice(index, 1);
+            setImg(newData);
+            setValue('images', newData);
+          }}
+        >
+          <AntDesign
+            name='closecircle'
+            size={scaleSize(15)}
+            color={COLORS.primary}
+          />
+        </TouchableOpacity>
+        <View style={styles.imageWrapper}>
+          <Image source={{ uri: item.uri }} style={styles.image} />
+        </View>
+      </View>
     );
   };
 
@@ -154,7 +182,38 @@ const AddPostScreen = ({
       );
   };
 
-  const handleUpload = () => {};
+  const handleUpload = async (data) => {
+    try {
+      const body: AddPostREQ = {
+        postModel: {
+          petName: data.name,
+          sex: data.sex,
+          species: data.specie.label,
+          breed: data.breed.label,
+          weight: data.weight,
+          district: data.district.label,
+          province: data.province.label,
+          isVaccinated: data.isVaccinated,
+          isAdopt: data.isAdopt,
+          userID: myPhoneNumber,
+          description: data.description,
+        },
+        // images: data.images.map((image) => ({ image })),
+        images: Array.isArray(data.images)
+          ? data.images.map((image) => ({ image }))
+          : [],
+      };
+      await publishPost(body).unwrap();
+
+      setIsSuccessPopup(true);
+      setBreeds([]);
+      reset();
+      setDistricts([]);
+      setImg([]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const validateImageExistence = () => {
     if (img.length <= 0) {
@@ -164,6 +223,15 @@ const AddPostScreen = ({
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <Popup
+        title='Published your post'
+        content='Everyone can see your pet now'
+        onCancel={() => {
+          setIsSuccessPopup(false);
+        }}
+        type={POPUP_TYPE.SUCCESS}
+        open={isSuccessPopup}
+      />
       <Text style={styles.title}>Images</Text>
       <Controller
         control={control}
@@ -246,6 +314,10 @@ const AddPostScreen = ({
         )}
         rules={{
           required: 'Age is required',
+          pattern: {
+            value: /^[0-9]*(\.[0-9]*)?$/,
+            message: 'Only numeric values are allowed',
+          },
         }}
       />
       {errors.age && <Text style={styles.errorText}>{errors.age.message}</Text>}
@@ -269,7 +341,10 @@ const AddPostScreen = ({
               styles.input,
               { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
             ]}
-            onChange={onChange}
+            onChange={(value) => {
+              onChange(value);
+              getBreeds(value.value);
+            }}
             containerStyle={{
               minHeight: scaleSize(100),
               borderRadius: scaleSize(10),
@@ -342,6 +417,10 @@ const AddPostScreen = ({
         )}
         rules={{
           required: 'Weight is required',
+          pattern: {
+            value: /^[0-9]*(\.[0-9]*)?$/,
+            message: 'Only numeric values are allowed',
+          },
         }}
       />
       {errors.weight && (
@@ -351,7 +430,7 @@ const AddPostScreen = ({
       <View style={styles.selectionContainer}>
         <View>
           <Text style={styles.title}>Sex</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
+          <View style={{ marginTop: scaleSize(5) }}>
             <Controller
               control={control}
               name='sex'
@@ -440,7 +519,7 @@ const AddPostScreen = ({
 
         <View>
           <Text style={styles.title}>Option</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
+          <View style={{ marginTop: scaleSize(5) }}>
             <Controller
               control={control}
               name='isAdopt'
@@ -514,7 +593,7 @@ const AddPostScreen = ({
         </View>
         <View>
           <Text style={styles.title}>Vaccinated</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
+          <View style={{ marginTop: scaleSize(5) }}>
             <Controller
               control={control}
               name='isVaccinated'
@@ -684,12 +763,12 @@ const AddPostScreen = ({
         )}
       />
 
-      <TouchableOpacity
-        style={styles.button}
+      <Button
         onPress={handleSubmit(handleUpload.bind(null))}
-      >
-        <Text style={styles.buttonText}>Upload</Text>
-      </TouchableOpacity>
+        title='Publish'
+        style={{ marginTop: scaleSize(19) }}
+        isLoading={isLoading}
+      />
     </ScrollView>
   );
 };
@@ -754,16 +833,19 @@ const styles = StyleSheet.create({
     marginTop: scaleSize(20),
   },
   optionWrapper: {
-    paddingHorizontal: scaleSize(8),
-    paddingVertical: scaleSize(3),
+    paddingHorizontal: scaleSize(15),
+    paddingVertical: scaleSize(10),
     backgroundColor: COLORS.tertiary,
     borderWidth: scaleSize(1),
     borderColor: COLORS.grayLight,
     borderRadius: scaleSize(5),
     marginRight: scaleSize(10),
+    marginTop: scaleSize(15),
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   optionText: {
-    ...FONTS.body6,
+    ...FONTS.body4,
     color: COLORS.primary,
   },
   button: {
