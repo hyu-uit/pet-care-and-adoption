@@ -66,6 +66,7 @@ const styles = StyleSheet.create({
     borderRadius: scaleSize(25),
   },
   textWrapper: {
+    maxWidth: '80%',
     paddingHorizontal: scaleSize(10),
     backgroundColor: COLORS.tertiary,
     height: '100%',

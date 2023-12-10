@@ -8,87 +8,60 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AdoptionStackParamList } from '../../navigators/config';
+import {
+  AdoptionStackParamList,
+  ProfileStackParamList,
+} from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
 import * as ImagePicker from 'expo-image-picker';
-import { Dropdown } from 'react-native-element-dropdown';
-import {
-  useGetProvincesQuery,
-  useLazyGetDistrictQuery,
-} from '../../store/province/province.api';
-import {
-  useGetBreedsQuery,
-  useGetSpeciesQuery,
-} from '../../store/pet-type/pet-type.api';
+import VaccinatedItem from './components/VaccinatedItem';
+import VaccinatedModal from './components/VaccinatedModal';
 
 type ImageType = {
   uri: string;
 };
 
-const AddPostScreen = ({
+const ProfileMyPetDetail = ({
   navigation,
-}: NativeStackScreenProps<AdoptionStackParamList, SCREEN.LOCATION>) => {
-  const { data: dataProvinces } = useGetProvincesQuery();
-  const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
-  const { data: dataSpecices } = useGetSpeciesQuery();
-  const { data: dataBreeds } = useGetBreedsQuery();
-
-  console.log('dataspe', dataSpecices);
-
+}: NativeStackScreenProps<ProfileStackParamList, SCREEN.MY_PET_DETAIL>) => {
   const [img, setImg] = useState([]);
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [species, setSpecies] = useState([]);
-  const [breeds, setBreeds] = useState([]);
 
-  useEffect(() => {
-    if (!dataProvinces) return;
-    const provincesUpdate = dataProvinces.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setProvinces(provincesUpdate);
-  }, [dataProvinces]);
+  const [isModalShown, setIsModalShown] = useState(false);
 
-  useEffect(() => {
-    if (!dataDistricts) return;
-    const districtsUpdate = dataDistricts.districts.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setDistricts(districtsUpdate);
-  }, [dataDistricts]);
-
-  useEffect(() => {
-    if (!dataSpecices) return;
-    const speciesUpdate = dataSpecices.map((item) => ({
-      label: item.speciesName,
-      value: item.speciesID,
-    }));
-    setSpecies(speciesUpdate);
-  }, [dataSpecices]);
-
-  useEffect(() => {
-    if (!dataBreeds) return;
-    const breedsUpdate = dataBreeds.map((item) => ({
-      label: item.breedName,
-      value: item.breedID,
-    }));
-    setBreeds(breedsUpdate);
-  }, [dataBreeds]);
-
-  const onSelectProvince = (value) => {
-    getDistricts(value.value);
+  const onOpenModal = () => {
+    setIsModalShown(true);
   };
 
-  const onLocation = () => {
-    navigation.navigate(SCREEN.LOCATION);
+  const onCloseModal = () => {
+    setIsModalShown(false);
   };
+
+  const vaccinatedHistory = [
+    {
+      date: '28/12/2023',
+      note: 'Tiêm ngừa dại lần 1',
+    },
+    {
+      date: '28/12/2023',
+      note: 'Tiêm ngừa dại lần 1',
+    },
+  ];
+
+  const nextVaccination = [
+    {
+      date: '28/12/2023',
+      note: 'Tiêm ngừa dại lần 1',
+    },
+    {
+      date: '28/12/2023',
+      note: 'Tiêm ngừa dại lần 1',
+    },
+  ];
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -139,8 +112,13 @@ const AddPostScreen = ({
       );
   };
 
+  const renderItemHistory = ({ item }) => {
+    return <VaccinatedItem date={item.date} note={item.note} />;
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      <VaccinatedModal open={isModalShown} onClose={onCloseModal} />
       <Text style={styles.title}>Images</Text>
       <View style={styles.imageContainer}>
         <FlatList
@@ -176,40 +154,13 @@ const AddPostScreen = ({
         />
       </View>
 
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Specie</Text>
-      <Dropdown
-        data={species}
-        labelField={'label'}
-        valueField={'value'}
-        placeholder='Select specie'
-        placeholderStyle={{ color: COLORS.grayPrimary }}
-        style={[
-          styles.input,
-          { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-        ]}
-        onChange={onSelectProvince}
-        containerStyle={{
-          minHeight: scaleSize(100),
-          borderRadius: scaleSize(10),
-        }}
-      />
-
       <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Breed</Text>
-      <Dropdown
-        data={breeds}
-        labelField={'label'}
-        valueField={'value'}
-        placeholder='Select breed'
-        placeholderStyle={{ color: COLORS.grayPrimary }}
-        style={[
-          styles.input,
-          { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-        ]}
-        onChange={onSelectProvince}
-        containerStyle={{
-          minHeight: scaleSize(100),
-          borderRadius: scaleSize(10),
-        }}
+      <TextInput
+        placeholder={`Enter your pet\'s breed`}
+        onChangeText={() => {}}
+        secureTextEntry={false}
+        placeholderTextColor={COLORS.grayC2C2CE}
+        style={[styles.input, { marginTop: scaleSize(5) }]}
       />
 
       <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Weight</Text>
@@ -254,67 +205,52 @@ const AddPostScreen = ({
             </View>
           </View>
         </View>
-        <View>
-          <Text style={styles.title}>Option</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
-            <View style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Adopt</Text>
-            </View>
-            <View style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Lost</Text>
-            </View>
-          </View>
-        </View>
-        <View>
-          <Text style={styles.title}>Vaccinated</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
-            <View style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Yes</Text>
-            </View>
-            <View style={styles.optionWrapper}>
-              <Text style={styles.optionText}>No</Text>
-            </View>
-          </View>
-        </View>
       </View>
 
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Location</Text>
-      <Dropdown
-        data={provinces}
-        labelField={'label'}
-        valueField={'value'}
-        placeholder='Select province'
-        placeholderStyle={{ color: COLORS.grayPrimary }}
-        style={[
-          styles.input,
-          { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-        ]}
-        onChange={onSelectProvince}
-        containerStyle={{
-          height: scaleSize(200),
-          borderRadius: scaleSize(10),
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          marginTop: scaleSize(20),
         }}
-      />
-      <Dropdown
-        data={districts}
-        labelField={'label'}
-        valueField={'value'}
-        placeholder='Select district'
-        placeholderStyle={{ color: COLORS.grayPrimary }}
-        style={[
-          styles.input,
-          { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-        ]}
-        onChange={() => {}}
-        containerStyle={{
-          height: scaleSize(200),
-          borderRadius: scaleSize(10),
-        }}
-      />
+      >
+        <Text style={styles.title}>Vaccinated</Text>
+        <TouchableOpacity
+          style={{ marginLeft: scaleSize(5) }}
+          onPress={onOpenModal}
+        >
+          <Ionicons
+            name='add-circle'
+            size={scaleSize(24)}
+            color={COLORS.primary}
+          />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.vaccinatedWrapper}>
+        <Text style={styles.vaccinatedTitle}>Hisotry</Text>
+        <FlatList
+          data={vaccinatedHistory}
+          keyExtractor={(item) => item.title}
+          renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={1}
+          showsVerticalScrollIndicator={false}
+        />
+        <Text style={styles.vaccinatedTitle}>Next Vaccination</Text>
+        <FlatList
+          data={nextVaccination}
+          keyExtractor={(item) => item.title}
+          renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={1}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
 
       <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Describe</Text>
       <TextInput
-        placeholder={`Description about this pet`}
+        placeholder={`Enter your pet\'s breed`}
         onChangeText={() => {}}
         secureTextEntry={false}
         placeholderTextColor={COLORS.grayC2C2CE}
@@ -335,7 +271,7 @@ const AddPostScreen = ({
   );
 };
 
-export default AddPostScreen;
+export default ProfileMyPetDetail;
 
 const styles = StyleSheet.create({
   container: {
@@ -414,5 +350,20 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     ...STYLES.buttonText,
+  },
+  vaccinatedWrapper: {
+    width: '100%',
+    minHeight: scaleSize(150),
+    borderRadius: scaleSize(10),
+    backgroundColor: COLORS.tertiary,
+    borderWidth: scaleSize(1),
+    borderColor: COLORS.grayLight,
+    padding: scaleSize(20),
+    marginTop: scaleSize(10),
+  },
+  vaccinatedTitle: {
+    ...FONTS.body3,
+    color: COLORS.primary,
+    marginBottom: scaleSize(5),
   },
 });

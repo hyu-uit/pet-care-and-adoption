@@ -9,6 +9,7 @@ import ProfileLostPets from './ProfileLostPets';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
+import ProfileRequest from './components/ProfileRequest';
 
 const ProfileScreen = ({
   navigation,
@@ -155,9 +156,10 @@ const ProfileScreen = ({
         </View>
       </View>
 
-      {tab === 0 && <ProfileMyPets />}
+      {tab === 0 && <ProfileMyPets navigation={navigation} />}
       {tab === 1 && <ProfileMyLovedPets />}
       {tab === 2 && <ProfileLostPets />}
+      {tab === 3 && <ProfileRequest />}
     </View>
   );
 };

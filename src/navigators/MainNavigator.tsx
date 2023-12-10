@@ -9,6 +9,7 @@ import ChatHistoryScreen from '../screens/chats/ChatHistoryScreen';
 import ChatDetailScreen from '../screens/chats/ChatDetailScreen';
 import { COLORS } from '../config';
 import ProfileEditScreen from '../screens/profile/ProfileEditScreen';
+import ProfileMyPetDetail from '../screens/profile/ProfileMyPetDetail';
 
 const Stack = createNativeStackNavigator();
 
@@ -45,6 +46,17 @@ const MainNavigator = () => {
           headerShadowVisible: false,
           headerShown: true,
           headerTitle: 'Message',
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.MY_PET_DETAIL}
+        component={ProfileMyPetDetail}
+        options={{
+          headerTintColor: COLORS.blackContent,
+          headerStyle: { backgroundColor: COLORS.background },
+          headerShadowVisible: false,
+          headerShown: true,
+          headerTitle: 'My pet',
         }}
       />
     </Stack.Navigator>

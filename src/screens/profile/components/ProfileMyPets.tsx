@@ -5,13 +5,18 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React from 'react';
+import React, { FC } from 'react';
 import PetSearchCard from '../../home/components/search/PetSearchCard';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { SIZES, FONTS, COLORS } from '../../../config';
 import { Foundation } from '@expo/vector-icons';
+import { SCREEN } from '../../../navigators/AppRoute';
 
-const ProfileMyPets = () => {
+type ProfileMyPetProps = {
+  navigation: any;
+};
+
+const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
   const data = [
     {
       image:
@@ -65,6 +70,10 @@ const ProfileMyPets = () => {
     );
   };
 
+  const onAddMyPet = () => {
+    navigation.navigate(SCREEN.MY_PET_DETAIL);
+  };
+
   return (
     <View style={styles.container}>
       <FlatList
@@ -76,7 +85,7 @@ const ProfileMyPets = () => {
         style={{ marginTop: scaleSize(20) }}
         showsVerticalScrollIndicator={false}
         ListHeaderComponent={
-          <TouchableOpacity style={styles.addButton}>
+          <TouchableOpacity style={styles.addButton} onPress={onAddMyPet}>
             <Foundation
               name='plus'
               size={scaleSize(24)}

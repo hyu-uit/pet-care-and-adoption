@@ -4,6 +4,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES } from '../../config';
@@ -64,6 +66,7 @@ const ChatDetailScreen = () => {
           />
         ))}
       </ScrollView>
+
       <ChatMessageBox
         chatId={combinedId}
         myPhoneNumber={myPhoneNumber}

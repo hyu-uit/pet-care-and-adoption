@@ -1,14 +1,15 @@
+import React, { FC, useState } from 'react';
 import {
   View,
-  Text,
-  StyleSheet,
   TextInput,
   TouchableOpacity,
+  StyleSheet,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
-import React, { FC, useState } from 'react';
+import { FontAwesome } from '@expo/vector-icons';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { COLORS, FONTS, SIZES } from '../../../config';
-import { FontAwesome } from '@expo/vector-icons';
 import {
   Timestamp,
   arrayUnion,
@@ -62,18 +63,31 @@ const ChatMessageBox: FC<ChatMessageBoxProps> = ({
   };
 
   return (
-    <View style={styles.container}>
-      <TextInput
-        placeholder='Write a message'
-        style={styles.input}
-        multiline
-        value={text}
-        onChangeText={(message) => setText(message)}
-      />
-      <TouchableOpacity onPress={onSend}>
-        <FontAwesome name='send' size={scaleSize(24)} color={COLORS.primary} />
-      </TouchableOpacity>
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+      keyboardVerticalOffset={
+        Platform.OS === 'ios' ? -SIZES.bottomBarHeight - scaleSize(10) : 0
+      }
+    >
+      <View style={styles.inputContainer}>
+        <TextInput
+          placeholder='Write a message'
+          style={styles.input}
+          multiline
+          value={text}
+          onChangeText={(message) => setText(message)}
+        />
+        <TouchableOpacity onPress={onSend}>
+          <FontAwesome
+            name='send'
+            size={scaleSize(24)}
+            color={COLORS.primary}
+            style={{ marginRight: scaleSize(20) }}
+          />
+        </TouchableOpacity>
+      </View>
+    </KeyboardAvoidingView>
   );
 };
 
@@ -81,25 +95,27 @@ export default ChatMessageBox;
 
 const styles = StyleSheet.create({
   container: {
-    display: 'flex',
-    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    paddingHorizontal: scaleSize(10),
+  },
+  inputContainer: {
     flexDirection: 'row',
     minHeight: scaleSize(50),
     backgroundColor: COLORS.whitePrimary,
     justifyContent: 'space-between',
     alignItems: 'center',
-    position: 'absolute',
-    bottom: 0,
-    alignSelf: 'center',
-    marginBottom: SIZES.bottomBarHeight,
     borderWidth: scaleSize(1),
     borderColor: COLORS.grayLight,
     borderRadius: scaleSize(17),
-    paddingHorizontal: scaleSize(10),
-    maxHeight: scaleSize(100),
+    marginBottom: SIZES.bottomBarHeight + scaleSize(10), // Adjust this value as needed
   },
   input: {
     ...FONTS.body1,
     flex: 1,
+    paddingVertical: scaleSize(8),
+    paddingHorizontal: scaleSize(10),
   },
 });

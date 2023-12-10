@@ -13,16 +13,20 @@ import {
 } from 'redux-persist';
 import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { authApi } from './auth/auth.api';
+import { postApi } from './post/post.api';
 import { provinceApi } from './province/province.api';
 import Reactotron from '../ReactotronConfig';
 import sharedReducer from './shared/shared.slice';
 import chatReducer from './chat/chat.slice';
+import { petTypeApi } from './pet-type/pet-type.api';
 
 const rootReducer = combineReducers({
   shared: sharedReducer,
   chat: chatReducer,
   [authApi.reducerPath]: authApi.reducer,
   [provinceApi.reducerPath]: provinceApi.reducer,
+  [postApi.reducerPath]: postApi.reducer,
+  [petTypeApi.reducerPath]: petTypeApi.reducer,
 });
 
 const persistConfig: PersistConfig<any> = {
@@ -41,7 +45,12 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [...reduxPersistActions],
       },
-    }).concat(authApi.middleware, provinceApi.middleware),
+    }).concat(
+      authApi.middleware,
+      provinceApi.middleware,
+      postApi.middleware,
+      petTypeApi.middleware
+    ),
   enhancers: [Reactotron.createEnhancer!()],
   devTools: true,
 });
