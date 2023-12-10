@@ -7,7 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { COLORS, SIZES } from '../../config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
@@ -31,12 +31,19 @@ const ChatDetailScreen = () => {
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+  const scrollViewRef = useRef(null);
 
   const navigation = useNavigation();
   const combinedId =
     myPhoneNumber > otherPhoneNumber
       ? myPhoneNumber + otherPhoneNumber
       : otherPhoneNumber + myPhoneNumber;
+
+  useEffect(() => {
+    if (scrollViewRef.current) {
+      scrollViewRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
 
   useEffect(() => {
     const unSub = onSnapshot(doc(firestoreDB, 'chats', combinedId), (doc) => {
@@ -55,7 +62,14 @@ const ChatDetailScreen = () => {
   return (
     <SafeAreaView style={styles.container}>
       <ChatHeader displayName={otherName} onBack={onGoBack} />
-      <ScrollView style={{ flex: 1, marginBottom: SIZES.bottomPadding }}>
+      <ScrollView
+        style={{ flex: 1, marginBottom: SIZES.bottomPadding }}
+        ref={scrollViewRef}
+        onContentSizeChange={() =>
+          scrollViewRef.current.scrollToEnd({ animated: true })
+        }
+        showsVerticalScrollIndicator={false}
+      >
         {messages.map((m) => (
           <ChatMessage
             key={m}

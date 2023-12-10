@@ -1,4 +1,11 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Linking,
+} from 'react-native';
 import React, { FC } from 'react';
 import { COLORS, SIZES, FONTS } from '../../../config';
 import { scaleSize } from '../../../utils/DeviceUtils';
@@ -28,7 +35,11 @@ const ChatHeader: FC<ChatHeaderProps> = ({ displayName, onBack }) => {
         />
         <Text style={styles.name}>{displayName}</Text>
       </View>
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => {
+          Linking.openURL('tel:+1234567890');
+        }}
+      >
         <FontAwesome name='phone' size={scaleSize(24)} color={COLORS.primary} />
       </TouchableOpacity>
     </View>
