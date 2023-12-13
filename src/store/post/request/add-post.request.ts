@@ -12,5 +12,5 @@ export type AddPostREQ = {
     isAdopt: boolean;
     userID: string;
   };
-  images: string[];
+  images: { image: string }[];
 };

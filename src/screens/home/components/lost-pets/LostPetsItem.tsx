@@ -8,15 +8,15 @@ type LostPetsItemProps = {
   image: string;
   gender: string;
   name: string;
-  address: string;
-  kilometer: number;
+  district: string;
+  province: string;
 };
 const LostPetsItem: FC<LostPetsItemProps> = ({
   image,
   gender,
   name,
-  address,
-  kilometer,
+  district,
+  province,
 }) => {
   return (
     <TouchableOpacity style={styles.container}>
@@ -53,8 +53,9 @@ const LostPetsItem: FC<LostPetsItemProps> = ({
             size={scaleSize(8)}
             color={COLORS.grayABABAB}
           />
-          <Text style={styles.address}>{address}</Text>
-          <Text style={styles.address}> ({kilometer}km)</Text>
+          <Text style={styles.address}>
+            {district}, {province}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>

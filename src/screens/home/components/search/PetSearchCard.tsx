@@ -3,14 +3,16 @@ import React, { FC } from 'react';
 import { scaleSize } from '../../../../utils/DeviceUtils';
 import { COLORS, SIZES, FONTS, IMAGES } from '../../../../config';
 import { Feather, Ionicons } from '@expo/vector-icons';
+import { SEX } from '../../../../types/enum/sex.enum';
 
 type PetSearchCardProps = {
   image: string;
   name: string;
   age: number;
   type: string;
-  location: string;
-  kilometer: number;
+  gender: SEX;
+  district: string;
+  province: string;
   myPet?: boolean;
 };
 const PetSearchCard: FC<PetSearchCardProps> = ({
@@ -18,9 +20,10 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   name,
   age,
   type,
-  location,
-  kilometer,
+  district,
+  province,
   myPet,
+  gender,
 }) => {
   return (
     <TouchableOpacity style={styles.container}>
@@ -40,11 +43,19 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
         <View style={styles.horizontalWrapper}>
           <Text style={styles.name}>{name}</Text>
           <View style={styles.iconWrapper}>
-            <Ionicons
-              name='male'
-              size={scaleSize(18)}
-              color={COLORS.blue8EB1E5}
-            />
+            {gender === SEX.MALE ? (
+              <Ionicons
+                name='female'
+                size={scaleSize(18)}
+                color={COLORS.blue8EB1E5}
+              />
+            ) : (
+              <Ionicons
+                name='female'
+                size={scaleSize(18)}
+                color={COLORS.pinkF672E1}
+              />
+            )}
           </View>
         </View>
         <View style={[styles.horizontalWrapper, { marginTop: scaleSize(10) }]}>
@@ -68,8 +79,9 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
             size={scaleSize(10)}
             color={COLORS.primary}
           />
-          <Text style={styles.infoText}>{location}</Text>
-          <Text style={styles.infoText}> ({kilometer}km)</Text>
+          <Text style={styles.infoText}>
+            {district}, {province}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>

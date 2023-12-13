@@ -1,12 +1,26 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import React from 'react';
+import React, { FC } from 'react';
 import { scaleSize } from '../../../../utils/DeviceUtils';
 import { COLORS, IMAGES } from '../../../../config';
+import { CATEGORY } from '../../../../types/enum/category.enum';
 
-const CategoryItem = () => {
+type CategoryItemProps = {
+  type: CATEGORY;
+};
+
+const CategoryItem: FC<CategoryItemProps> = ({ type }) => {
   return (
     <TouchableOpacity style={styles.container}>
-      <Image source={IMAGES.CAT} style={styles.icon} />
+      <Image
+        source={
+          type === CATEGORY.CAT
+            ? IMAGES.CAT
+            : type === CATEGORY.DOG
+            ? IMAGES.DOG
+            : IMAGES.DOG //hinh other o day
+        }
+        style={styles.icon}
+      />
     </TouchableOpacity>
   );
 };

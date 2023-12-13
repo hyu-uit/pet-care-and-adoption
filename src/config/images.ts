@@ -1,6 +1,7 @@
 import logo from '../assets/images/logo.png';
 import brandName from '../assets/images/brand-name.png';
 import cat from '../assets/images/cat.png';
+import dog from '../assets/images/dog.png';
 import filter from '../assets/images/filter.png';
 import foot from '../assets/images/foot.png';
 import book from '../assets/images/book.png';
@@ -14,6 +15,7 @@ export default {
   LOGO: logo,
   BRAND_NAME: brandName,
   CAT: cat,
+  DOG: dog,
   FILTER: filter,
   FOOT: foot,
   BOOK: book,

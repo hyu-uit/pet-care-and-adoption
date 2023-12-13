@@ -25,60 +25,99 @@ import {
   HomeStackParamList,
 } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
+import { useGetPostsQuery } from '../../store/post/post.api';
+import { Post } from '../../store/post/response/get-add.response';
 
 const HomeScreen = ({
   navigation,
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.HOME>) => {
-  const adoptedList = [
-    {
+  const { data: allPosts } = useGetPostsQuery();
+
+  const limitedAdoptPosts =
+    allPosts?.length > 7
+      ? allPosts?.filter((post) => post.isAdopt === true).slice(0, 7)
+      : allPosts;
+
+  const limitedLostPosts =
+    allPosts?.length > 7
+      ? allPosts?.filter((post) => post.isAdopt !== true).slice(0, 7)
+      : allPosts;
+
+  const adoptedList =
+    allPosts &&
+    limitedAdoptPosts.map((post) => ({
       image:
         'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
+      name: post.petName,
+      gender: post.sex,
+      district: post.district,
+      province: post.province,
+      kilometer: 2,
+    }));
+
+  const lostList =
+    allPosts &&
+    limitedLostPosts.map((post) => ({
       image:
         'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-  ];
+      name: post.petName,
+      gender: post.sex,
+      district: post.district,
+      province: post.province,
+      kilometer: 2,
+    }));
+
+  console.log('lostne', lostList);
+  // const adoptedList = [
+  //   {
+  //     image:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     name: 'Samatha',
+  //     gender: 'Male',
+  //     address: 'Binh Duong',
+  //     kilometer: 2.5,
+  //   },
+  //   {
+  //     image:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     name: 'Samatha',
+  //     gender: 'Male',
+  //     address: 'Binh Duong',
+  //     kilometer: 2.5,
+  //   },
+  //   {
+  //     image:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     name: 'Samatha',
+  //     gender: 'Male',
+  //     address: 'Binh Duong',
+  //     kilometer: 2.5,
+  //   },
+  //   {
+  //     image:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     name: 'Samatha',
+  //     gender: 'Male',
+  //     address: 'Binh Duong',
+  //     kilometer: 2.5,
+  //   },
+  //   {
+  //     image:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     name: 'Samatha',
+  //     gender: 'Male',
+  //     address: 'Binh Duong',
+  //     kilometer: 2.5,
+  //   },
+  //   {
+  //     image:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     name: 'Samatha',
+  //     gender: 'Male',
+  //     address: 'Binh Duong',
+  //     kilometer: 2.5,
+  //   },
+  // ];
 
   const clinicList = [
     {
@@ -149,8 +188,8 @@ const HomeScreen = ({
         image={item.image}
         name={item.name}
         gender={item.gender}
-        address={item.address}
-        kilometer={item.kilometer}
+        district={item.district}
+        province={item.province}
       />
     );
   };
@@ -173,8 +212,8 @@ const HomeScreen = ({
         image={item.image}
         name={item.name}
         gender={item.gender}
-        address={item.address}
-        kilometer={item.kilometer}
+        district={item.district}
+        province={item.province}
       />
     );
   };
@@ -241,11 +280,6 @@ const HomeScreen = ({
               }}
             >
               <Text>Location</Text>
-              <Entypo
-                name='chevron-down'
-                size={scaleSize(20)}
-                color={COLORS.primary}
-              />
             </View>
             <Text style={styles.address}>Thu Duc City, Vietnam</Text>
           </View>
@@ -292,7 +326,7 @@ const HomeScreen = ({
         <Title title='Lost pets' onSeeAll={onLostPets} />
 
         <FlatList
-          data={adoptedList}
+          data={lostList}
           keyExtractor={(item) => item.image}
           renderItem={renderItemLost} //method to render the data in the way you want using styling u need
           horizontal={true}
@@ -334,6 +368,7 @@ const styles = StyleSheet.create({
     ...FONTS.body4,
     fontWeight: 'bold',
     paddingLeft: scaleSize(16),
+    color: COLORS.primary,
   },
   searchWrapper: {
     width: scaleSize(100),

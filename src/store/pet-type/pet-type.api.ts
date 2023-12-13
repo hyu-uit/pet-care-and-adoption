@@ -5,7 +5,7 @@ import { PetTypeSpeciesRESP } from './response/pet-type-species.response';
 import { PetTypeBreedsRESP } from './response/pet-type-breeds.response';
 
 export const petTypeApi = createApi({
-  reducerPath: 'post',
+  reducerPath: 'petType',
   baseQuery: fetchBaseQuery({
     baseUrl: `https://petcareapi.azurewebsites.net/api/PetType/`,
   }),

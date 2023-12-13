@@ -8,16 +8,16 @@ type AdoptedCardProps = {
   image: string;
   name: string;
   gender: string;
-  address: string;
-  kilometer: number;
+  district: string;
+  province: string;
 };
 
 const AdoptedPetCard: FC<AdoptedCardProps> = ({
   image,
   name,
   gender,
-  address,
-  kilometer,
+  district,
+  province,
 }) => {
   return (
     <TouchableOpacity style={styles.container}>
@@ -53,8 +53,10 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
             size={scaleSize(8)}
             color={COLORS.grayABABAB}
           />
-          <Text style={styles.address}>{address}</Text>
-          <Text style={styles.address}> ({kilometer}km)</Text>
+          <View>
+            <Text style={styles.address}>{district}</Text>
+            <Text style={styles.address}>{province}</Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -66,7 +68,7 @@ export default AdoptedPetCard;
 const styles = StyleSheet.create({
   container: {
     width: scaleSize(129),
-    minHeight: scaleSize(174),
+    minHeight: scaleSize(150),
     backgroundColor: COLORS.whitePrimary,
     borderRadius: scaleSize(8),
     marginRight: scaleSize(20),
@@ -90,11 +92,12 @@ const styles = StyleSheet.create({
   horizontalWrapper: {
     display: 'flex',
     flexDirection: 'row',
-    alignItems: 'center',
   },
   address: {
     ...FONTS.body8,
     color: COLORS.blackContent,
+    paddingRight: scaleSize(5),
+    paddingLeft: scaleSize(1),
   },
   iconWrapper: {
     width: scaleSize(15),

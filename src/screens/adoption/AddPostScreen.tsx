@@ -766,7 +766,7 @@ const AddPostScreen = ({
       <Button
         onPress={handleSubmit(handleUpload.bind(null))}
         title='Publish'
-        style={{ marginTop: scaleSize(19) }}
+        style={{ marginTop: scaleSize(19), marginBottom: SIZES.bottomPadding }}
         isLoading={isLoading}
       />
     </ScrollView>

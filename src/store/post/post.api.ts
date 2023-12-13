@@ -2,6 +2,8 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
 
 import { HTTP_METHOD } from '../../utils/constants/http.constants';
 import { AddPostREQ } from './request/add-post.request';
+import { AddPostRESP } from './response/add-post.response';
+import { GetPostsRESP } from './response/get-add.response';
 
 export const postApi = createApi({
   reducerPath: 'post',
@@ -9,14 +11,25 @@ export const postApi = createApi({
     baseUrl: `https://petcareapi.azurewebsites.net/api/Post/`,
   }),
   endpoints: (build) => ({
-    addPost: build.mutation<string, AddPostREQ>({
+    addPost: build.mutation<AddPostRESP, AddPostREQ>({
       query: (body) => ({
         url: 'AddPost',
         method: HTTP_METHOD.POST,
         body,
       }),
     }),
+
+    getPosts: build.query<GetPostsRESP, void>({
+      query: () => ({
+        url: '',
+        method: HTTP_METHOD.GET,
+      }),
+      transformResponse: (response: GetPostsRESP) => {
+        console.log('resne', response);
+        return response;
+      },
+    }),
   }),
 });
 
-export const { useAddPostMutation } = postApi;
+export const { useAddPostMutation, useGetPostsQuery } = postApi;
