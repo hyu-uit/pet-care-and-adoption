@@ -66,7 +66,17 @@ const SearchScreen = () => {
   }, [handleLoadMore]);
 
   useEffect(() => {
-    setAllPostList(allPosts);
+    const data = allPosts?.map((post) => ({
+      image:
+        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
+      name: post.petName,
+      gender: post.sex,
+      age: 4,
+      type: post.breed,
+      district: post.district,
+      province: post.province,
+    }));
+    setAllPostList(data);
   }, allPosts);
 
   // const data = allPostList.map((post) => ({
@@ -146,7 +156,39 @@ const SearchScreen = () => {
     setFilterShown(false);
   };
 
-  const onSearchName = () => {};
+  const onSearchName = (text) => {
+    const newList = allPostList?.filter((post) =>
+      post.name.toLowerCase().includes(text.toLowerCase())
+    );
+    setVisibleData(newList); // Update the visible data based on the search
+  };
+
+  useEffect(() => {
+    // Initial rendering
+    handleLoadMore();
+  }, [handleLoadMore]);
+
+  useEffect(() => {
+    if (allPosts) {
+      const data = allPosts.map((post) => ({
+        image:
+          'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
+        name: post.petName,
+        gender: post.sex,
+        age: 4,
+        type: post.breed,
+        district: post.district,
+        province: post.province,
+      }));
+      setAllPostList(data);
+      setVisibleData(data); // Initially, set visible data to all data
+    }
+  }, [allPosts]);
+
+  useEffect(() => {
+    // Update visible data whenever allPostList changes
+    setVisibleData(allPostList.slice(0, renderedCount));
+  }, [allPostList, renderedCount]);
 
   const renderAdoptPost = ({ item, index }) => (
     <PetSearchCard
