@@ -10,13 +10,30 @@ import React, { FC } from 'react';
 import { scaleSize } from '../utils/DeviceUtils';
 import { COLORS, SIZES, FONTS, STYLES } from '../config';
 import { FontAwesome } from '@expo/vector-icons';
+import { SEX } from '../types/enum/sex.enum';
 
 type FilterModalProps = {
   open: boolean;
   onClose: () => void;
+
+  sex: SEX | null;
+  onSelectSex: (sex: SEX) => void;
+  age: number[];
+  onSelectAges: (ages: number[]) => void;
+  vaccinated: boolean | null;
+  onSelectVaccinated: (vaccinated: boolean) => void;
 };
 
-const FilterModal: FC<FilterModalProps> = ({ open, onClose }) => {
+const FilterModal: FC<FilterModalProps> = ({
+  open,
+  onClose,
+  sex,
+  onSelectSex,
+  age,
+  onSelectAges,
+  vaccinated,
+  onSelectVaccinated,
+}) => {
   const ages = [
     '< 2 months',
     '2 - 4 months',
@@ -25,6 +42,20 @@ const FilterModal: FC<FilterModalProps> = ({ open, onClose }) => {
     '1 - 2 years',
     '> 2 years',
   ];
+
+  const handlePressItem = (item, index) => {
+    const isSelected = age?.includes(index);
+    if (isSelected) {
+      // Remove the item from the selected list
+      const updatedSelectedItems = age.filter(
+        (selectedItem) => selectedItem !== index
+      );
+      onSelectAges(updatedSelectedItems);
+    } else {
+      // Add the item to the selected list
+      onSelectAges([...age, index]);
+    }
+  };
 
   return (
     <Modal
@@ -52,41 +83,85 @@ const FilterModal: FC<FilterModalProps> = ({ open, onClose }) => {
               justifyContent: 'flex-start',
             }}
           >
-            <TouchableOpacity style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Male</Text>
+            <TouchableOpacity
+              style={[
+                styles.optionWrapper,
+                {
+                  backgroundColor:
+                    sex === SEX.MALE ? COLORS.primary : COLORS.tertiary,
+                },
+              ]}
+              onPress={() => {
+                onSelectSex(SEX.MALE);
+              }}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  {
+                    color:
+                      sex === SEX.MALE ? COLORS.whitePrimary : COLORS.primary,
+                  },
+                ]}
+              >
+                Male
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Female</Text>
+            <TouchableOpacity
+              style={[
+                styles.optionWrapper,
+                {
+                  backgroundColor:
+                    sex === SEX.FEMALE ? COLORS.primary : COLORS.tertiary,
+                },
+              ]}
+              onPress={() => {
+                onSelectSex(SEX.FEMALE);
+              }}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  {
+                    color:
+                      sex === SEX.FEMALE ? COLORS.whitePrimary : COLORS.primary,
+                  },
+                ]}
+              >
+                Female
+              </Text>
             </TouchableOpacity>
           </View>
 
           <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Age</Text>
           <View style={styles.ageWrapper}>
-            {ages.map((age) => (
+            {ages.map((item, index) => (
               <TouchableOpacity
-                style={[styles.optionWrapper, { marginTop: scaleSize(5) }]}
+                onPress={() => handlePressItem(item, index)}
+                style={[
+                  styles.optionWrapper,
+                  {
+                    marginTop: scaleSize(5),
+                    backgroundColor: age?.includes(index)
+                      ? COLORS.primary
+                      : COLORS.tertiary,
+                  },
+                ]}
               >
-                <Text style={styles.optionText}>{age}</Text>
+                <Text
+                  style={[
+                    styles.optionText,
+                    {
+                      color: age?.includes(index)
+                        ? COLORS.whitePrimary
+                        : COLORS.primary,
+                    },
+                  ]}
+                >
+                  {item}
+                </Text>
               </TouchableOpacity>
             ))}
-          </View>
-
-          <Text style={[styles.title, { marginTop: scaleSize(20) }]}>
-            Friendly
-          </Text>
-          <View
-            style={{
-              ...STYLES.horizontal,
-              marginTop: scaleSize(5),
-              justifyContent: 'flex-start',
-            }}
-          >
-            <TouchableOpacity style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Yes</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.optionWrapper}>
-              <Text style={styles.optionText}>No</Text>
-            </TouchableOpacity>
           </View>
 
           <Text style={[styles.title, { marginTop: scaleSize(20) }]}>
@@ -99,11 +174,57 @@ const FilterModal: FC<FilterModalProps> = ({ open, onClose }) => {
               justifyContent: 'flex-start',
             }}
           >
-            <TouchableOpacity style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Yes</Text>
+            <TouchableOpacity
+              style={[
+                styles.optionWrapper,
+                {
+                  backgroundColor:
+                    vaccinated === true ? COLORS.primary : COLORS.tertiary,
+                },
+              ]}
+              onPress={() => {
+                onSelectVaccinated(true);
+              }}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  {
+                    color:
+                      vaccinated === true
+                        ? COLORS.whitePrimary
+                        : COLORS.primary,
+                  },
+                ]}
+              >
+                Yes
+              </Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.optionWrapper}>
-              <Text style={styles.optionText}>No</Text>
+            <TouchableOpacity
+              style={[
+                styles.optionWrapper,
+                {
+                  backgroundColor:
+                    vaccinated === false ? COLORS.primary : COLORS.tertiary,
+                },
+              ]}
+              onPress={() => {
+                onSelectVaccinated(false);
+              }}
+            >
+              <Text
+                style={[
+                  styles.optionText,
+                  {
+                    color:
+                      vaccinated === false
+                        ? COLORS.whitePrimary
+                        : COLORS.primary,
+                  },
+                ]}
+              >
+                No
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

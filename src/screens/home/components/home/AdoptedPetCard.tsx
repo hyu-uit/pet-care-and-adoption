@@ -10,6 +10,7 @@ type AdoptedCardProps = {
   gender: string;
   district: string;
   province: string;
+  onDetail: () => void;
 };
 
 const AdoptedPetCard: FC<AdoptedCardProps> = ({
@@ -18,9 +19,10 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
   gender,
   district,
   province,
+  onDetail,
 }) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onDetail}>
       <View style={styles.favouriteContainer}>
         <TouchableOpacity>
           <Ionicons

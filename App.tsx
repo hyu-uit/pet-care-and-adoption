@@ -9,6 +9,10 @@ import { useFonts } from 'expo-font';
 export default function App() {
   const [fontsLoaded] = useFonts({
     'CercoDEMO-Regular': require('./src/assets/fonts/CercoDEMO-Regular.otf'),
+    'CercoDEMO-Black': require('./src/assets/fonts/CercoDEMO-Black.otf'),
+    'CercoDEMO-Medium': require('./src/assets/fonts/CercoDEMO-Medium.otf'),
+    'CercoDEMO-Thin': require('./src/assets/fonts/CercoDEMO-Thin.otf'),
+    'CercoDEMO-Bold': require('./src/assets/fonts/CercoDEMO-Bold.otf'),
   });
 
   if (!fontsLoaded) {

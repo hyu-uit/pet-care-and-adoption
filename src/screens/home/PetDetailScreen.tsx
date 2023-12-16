@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import React from 'react';
 import { COLORS, SIZES, FONTS, IMAGES, STYLES } from '../../config';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { scaleSize } from '../../utils/DeviceUtils';
 import {
   Feather,
@@ -16,12 +15,34 @@ import {
   Ionicons,
   MaterialCommunityIcons,
 } from '@expo/vector-icons';
+import { HomeStackParamList } from '../../navigators/config';
+import { SCREEN } from '../../navigators/AppRoute';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRoute } from '@react-navigation/native';
+import { Post } from '../../store/post/response/get-add.response';
 
-const PetDetailScreen = () => {
+const PetDetailScreen = ({
+  navigation,
+}: NativeStackScreenProps<HomeStackParamList, SCREEN.PET_DETAIL>) => {
+  const route = useRoute();
+
+  const onGoBack = () => {
+    navigation.goBack();
+  };
+
+  const petData = route.params?.petData;
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle='dark-content' />
       <View>
+        <TouchableOpacity style={styles.backIcon} onPress={onGoBack}>
+          <Ionicons
+            name='chevron-back-outline'
+            size={scaleSize(30)}
+            color={COLORS.whitePrimary}
+          />
+        </TouchableOpacity>
         <Image
           source={{
             uri: 'https://media.istockphoto.com/id/467923438/photo/silly-dog-tilts-head-in-front-of-barn.jpg?s=612x612&w=0&k=20&c=haPwfoPl_ggvNKAga_Qv4r88qWdcpH-qZ5DaBba6-8U=',
@@ -30,7 +51,7 @@ const PetDetailScreen = () => {
         />
         <View style={styles.infoContainer}>
           <View style={styles.horizontalWrapper}>
-            <Text style={styles.name}>Hihi</Text>
+            <Text style={styles.name}>{petData.name}</Text>
             <View style={styles.iconWrapper}>
               <Ionicons
                 name='male'
@@ -77,9 +98,43 @@ const PetDetailScreen = () => {
       <View
         style={[
           styles.horizontalWrapper,
-          { marginTop: scaleSize(83), paddingHorizontal: SIZES.padding },
+          { marginTop: scaleSize(100), paddingHorizontal: SIZES.padding },
         ]}
       >
+        <View style={styles.detailCell}>
+          <Text style={styles.detailText}>Status</Text>
+          <Text
+            style={[
+              styles.detailText,
+              {
+                ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
+                fontWeight: 'bold',
+                color: COLORS.primary,
+                marginTop: scaleSize(7),
+              },
+            ]}
+          >
+            Adopt
+          </Text>
+        </View>
+        <View style={styles.detailCell}>
+          <Text style={styles.detailText}>Category</Text>
+          <Text
+            style={[
+              styles.detailText,
+              {
+                ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
+                fontWeight: 'bold',
+                color: COLORS.primary,
+                marginTop: scaleSize(7),
+              },
+            ]}
+          >
+            DOG
+          </Text>
+        </View>
         <View style={styles.detailCell}>
           <Text style={styles.detailText}>Weight</Text>
           <Text
@@ -87,6 +142,7 @@ const PetDetailScreen = () => {
               styles.detailText,
               {
                 ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
                 fontWeight: 'bold',
                 color: COLORS.primary,
                 marginTop: scaleSize(7),
@@ -95,36 +151,6 @@ const PetDetailScreen = () => {
           >
             1.3KG
           </Text>
-        </View>
-        <View style={styles.detailCell}>
-          <Text style={styles.detailText}>Height</Text>
-          <Text
-            style={[
-              styles.detailText,
-              {
-                ...FONTS.body4,
-                fontWeight: 'bold',
-                color: COLORS.primary,
-                marginTop: scaleSize(7),
-              },
-            ]}
-          >
-            1.3KG
-          </Text>
-        </View>
-        <View style={styles.detailCell}>
-          <Text style={styles.detailText}>Fiendly</Text>
-          <Text
-            style={[
-              styles.detailText,
-              {
-                ...FONTS.body4,
-                fontWeight: 'bold',
-                color: COLORS.primary,
-                marginTop: scaleSize(7),
-              },
-            ]}
-          ></Text>
         </View>
         <View style={styles.detailCell}>
           <Text style={styles.detailText}>Vaccinated</Text>
@@ -133,12 +159,15 @@ const PetDetailScreen = () => {
               styles.detailText,
               {
                 ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
                 fontWeight: 'bold',
                 color: COLORS.primary,
                 marginTop: scaleSize(7),
               },
             ]}
-          ></Text>
+          >
+            YES
+          </Text>
         </View>
       </View>
 
@@ -305,5 +334,11 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     ...STYLES.buttonText,
+  },
+  backIcon: {
+    position: 'absolute',
+    top: scaleSize(45),
+    left: scaleSize(10),
+    zIndex: 1000,
   },
 });

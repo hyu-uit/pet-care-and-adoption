@@ -1,26 +1,37 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ViewStyle,
+  StyleProp,
+} from 'react-native';
 import React, { FC } from 'react';
 import { scaleSize } from '../../../../utils/DeviceUtils';
-import { COLORS, IMAGES } from '../../../../config';
+import { COLORS, IMAGES, FONTS } from '../../../../config';
 import { CATEGORY } from '../../../../types/enum/category.enum';
 
 type CategoryItemProps = {
   type: CATEGORY;
+  onPress: () => void;
+  style?: StyleProp<ViewStyle>;
 };
 
-const CategoryItem: FC<CategoryItemProps> = ({ type }) => {
+const CategoryItem: FC<CategoryItemProps> = ({ type, onPress, style }) => {
   return (
-    <TouchableOpacity style={styles.container}>
-      <Image
-        source={
-          type === CATEGORY.CAT
-            ? IMAGES.CAT
-            : type === CATEGORY.DOG
-            ? IMAGES.DOG
-            : IMAGES.DOG //hinh other o day
-        }
-        style={styles.icon}
-      />
+    <TouchableOpacity style={[styles.container, style]} onPress={onPress}>
+      {type !== CATEGORY.ALL && type !== CATEGORY.OTHER && (
+        <Image
+          source={type === CATEGORY.CAT ? IMAGES.CAT : IMAGES.DOG}
+          style={styles.icon}
+        />
+      )}
+      {type !== CATEGORY.DOG && type !== CATEGORY.CAT && (
+        <Text style={styles.title}>
+          {type === CATEGORY.ALL ? 'All' : 'Others'}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
@@ -43,5 +54,9 @@ const styles = StyleSheet.create({
     width: scaleSize(50),
     height: scaleSize(50),
     resizeMode: 'contain',
+  },
+  title: {
+    ...FONTS.body5,
+    color: COLORS.primary,
   },
 });

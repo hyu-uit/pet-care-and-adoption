@@ -52,7 +52,7 @@ const HomeScreen = ({
       gender: post.sex,
       district: post.district,
       province: post.province,
-      kilometer: 2,
+      postId: post.postID,
     }));
 
   const lostList =
@@ -64,7 +64,7 @@ const HomeScreen = ({
       gender: post.sex,
       district: post.district,
       province: post.province,
-      kilometer: 2,
+      postId: post.postID,
     }));
 
   console.log('lostne', lostList);
@@ -182,6 +182,10 @@ const HomeScreen = ({
     navigation.navigate(SCREEN.MENU);
   };
 
+  const onDetail = (item) => {
+    navigation.navigate(SCREEN.PET_DETAIL, { petData: item });
+  };
+
   const renderItemAdopted = ({ item }) => {
     return (
       <AdoptedPetCard
@@ -190,6 +194,9 @@ const HomeScreen = ({
         gender={item.gender}
         district={item.district}
         province={item.province}
+        onDetail={() => {
+          onDetail(item);
+        }}
       />
     );
   };

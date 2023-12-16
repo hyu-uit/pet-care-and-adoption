@@ -11,9 +11,6 @@ const FilterItem: FC<FilterItemProps> = ({ title }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <TouchableOpacity>
-        <FontAwesome name='close' size={scaleSize(10)} color={COLORS.primary} />
-      </TouchableOpacity>
     </View>
   );
 };
@@ -34,6 +31,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: scaleSize(5),
     borderRadius: scaleSize(5),
+    marginRight: scaleSize(5),
   },
   title: {
     ...FONTS.body6,

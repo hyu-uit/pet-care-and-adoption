@@ -1,4 +1,5 @@
 import { AuthSignupREQ } from '../store/auth/request/auth-signup.request';
+import { PetDetailType } from '../types/pet/pet-detail.type';
 import { SCREEN } from './AppRoute';
 
 export type AuthStackParamList = {
@@ -26,6 +27,7 @@ export type HomeStackParamList = {
   [SCREEN.MENU]: undefined;
   [SCREEN.AUTH_STACK]: undefined;
   [SCREEN.CHAT_HISTORY]: undefined;
+  [SCREEN.PET_DETAIL]: undefined | { petData: PetDetailType };
 };
 
 export type AdoptionStackParamList = {
