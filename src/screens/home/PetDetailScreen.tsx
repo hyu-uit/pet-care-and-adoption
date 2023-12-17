@@ -20,17 +20,24 @@ import { SCREEN } from '../../navigators/AppRoute';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useRoute } from '@react-navigation/native';
 import { Post } from '../../store/post/response/get-add.response';
+import { SEX } from '../../types/enum/sex.enum';
+import { useGetUserInformationQuery } from '../../store/users/users.api';
 
 const PetDetailScreen = ({
   navigation,
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.PET_DETAIL>) => {
   const route = useRoute();
+  const postDetail = route.params?.postData;
+
+  const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
+
+  console.log(postDetail);
+
+  console.log(postDetail);
 
   const onGoBack = () => {
     navigation.goBack();
   };
-
-  const petData = route.params?.petData;
 
   return (
     <View style={styles.container}>
@@ -51,10 +58,10 @@ const PetDetailScreen = ({
         />
         <View style={styles.infoContainer}>
           <View style={styles.horizontalWrapper}>
-            <Text style={styles.name}>{petData.name}</Text>
+            <Text style={styles.name}>{postDetail?.petName}</Text>
             <View style={styles.iconWrapper}>
               <Ionicons
-                name='male'
+                name={postDetail?.sex === SEX.MALE ? 'female' : 'female'}
                 size={scaleSize(20)}
                 color={COLORS.blue8EB1E5}
               />
@@ -72,11 +79,13 @@ const PetDetailScreen = ({
                 size={scaleSize(15)}
                 color={COLORS.primary}
               />
-              <Text style={styles.infoText}>4 month(s)</Text>
+              <Text style={styles.infoText}>
+                {postDetail?.age} month{postDetail?.age < 1 ? '' : 's'}{' '}
+              </Text>
             </View>
             <View style={styles.horizontalWrapper}>
               <Image source={IMAGES.FOOT} style={styles.iconFoot} />
-              <Text style={styles.infoText}>Phu Quoc</Text>
+              <Text style={styles.infoText}>{postDetail?.breed}</Text>
             </View>
           </View>
           <View
@@ -90,8 +99,9 @@ const PetDetailScreen = ({
               size={scaleSize(15)}
               color={COLORS.primary}
             />
-            <Text style={styles.infoText}>Sai Gon</Text>
-            <Text style={styles.infoText}> (3km)</Text>
+            <Text style={styles.infoText}>
+              {postDetail?.district}, {postDetail?.province}
+            </Text>
           </View>
         </View>
       </View>
@@ -115,7 +125,7 @@ const PetDetailScreen = ({
               },
             ]}
           >
-            Adopt
+            {postDetail?.isAdopt ? 'Adopt' : 'Lost'}
           </Text>
         </View>
         <View style={styles.detailCell}>
@@ -132,7 +142,7 @@ const PetDetailScreen = ({
               },
             ]}
           >
-            DOG
+            {postDetail?.species}
           </Text>
         </View>
         <View style={styles.detailCell}>
@@ -149,7 +159,7 @@ const PetDetailScreen = ({
               },
             ]}
           >
-            1.3KG
+            {postDetail.weight} KG
           </Text>
         </View>
         <View style={styles.detailCell}>
@@ -166,7 +176,7 @@ const PetDetailScreen = ({
               },
             ]}
           >
-            YES
+            {postDetail.isVaccinated ? 'YES' : 'NO'}
           </Text>
         </View>
       </View>
@@ -186,7 +196,7 @@ const PetDetailScreen = ({
           />
           <View style={{ marginLeft: scaleSize(10) }}>
             <Text style={styles.postedBy}>Posted by</Text>
-            <Text style={styles.ownerName}>Miihc</Text>
+            <Text style={styles.ownerName}>{postedBy?.name}</Text>
           </View>
         </View>
         <View style={styles.horizontalWrapper}>
@@ -208,9 +218,7 @@ const PetDetailScreen = ({
           </TouchableOpacity>
         </View>
       </View>
-      <Text style={styles.comment}>
-        Tôi đã lụm được nhỏ này, ai mất liên hệ tôi liền nha!
-      </Text>
+      <Text style={styles.comment}>{postDetail.description}</Text>
       <View style={{ paddingHorizontal: SIZES.padding }}>
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Adopt me</Text>

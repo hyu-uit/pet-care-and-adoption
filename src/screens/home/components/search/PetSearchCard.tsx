@@ -14,6 +14,7 @@ type PetSearchCardProps = {
   district: string;
   province: string;
   myPet?: boolean;
+  onDetail: () => void;
 };
 const PetSearchCard: FC<PetSearchCardProps> = ({
   image,
@@ -24,9 +25,10 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   province,
   myPet,
   gender,
+  onDetail,
 }) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onDetail}>
       {!myPet && (
         <View style={styles.favouriteContainer}>
           <TouchableOpacity>
@@ -61,7 +63,9 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
         <View style={[styles.horizontalWrapper, { marginTop: scaleSize(10) }]}>
           <View style={styles.horizontalWrapper}>
             <Feather name='clock' size={scaleSize(10)} color={COLORS.primary} />
-            <Text style={styles.infoText}>{age} month(s)</Text>
+            <Text style={styles.infoText}>
+              {age} month{age > 1 ? 's' : ''}
+            </Text>
           </View>
           <View style={styles.horizontalWrapper}>
             <Image source={IMAGES.FOOT} style={styles.iconFoot} />

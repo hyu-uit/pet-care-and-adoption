@@ -8,7 +8,7 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS } from '../../config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scaleSize } from '../../utils/DeviceUtils';
@@ -27,36 +27,85 @@ import {
 import { SCREEN } from '../../navigators/AppRoute';
 import { useGetPostsQuery } from '../../store/post/post.api';
 import { Post } from '../../store/post/response/get-add.response';
+import { doc, onSnapshot } from 'firebase/firestore';
+import { firestoreDB } from '../../../firebaseConfig';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const HomeScreen = ({
   navigation,
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.HOME>) => {
   const { data: allPosts } = useGetPostsQuery();
 
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
+
+  const [chats, setChats] = useState([]);
+  const [newMessage, setNewMessage] = useState(false);
+
+  useEffect(() => {
+    const getChats = () => {
+      const unsub = onSnapshot(
+        doc(firestoreDB, 'userChats', myPhoneNumber),
+        (doc) => {
+          setChats(doc.data() as []);
+        }
+      );
+
+      return () => {
+        unsub();
+      };
+    };
+
+    myPhoneNumber && getChats();
+  }, [myPhoneNumber]);
+
+  useEffect(() => {
+    if (!chats) return;
+    const has = Object.entries(chats).find((item) => item[1].isRead);
+    if (has) {
+      setNewMessage(true);
+    } else setNewMessage(false);
+  }, [chats]);
+
   const limitedAdoptPosts =
-    allPosts?.length > 7
-      ? allPosts?.filter((post) => post.isAdopt === true).slice(0, 7)
-      : allPosts;
+    allPosts?.postAdoptModel?.length > 7
+      ? allPosts?.postAdoptModel
+          ?.filter((post) => post.isAdopt === true)
+          .slice(0, 7)
+      : allPosts?.postAdoptModel;
 
   const limitedLostPosts =
-    allPosts?.length > 7
-      ? allPosts?.filter((post) => post.isAdopt !== true).slice(0, 7)
-      : allPosts;
+    allPosts?.postAdoptModel?.length > 7
+      ? allPosts?.postAdoptModel
+          ?.filter((post) => post.isAdopt !== true)
+          .slice(0, 7)
+      : allPosts?.postAdoptModel;
 
-  const adoptedList =
-    allPosts &&
+  const adoptedList: Post[] =
+    allPosts?.postAdoptModel &&
     limitedAdoptPosts.map((post) => ({
       image:
         'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: post.petName,
-      gender: post.sex,
+      postID: post.postID,
+      petName: post.petName,
+      age: post.age,
+      sex: post.sex,
+      species: post.species,
+      breed: post.breed,
+      weight: post.weight,
       district: post.district,
       province: post.province,
-      postId: post.postID,
+      description: post.description,
+      isVaccinated: post.isVaccinated,
+      isAdopt: post.isAdopt,
+      isDone: post.isDone,
+      userID: post.userID,
     }));
 
   const lostList =
-    allPosts &&
+    allPosts?.postAdoptModel &&
     limitedLostPosts.map((post) => ({
       image:
         'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
@@ -66,58 +115,6 @@ const HomeScreen = ({
       province: post.province,
       postId: post.postID,
     }));
-
-  console.log('lostne', lostList);
-  // const adoptedList = [
-  //   {
-  //     image:
-  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-  //     name: 'Samatha',
-  //     gender: 'Male',
-  //     address: 'Binh Duong',
-  //     kilometer: 2.5,
-  //   },
-  //   {
-  //     image:
-  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-  //     name: 'Samatha',
-  //     gender: 'Male',
-  //     address: 'Binh Duong',
-  //     kilometer: 2.5,
-  //   },
-  //   {
-  //     image:
-  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-  //     name: 'Samatha',
-  //     gender: 'Male',
-  //     address: 'Binh Duong',
-  //     kilometer: 2.5,
-  //   },
-  //   {
-  //     image:
-  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-  //     name: 'Samatha',
-  //     gender: 'Male',
-  //     address: 'Binh Duong',
-  //     kilometer: 2.5,
-  //   },
-  //   {
-  //     image:
-  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-  //     name: 'Samatha',
-  //     gender: 'Male',
-  //     address: 'Binh Duong',
-  //     kilometer: 2.5,
-  //   },
-  //   {
-  //     image:
-  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-  //     name: 'Samatha',
-  //     gender: 'Male',
-  //     address: 'Binh Duong',
-  //     kilometer: 2.5,
-  //   },
-  // ];
 
   const clinicList = [
     {
@@ -183,15 +180,16 @@ const HomeScreen = ({
   };
 
   const onDetail = (item) => {
-    navigation.navigate(SCREEN.PET_DETAIL, { petData: item });
+    console.log(item);
+    navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
   };
 
   const renderItemAdopted = ({ item }) => {
     return (
       <AdoptedPetCard
         image={item.image}
-        name={item.name}
-        gender={item.gender}
+        name={item.petName}
+        gender={item.sex}
         district={item.district}
         province={item.province}
         onDetail={() => {
@@ -252,6 +250,19 @@ const HomeScreen = ({
             onPress={onChat}
             style={{ marginRight: scaleSize(3) }}
           >
+            {newMessage && (
+              <View
+                style={{
+                  width: scaleSize(8),
+                  height: scaleSize(8),
+                  borderRadius: scaleSize(5),
+                  backgroundColor: COLORS.primary,
+                  position: 'absolute',
+                  right: 0,
+                  zIndex: 1000,
+                }}
+              ></View>
+            )}
             <Ionicons
               name='ios-chatbubble-ellipses-outline'
               size={scaleSize(20)}

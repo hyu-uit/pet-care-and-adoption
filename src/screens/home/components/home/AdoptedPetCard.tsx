@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { scaleSize } from '../../../../utils/DeviceUtils';
 import { COLORS, FONTS } from '../../../../config';
 import { Ionicons } from '@expo/vector-icons';
+import { SEX } from '../../../../types/enum/sex.enum';
 
 type AdoptedCardProps = {
   image: string;
@@ -43,9 +44,11 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
           <Text style={styles.name}>{name}</Text>
           <View style={styles.iconWrapper}>
             <Ionicons
-              name='male'
+              name={gender === SEX.MALE ? 'male' : 'female'}
               size={scaleSize(10)}
-              color={COLORS.blue8EB1E5}
+              color={
+                gender === SEX.MALE ? COLORS.blue8EB1E5 : COLORS.pinkF672E1
+              }
             />
           </View>
         </View>

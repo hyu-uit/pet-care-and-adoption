@@ -15,6 +15,7 @@ import { setupListeners } from '@reduxjs/toolkit/dist/query';
 import { authApi } from './auth/auth.api';
 import { postApi } from './post/post.api';
 import { provinceApi } from './province/province.api';
+import { usersApi } from './users/users.api';
 import Reactotron from '../ReactotronConfig';
 import sharedReducer from './shared/shared.slice';
 import chatReducer from './chat/chat.slice';
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   [provinceApi.reducerPath]: provinceApi.reducer,
   [postApi.reducerPath]: postApi.reducer,
   [petTypeApi.reducerPath]: petTypeApi.reducer,
+  [usersApi.reducerPath]: usersApi.reducer,
 });
 
 const persistConfig: PersistConfig<any> = {
@@ -49,7 +51,8 @@ export const store = configureStore({
       authApi.middleware,
       provinceApi.middleware,
       postApi.middleware,
-      petTypeApi.middleware
+      petTypeApi.middleware,
+      usersApi.middleware
     ),
   enhancers: [Reactotron.createEnhancer!()],
   devTools: true,

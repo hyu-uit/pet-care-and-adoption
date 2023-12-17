@@ -12,7 +12,7 @@ import { COLORS, SIZES } from '../../config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore';
 import { firestoreDB } from '../../../firebaseConfig';
 import ChatItem from './components/ChatItem';
 import ChatHeader from './components/ChatHeader';
@@ -44,6 +44,16 @@ const ChatDetailScreen = () => {
       scrollViewRef.current.scrollToEnd({ animated: true });
     }
   }, [messages]);
+
+  useEffect(() => {
+    const setReadMessage = async () => {
+      await updateDoc(doc(firestoreDB, 'userChats', myPhoneNumber), {
+        [combinedId + '.isRead']: false,
+      });
+    };
+
+    setReadMessage();
+  }, []);
 
   useEffect(() => {
     const unSub = onSnapshot(doc(firestoreDB, 'chats', combinedId), (doc) => {

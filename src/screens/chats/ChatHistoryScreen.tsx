@@ -7,7 +7,7 @@ import {
   Image,
   ScrollView,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   collection,
@@ -30,6 +30,7 @@ import { changeOtherUser } from '../../store/chat/chat.slice';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AuthStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ChatHistoryScreen = ({
   navigation,
@@ -198,16 +199,31 @@ const ChatHistoryScreen = ({
                 }}
                 style={styles.image}
               ></Image>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.name}>{chat[1].userInfo.displayName}</Text>
                 <View
                   style={{
                     flexDirection: 'row',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
                     gap: scaleSize(20),
                   }}
                 >
-                  <Text style={styles.message}>
+                  <Text
+                    style={[
+                      styles.message,
+                      {
+                        color: !chat[1].isRead
+                          ? COLORS.grayPrimary
+                          : COLORS.blackPrimary,
+
+                        fontFamily: !chat[1].isRead
+                          ? 'CercoDEMO-Regular'
+                          : 'CercoDEMO-Bold',
+                        width: '60%',
+                      },
+                    ]}
+                  >
                     {truncateText(chat[1].lastMessage?.text || '', 20)}
                   </Text>
                   <Text style={styles.message}>
@@ -238,7 +254,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     marginTop: scaleSize(10),
     alignItems: 'center',
-    paddingHorizontal: scaleSize(16),
   },
   image: {
     width: scaleSize(60),
@@ -255,5 +270,6 @@ const styles = StyleSheet.create({
     marginTop: scaleSize(5),
     ...FONTS.body4,
     color: COLORS.grayPrimary,
+    width: '40%',
   },
 });

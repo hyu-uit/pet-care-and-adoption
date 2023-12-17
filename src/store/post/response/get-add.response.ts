@@ -3,6 +3,7 @@ import { SEX } from '../../../types/enum/sex.enum';
 export type Post = {
   postID: string;
   petName: string;
+  age: number;
   sex: SEX;
   species: string;
   breed: string;
@@ -16,4 +17,7 @@ export type Post = {
   userID: string;
 };
 
-export type GetPostsRESP = Post[];
+export type GetPostsRESP = {
+  postAdoptModel: Post[];
+  images: string[];
+};

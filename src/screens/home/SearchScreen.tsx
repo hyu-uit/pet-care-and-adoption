@@ -25,8 +25,13 @@ import {
 } from '../../store/province/province.api';
 import { Dropdown } from 'react-native-element-dropdown';
 import { SEX } from '../../types/enum/sex.enum';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { HomeStackParamList } from '../../navigators/config';
+import { SCREEN } from '../../navigators/AppRoute';
 
-const SearchScreen = () => {
+const SearchScreen = ({
+  navigation,
+}: NativeStackScreenProps<HomeStackParamList, SCREEN.SEARCH>) => {
   const { data: allPosts } = useGetPostsQuery();
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
@@ -55,7 +60,7 @@ const SearchScreen = () => {
   const flatListRef = useRef(null);
 
   const handleLoadMore = useCallback(() => {
-    if (loading.current || renderedCount >= allPostList.length) {
+    if (loading.current || renderedCount >= allPostList?.length) {
       return;
     }
 
@@ -65,9 +70,9 @@ const SearchScreen = () => {
     setTimeout(() => {
       const newRenderedCount = Math.min(
         renderedCount + pageSize,
-        allPostList.length
+        allPostList?.length
       );
-      setVisibleData(allPostList.slice(0, newRenderedCount));
+      setVisibleData(allPostList?.slice(0, newRenderedCount));
       setRenderedCount(newRenderedCount);
       loading.current = false;
     }, 1000); // Adjust the delay as needed
@@ -82,13 +87,20 @@ const SearchScreen = () => {
     const data = allPosts?.map((post) => ({
       image:
         'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: post.petName,
-      gender: post.sex,
-      age: 4,
-      type: post.breed,
+      postID: post.postID,
+      petName: post.petName,
+      age: post.age,
+      sex: post.sex,
+      species: post.species,
+      breed: post.breed,
+      weight: post.weight,
       district: post.district,
       province: post.province,
-      species: post.species,
+      description: post.description,
+      isVaccinated: post.isVaccinated,
+      isAdopt: post.isAdopt,
+      isDone: post.isDone,
+      userID: post.userID,
     }));
     setAllPostList(data);
   }, allPosts);
@@ -232,27 +244,27 @@ const SearchScreen = () => {
 
   useEffect(() => {
     if (allPosts) {
-      const data = allPosts.map((post) => ({
-        image:
-          'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-        name: post.petName,
-        gender: post.sex,
-        age: 4,
-        type: post.breed,
-        district: post.district,
-        province: post.province,
-        species: post.species,
-        sex: post.sex,
-        isVaccinated: post.isVaccinated,
-      }));
-      setAllPostList(data);
-      setVisibleData(data); // Initially, set visible data to all data
+      // const data = allPosts.map((post) => ({
+      //   image:
+      //     'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
+      //   name: post.petName,
+      //   gender: post.sex,
+      //   age: 4,
+      //   type: post.breed,
+      //   district: post.district,
+      //   province: post.province,
+      //   species: post.species,
+      //   sex: post.sex,
+      //   isVaccinated: post.isVaccinated,
+      // }));
+      // setAllPostList(allPosts);
+      setVisibleData(allPosts); // Initially, set visible data to all data
     }
   }, [allPosts]);
 
   useEffect(() => {
     // Update visible data whenever allPostList changes
-    setVisibleData(allPostList.slice(0, renderedCount));
+    setVisibleData(allPostList?.slice(0, renderedCount));
   }, [allPostList, renderedCount]);
 
   const ages = [
@@ -263,6 +275,11 @@ const SearchScreen = () => {
     '1 - 2 years',
     '> 2 years',
   ];
+
+  const onDetail = (item) => {
+    console.log('item', item);
+    navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
+  };
 
   return (
     <View style={styles.container}>
@@ -472,7 +489,7 @@ const SearchScreen = () => {
           .filter((item) => {
             if (
               searchText !== '' &&
-              !item.name.toLowerCase().includes(searchText.toLowerCase())
+              !item.petName.toLowerCase().includes(searchText.toLowerCase())
             ) {
               return false;
             }
@@ -518,12 +535,15 @@ const SearchScreen = () => {
             <PetSearchCard
               key={index}
               image={item.image}
-              name={item.name}
+              name={item.petName}
               age={item.age}
               type={item.type}
               district={item.district}
               province={item.province}
               gender={item.gender}
+              onDetail={() => {
+                onDetail(item);
+              }}
             />
           ))}
       </ScrollView>

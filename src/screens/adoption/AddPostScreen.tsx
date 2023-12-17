@@ -35,6 +35,13 @@ import { RootState } from '../../store';
 import Popup from '../../components/Popup';
 import { POPUP_TYPE } from '../../types/enum/popup.enum';
 import Button from '../../components/Button';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytes,
+  uploadBytesResumable,
+} from 'firebase/storage';
 
 type ImageType = {
   uri: string;
@@ -66,13 +73,14 @@ const AddPostScreen = ({
   });
 
   const [img, setImg] = useState([]);
+  const [url, setUrl] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [species, setSpecies] = useState([]);
   const [breeds, setBreeds] = useState([]);
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
 
-  const base64Image = watch('images');
+  const uriImage = watch('images');
 
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
@@ -133,18 +141,13 @@ const AddPostScreen = ({
 
     if (!result.canceled) {
       // const image = result.assets[0].base64;
-      const image = {
-        uri: result.assets[0].uri,
-        base64: result.assets[0].base64,
-      };
-      const isMatch = img.some(
-        (item) => item.base64 === result.assets[0].base64
-      );
+      const image = result.assets[0].uri;
+      const isMatch = img.some((item) => item === result.assets[0].uri);
       if (isMatch) {
         return;
       }
       setImg([...img, image]);
-      setValue('images', [...base64Image, image.base64]);
+      setValue('images', [...uriImage, image]);
     }
   };
 
@@ -167,7 +170,7 @@ const AddPostScreen = ({
           />
         </TouchableOpacity>
         <View style={styles.imageWrapper}>
-          <Image source={{ uri: item.uri }} style={styles.image} />
+          <Image source={{ uri: item }} style={styles.image} />
         </View>
       </View>
     );
@@ -182,7 +185,61 @@ const AddPostScreen = ({
       );
   };
 
+  const uploadToFirebaseStorage = async (uri: string) => {
+    const fetchResponse = await fetch(uri);
+    const theBlob = await fetchResponse.blob();
+
+    const name = uri.split('/').pop();
+
+    const imageRef = ref(getStorage(), `images/${name}`);
+
+    const uploadTask = uploadBytesResumable(imageRef, theBlob);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('progress', progress);
+        },
+        (error) => {
+          // Handle unsuccessful uploads
+          console.log(error);
+          reject(error);
+        },
+        async () => {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve({
+            downloadUrl,
+            metadata: uploadTask.snapshot.metadata,
+          });
+        }
+      );
+    });
+  };
+
   const handleUpload = async (data) => {
+    const urlArray = [];
+    for (let i = 0; i < img.length; i++) {
+      const res = await uploadToFirebaseStorage(img[i]);
+      urlArray.push(res.downloadUrl);
+    }
+
+    // const uploadPromises = img.map(async (uri) => {
+    //   try {
+    //     const result = await uploadToFirebaseStorage(uri);
+    //     console.log('kylantochau', result.downloadUrl);
+    //     // setUrl([...url, result.downloadUrl]);
+    //     //  return result.downloadUrl;c
+    //   } catch (error) {
+    //     console.error(`Error uploading ${uri}`, error);
+    //     return null; // or handle error as needed
+    //   }
+    // });
+
+    // const downloadUrls = await Promise.all(uploadPromises);
+
     try {
       const body: AddPostREQ = {
         postModel: {
@@ -199,8 +256,8 @@ const AddPostScreen = ({
           description: data.description,
         },
         // images: data.images.map((image) => ({ image })),
-        images: Array.isArray(data.images)
-          ? data.images.map((image) => ({ image }))
+        images: Array.isArray(urlArray)
+          ? urlArray.map((image) => ({ image }))
           : [],
       };
       await publishPost(body).unwrap();

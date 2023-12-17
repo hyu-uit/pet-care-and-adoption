@@ -48,6 +48,7 @@ const ChatMessageBox: FC<ChatMessageBoxProps> = ({
         [chatId + '.lastMessage']: {
           text,
         },
+        [chatId + '.isRead']: false,
         [chatId + '.date']: serverTimestamp(),
       });
 
@@ -55,6 +56,7 @@ const ChatMessageBox: FC<ChatMessageBoxProps> = ({
         [chatId + '.lastMessage']: {
           text,
         },
+        [chatId + '.isRead']: true,
         [chatId + '.date']: serverTimestamp(),
       });
 
