@@ -22,6 +22,7 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
   province,
   onDetail,
 }) => {
+  console.log(image);
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
       <View style={styles.favouriteContainer}>
@@ -33,7 +34,7 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
           />
         </TouchableOpacity>
       </View>
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={{ uri: image ? image[0] : '' }} style={styles.image} />
       <View style={styles.infoWrapper}>
         <View
           style={[

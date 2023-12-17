@@ -37,6 +37,8 @@ const HomeScreen = ({
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.HOME>) => {
   const { data: allPosts } = useGetPostsQuery();
 
+  console.log('model', allPosts);
+
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
@@ -69,40 +71,82 @@ const HomeScreen = ({
     } else setNewMessage(false);
   }, [chats]);
 
-  const limitedAdoptPosts =
-    allPosts?.postAdoptModel?.length > 7
-      ? allPosts?.postAdoptModel
-          ?.filter((post) => post.isAdopt === true)
-          .slice(0, 7)
-      : allPosts?.postAdoptModel;
+  // const limitedAdoptPosts =
+  //   allPosts?.length > 7
+  //     ? allPosts
+  //         ?.filter((post) => post.postAdoptModel.isAdopt === true)
+  //         .slice(0, 7)
+  //     : allPosts;
 
-  const limitedLostPosts =
-    allPosts?.postAdoptModel?.length > 7
-      ? allPosts?.postAdoptModel
-          ?.filter((post) => post.isAdopt !== true)
-          .slice(0, 7)
-      : allPosts?.postAdoptModel;
+  // const limitedLostPosts =
+  //   allPosts?.length > 7
+  //     ? allPosts
+  //         ?.filter((post) => post.postAdoptModel.isAdopt !== true)
+  //         .slice(0, 7)
+  //     : allPosts;
 
-  const adoptedList: Post[] =
-    allPosts?.postAdoptModel &&
-    limitedAdoptPosts.map((post) => ({
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      postID: post.postID,
-      petName: post.petName,
-      age: post.age,
-      sex: post.sex,
-      species: post.species,
-      breed: post.breed,
-      weight: post.weight,
-      district: post.district,
-      province: post.province,
-      description: post.description,
-      isVaccinated: post.isVaccinated,
-      isAdopt: post.isAdopt,
-      isDone: post.isDone,
-      userID: post.userID,
+  const limitedAdoptPosts = allPosts
+    ?.filter((post) => post.postAdoptModel.isAdopt === true)
+    .slice(0, 7)
+    .map((post) => ({
+      images: post.images,
+      postID: post.postAdoptModel.postID,
+      petName: post.postAdoptModel.petName,
+      age: post.postAdoptModel.age,
+      sex: post.postAdoptModel.sex,
+      species: post.postAdoptModel.species,
+      breed: post.postAdoptModel.breed,
+      weight: post.postAdoptModel.weight,
+      district: post.postAdoptModel.district,
+      province: post.postAdoptModel.province,
+      description: post.postAdoptModel.description,
+      isVaccinated: post.postAdoptModel.isVaccinated,
+      isAdopt: post.postAdoptModel.isAdopt,
+      isDone: post.postAdoptModel.isDone,
+      userID: post.postAdoptModel.userID,
     }));
+
+  const limitedLostPosts = allPosts
+    ?.filter((post) => post.postAdoptModel.isAdopt === false)
+    .slice(0, 7)
+    .map((post) => ({
+      images: post.images,
+      postID: post.postAdoptModel.postID,
+      petName: post.postAdoptModel.petName,
+      age: post.postAdoptModel.age,
+      sex: post.postAdoptModel.sex,
+      species: post.postAdoptModel.species,
+      breed: post.postAdoptModel.breed,
+      weight: post.postAdoptModel.weight,
+      district: post.postAdoptModel.district,
+      province: post.postAdoptModel.province,
+      description: post.postAdoptModel.description,
+      isVaccinated: post.postAdoptModel.isVaccinated,
+      isAdopt: post.postAdoptModel.isAdopt,
+      isDone: post.postAdoptModel.isDone,
+      userID: post.postAdoptModel.userID,
+    }));
+
+  // const adoptedList =
+  //   allPosts &&
+  //   allPosts.map((post) => ({
+  //     images:
+  //       'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
+  //     postID: post.postID,
+  //     petName: post.petName,
+  //     age: post.age,
+  //     sex: post.sex,
+  //     species: post.species,
+  //     breed: post.breed,
+  //     weight: post.weight,
+  //     district: post.district,
+  //     province: post.province,
+  //     description: post.description,
+  //     isVaccinated: post.isVaccinated,
+  //     isAdopt: post.isAdopt,
+  //     isDone: post.isDone,
+  //     userID: post.userID,
+  //   }));
 
   const lostList =
     allPosts?.postAdoptModel &&
@@ -187,7 +231,7 @@ const HomeScreen = ({
   const renderItemAdopted = ({ item }) => {
     return (
       <AdoptedPetCard
-        image={item.image}
+        image={item.images}
         name={item.petName}
         gender={item.sex}
         district={item.district}
@@ -214,11 +258,14 @@ const HomeScreen = ({
   const renderItemLost = ({ item }) => {
     return (
       <AdoptedPetCard
-        image={item.image}
-        name={item.name}
-        gender={item.gender}
+        image={item.images}
+        name={item.petName}
+        gender={item.sex}
         district={item.district}
         province={item.province}
+        onDetail={() => {
+          onDetail(item);
+        }}
       />
     );
   };
@@ -318,7 +365,7 @@ const HomeScreen = ({
         <Title title='Adopt pets' onSeeAll={onAdoptPets} />
 
         <FlatList
-          data={adoptedList}
+          data={limitedAdoptPosts}
           keyExtractor={(item) => item.image}
           renderItem={renderItemAdopted} //method to render the data in the way you want using styling u need
           horizontal={true}
@@ -344,7 +391,7 @@ const HomeScreen = ({
         <Title title='Lost pets' onSeeAll={onLostPets} />
 
         <FlatList
-          data={lostList}
+          data={limitedLostPosts}
           keyExtractor={(item) => item.image}
           renderItem={renderItemLost} //method to render the data in the way you want using styling u need
           horizontal={true}

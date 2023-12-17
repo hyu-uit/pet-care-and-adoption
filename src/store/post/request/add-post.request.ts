@@ -2,6 +2,7 @@ export type AddPostREQ = {
   postModel: {
     petName: string;
     sex: string;
+    age: number;
     species: string;
     breed: string;
     weight: string;

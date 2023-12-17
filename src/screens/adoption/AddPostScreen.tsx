@@ -245,6 +245,7 @@ const AddPostScreen = ({
         postModel: {
           petName: data.name,
           sex: data.sex,
+          age: data.age,
           species: data.specie.label,
           breed: data.breed.label,
           weight: data.weight,

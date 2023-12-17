@@ -26,11 +26,8 @@ export const postApi = createApi({
         method: HTTP_METHOD.GET,
       }),
       transformResponse: (response: GetPostsRESP) => {
-        console.log('dcmmmmm');
-        return {
-          postAdoptModel: response.postAdoptModel,
-          images: response.images,
-        };
+        console.log('res ne', response);
+        return response;
       },
     }),
 

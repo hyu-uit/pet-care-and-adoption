@@ -1,5 +1,5 @@
 export type UserInformation = {
-  userId: string;
+  userID: string;
   name: string;
   district: string;
   province: string;

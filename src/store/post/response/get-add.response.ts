@@ -17,7 +17,4 @@ export type Post = {
   userID: string;
 };
 
-export type GetPostsRESP = {
-  postAdoptModel: Post[];
-  images: string[];
-};
+export type GetPostsRESP = { postAdoptModel: Post; images: string }[];
