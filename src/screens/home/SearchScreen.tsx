@@ -57,53 +57,53 @@ const SearchScreen = ({
   const [renderedCount, setRenderedCount] = useState(10); // Initial number of items to render
   const loading = useRef(false);
   const pageSize = 10; // Number of items to load on each scroll event
-  const flatListRef = useRef(null);
 
-  const handleLoadMore = useCallback(() => {
-    if (loading.current || renderedCount >= allPostList?.length) {
-      return;
-    }
-
-    loading.current = true;
-
-    // Simulate a delay for better visualization (remove in a real-world scenario)
-    setTimeout(() => {
-      const newRenderedCount = Math.min(
-        renderedCount + pageSize,
-        allPostList?.length
-      );
-      setVisibleData(allPostList?.slice(0, newRenderedCount));
-      setRenderedCount(newRenderedCount);
-      loading.current = false;
-    }, 1000); // Adjust the delay as needed
-  }, [allPostList, renderedCount]);
-
-  useEffect(() => {
-    // Initial rendering
-    handleLoadMore();
-  }, [handleLoadMore]);
+  // useEffect(() => {
+  //   const data = allPosts?.map((post) => ({
+  //     image:
+  //       'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
+  //     postID: post.postID,
+  //     petName: post.petName,
+  //     age: post.age,
+  //     sex: post.sex,
+  //     species: post.species,
+  //     breed: post.breed,
+  //     weight: post.weight,
+  //     district: post.district,
+  //     province: post.province,
+  //     description: post.description,
+  //     isVaccinated: post.isVaccinated,
+  //     isAdopt: post.isAdopt,
+  //     isDone: post.isDone,
+  //     userID: post.userID,
+  //   }));
+  //   setAllPostList(data);
+  // }, allPosts);
 
   useEffect(() => {
-    const data = allPosts?.map((post) => ({
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      postID: post.postID,
-      petName: post.petName,
-      age: post.age,
-      sex: post.sex,
-      species: post.species,
-      breed: post.breed,
-      weight: post.weight,
-      district: post.district,
-      province: post.province,
-      description: post.description,
-      isVaccinated: post.isVaccinated,
-      isAdopt: post.isAdopt,
-      isDone: post.isDone,
-      userID: post.userID,
-    }));
-    setAllPostList(data);
-  }, allPosts);
+    const visible = allPosts
+      ?.filter((post) => post.postAdoptModel.isAdopt === true)
+      .slice(0, 7)
+      .map((post) => ({
+        images: post.images,
+        postID: post.postAdoptModel.postID,
+        petName: post.postAdoptModel.petName,
+        age: post.postAdoptModel.age,
+        sex: post.postAdoptModel.sex,
+        species: post.postAdoptModel.species,
+        breed: post.postAdoptModel.breed,
+        weight: post.postAdoptModel.weight,
+        district: post.postAdoptModel.district,
+        province: post.postAdoptModel.province,
+        description: post.postAdoptModel.description,
+        isVaccinated: post.postAdoptModel.isVaccinated,
+        isAdopt: post.postAdoptModel.isAdopt,
+        isDone: post.postAdoptModel.isDone,
+        userID: post.postAdoptModel.userID,
+      }));
+
+    setAllPostList(visible);
+  }, [allPosts]);
 
   useEffect(() => {
     switch (selectedCategory) {
@@ -238,29 +238,10 @@ const SearchScreen = ({
   };
 
   useEffect(() => {
-    // Initial rendering
-    handleLoadMore();
-  }, [handleLoadMore]);
-
-  useEffect(() => {
     if (allPosts) {
-      // const data = allPosts.map((post) => ({
-      //   image:
-      //     'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      //   name: post.petName,
-      //   gender: post.sex,
-      //   age: 4,
-      //   type: post.breed,
-      //   district: post.district,
-      //   province: post.province,
-      //   species: post.species,
-      //   sex: post.sex,
-      //   isVaccinated: post.isVaccinated,
-      // }));
-      // setAllPostList(allPosts);
-      setVisibleData(allPosts); // Initially, set visible data to all data
+      setVisibleData(allPostList); // Initially, set visible data to all data
     }
-  }, [allPosts]);
+  }, [allPostList]);
 
   useEffect(() => {
     // Update visible data whenever allPostList changes
@@ -279,6 +260,39 @@ const SearchScreen = ({
   const onDetail = (item) => {
     console.log('item', item);
     navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
+  };
+
+  const filterAge = (age: number, index: number[]) => {
+    console.log(age);
+    for (let i = 0; i < index.length; i++) {
+      switch (index[i]) {
+        case 0:
+          if (age < 2) {
+            return true;
+          }
+        case 1:
+          if (age > 2 || age < 4) {
+            return true;
+          }
+        case 2:
+          if (age > 4 || age < 7) {
+            return true;
+          }
+        case 3:
+          if (age > 7 || age < 12) {
+            return true;
+          }
+        case 4:
+          if (age > 12 || age < 24) {
+            return true;
+          }
+        case 4:
+          if (age > 24) {
+            return true;
+          }
+      }
+    }
+    return false;
   };
 
   return (
@@ -452,7 +466,7 @@ const SearchScreen = ({
               )}
               {filteredAge &&
                 filteredAge.map((age, index) => (
-                  <FilterItem key={index} title={ages[index]} />
+                  <FilterItem key={index} title={ages[age]} />
                 ))}
               {filteredVaccinated === true && <FilterItem title='vaccinated' />}
             </ScrollView>
@@ -516,16 +530,30 @@ const SearchScreen = ({
               filteredVaccinated &&
               filteredVaccinated !== item.isVaccinated
             ) {
-              console.log(filteredVaccinated, item.isVaccinated);
               return false;
             }
-
             //implement age
-            // if(filteredAge.length > 0){
-            //   for(let i=0; i< filteredAge.length; i++){
-            //     switch(i){
+            // if (filteredAge.length > 0) {
+            //   for (let i = 0; i < filteredAge.length; i++) {
+            //     switch (filteredAge[i]) {
             //       case 0:
-
+            //         if (item.age > 2) return false;
+            //         else return true;
+            //       case 1:
+            //         if (item.age < 2 || item.age > 4) return false;
+            //         else return true;
+            //       case 2:
+            //         if (item.age < 4 || item.age > 7) return false;
+            //         else return true;
+            //       case 3:
+            //         if (item.age < 7 || item.age > 12) return false;
+            //         else return true;
+            //       case 4:
+            //         if (item.age < 12 || item.age > 24) return false;
+            //         else return true;
+            //       case 5:
+            //         if (item.age < 24) return false;
+            //         else return true;
             //     }
             //   }
             // }
@@ -534,7 +562,7 @@ const SearchScreen = ({
           .map((item, index) => (
             <PetSearchCard
               key={index}
-              image={item.image}
+              image={item.images}
               name={item.petName}
               age={item.age}
               type={item.type}

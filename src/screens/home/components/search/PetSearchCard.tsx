@@ -40,7 +40,7 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
           </TouchableOpacity>
         </View>
       )}
-      <Image source={{ uri: image }} style={styles.image} />
+      <Image source={{ uri: image[0] }} style={styles.image} />
       <View style={styles.infoContainer}>
         <View style={styles.horizontalWrapper}>
           <Text style={styles.name}>{name}</Text>
