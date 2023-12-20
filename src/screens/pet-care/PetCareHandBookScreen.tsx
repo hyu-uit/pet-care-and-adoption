@@ -7,13 +7,15 @@ import {
   ScrollView,
   FlatList,
 } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import HandBookItem from './components/HandBookItem';
+import BotService from './components/BotService';
 
 const PetCareHandBookScreen = () => {
+  const [tab, setTab] = useState(0);
   const data = [
     'Pet care',
     'Pet care',
@@ -29,19 +31,20 @@ const PetCareHandBookScreen = () => {
   const renderItem = ({ item }) => {
     return <HandBookItem title={item} />;
   };
+  
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.tabContainer}>
-        <TouchableOpacity style={styles.tabWrapper}>
+        <TouchableOpacity onPress={() => setTab(0)} style={styles.tabWrapper}>
           <Image source={IMAGES.BOOK} style={styles.icon} />
           <Text style={styles.tabText}>Hand book</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.tabWrapper}>
+        <TouchableOpacity onPress={() => setTab(1)} style={styles.tabWrapper}>
           <Image source={IMAGES.BOT} style={styles.icon} />
           <Text style={styles.tabText}>Bot advices</Text>
         </TouchableOpacity>
       </View>
-
+      {tab === 0 &&
       <FlatList
         data={data}
         keyExtractor={(item) => item.title}
@@ -50,6 +53,10 @@ const PetCareHandBookScreen = () => {
         numColumns={2}
         style={{ marginTop: scaleSize(20) }}
       />
+    }
+    {tab ===1 &&
+     <BotService/>
+    }
     </SafeAreaView>
   );
 };
