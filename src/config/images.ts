@@ -10,6 +10,8 @@ import cat_menu from '../assets/images/cat-menu.png';
 import popup_icon_success from '../assets/images/popup-icon.png';
 import popup_icon_error from '../assets/images/popup-icon-error.png';
 import username from '../assets/images/username.png';
+import bot_avatar from '../assets/images/robot.png';
+import pet_user from '../assets/images/pets.png';
 
 export default {
   LOGO: logo,
@@ -24,4 +26,6 @@ export default {
   SUCCESS_ICON: popup_icon_success,
   ERROR_ICON: popup_icon_error,
   USERNAME: username,
+  PET_USER: pet_user,
+  BOT_AVATAR: bot_avatar,
 };
