@@ -277,34 +277,36 @@ const PetDetailScreen = ({
           </View>
         </View>
         <Text style={styles.comment}>{postDetail.description}</Text>
-        <View style={{ paddingHorizontal: SIZES.padding }}>
-          <TouchableOpacity
-            style={[
-              styles.button,
-              {
-                backgroundColor:
-                  postedBy?.userID === myPhoneNumber
-                    ? COLORS.tertiary
-                    : COLORS.primary,
-              },
-            ]}
-            disabled={postedBy?.userID === myPhoneNumber}
-          >
-            <Text
+        {postDetail?.isAdopt && (
+          <View style={{ paddingHorizontal: SIZES.padding }}>
+            <TouchableOpacity
               style={[
-                styles.buttonText,
+                styles.button,
                 {
-                  color:
+                  backgroundColor:
                     postedBy?.userID === myPhoneNumber
-                      ? COLORS.grayLight
-                      : COLORS.whitePrimary,
+                      ? COLORS.tertiary
+                      : COLORS.primary,
                 },
               ]}
+              disabled={postedBy?.userID === myPhoneNumber}
             >
-              Adopt me
-            </Text>
-          </TouchableOpacity>
-        </View>
+              <Text
+                style={[
+                  styles.buttonText,
+                  {
+                    color:
+                      postedBy?.userID === myPhoneNumber
+                        ? COLORS.grayLight
+                        : COLORS.whitePrimary,
+                  },
+                ]}
+              >
+                Adopt me
+              </Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </ScrollView>
     </View>
   );

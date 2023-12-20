@@ -5,11 +5,12 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  ScrollView,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES, FONTS, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
-import { Ionicons } from '@expo/vector-icons';
+import { AntDesign, Ionicons } from '@expo/vector-icons';
 import LostPetsItem from './components/lost-pets/LostPetsItem';
 import { useGetPostsQuery } from '../../store/post/post.api';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -17,14 +18,23 @@ import {
   useGetProvincesQuery,
   useLazyGetDistrictQuery,
 } from '../../store/province/province.api';
+import { SCREEN } from '../../navigators/AppRoute';
+import { HomeStackParamList } from '../../navigators/config';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-const LostPetsScreen = () => {
+const LostPetsScreen = ({
+  navigation,
+}: NativeStackScreenProps<HomeStackParamList, SCREEN.LOST_PETS>) => {
   const { data: allPosts } = useGetPostsQuery();
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
 
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [visibleData, setVisibleData] = useState([]);
+  const [filteredProvinces, setFilteredProvinces] = useState();
+  const [filteredDistricts, setFilteredDistricts] = useState();
+  const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
     if (!dataProvinces) return;
@@ -44,16 +54,31 @@ const LostPetsScreen = () => {
     setDistricts(districtsUpdate);
   }, [dataDistricts]);
 
-  const lostPetList = allPosts
-    ?.filter((post) => post.isAdopt !== true)
-    .map((post) => ({
-      image:
-        'https://www.catcareofvinings.com/blog/wp-content/uploads/2017/08/CCV_iStock-154918525-2000x1330.jpg',
-      name: post.petName,
-      gender: post.sex,
-      district: post.district,
-      province: post.province,
-    }));
+  useEffect(() => {
+    const visible = allPosts
+      ?.filter((post) => post.postAdoptModel.isAdopt !== true)
+      .map((post) => ({
+        images: post.images,
+        postID: post.postAdoptModel.postID,
+        petName: post.postAdoptModel.petName,
+        age: post.postAdoptModel.age,
+        sex: post.postAdoptModel.sex,
+        species: post.postAdoptModel.species,
+        breed: post.postAdoptModel.breed,
+        weight: post.postAdoptModel.weight,
+        district: post.postAdoptModel.district,
+        province: post.postAdoptModel.province,
+        description: post.postAdoptModel.description,
+        isVaccinated: post.postAdoptModel.isVaccinated,
+        isAdopt: post.postAdoptModel.isAdopt,
+        isDone: post.postAdoptModel.isDone,
+        userID: post.postAdoptModel.userID,
+      }));
+
+    setVisibleData(visible);
+  }, [allPosts]);
+
+  console.log('aa', visibleData);
   // const lostPetList = [
   //   {
   //     image:
@@ -101,6 +126,11 @@ const LostPetsScreen = () => {
     );
   };
 
+  const onDetail = (item) => {
+    console.log(item);
+    navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.searchWrapper}>
@@ -111,9 +141,12 @@ const LostPetsScreen = () => {
           placeholder='Select province'
           placeholderStyle={{ color: COLORS.grayPrimary }}
           style={[styles.input, { paddingLeft: scaleSize(20), ...FONTS.body7 }]}
-          value={provinces}
+          value={filteredProvinces}
           onChange={(value) => {
             getDistricts(value.value);
+            setFilteredProvinces(value);
+            if (filteredDistricts && filteredDistricts.label !== '')
+              setFilteredDistricts(null);
           }}
           containerStyle={{
             height: scaleSize(200),
@@ -125,17 +158,36 @@ const LostPetsScreen = () => {
           labelField={'label'}
           valueField={'value'}
           placeholder='Select district'
+          value={filteredDistricts}
           placeholderStyle={{ color: COLORS.grayPrimary }}
           style={[styles.input, { paddingLeft: scaleSize(20) }]}
-          onChange={(value) => {}}
+          onChange={(value) => {
+            setFilteredDistricts(value);
+          }}
           containerStyle={{
             height: scaleSize(200),
             borderRadius: scaleSize(10),
           }}
         />
+
+        <TouchableOpacity
+          onPress={() => {
+            setFilteredDistricts('');
+            setFilteredProvinces('');
+            setSearchText('');
+          }}
+        >
+          <AntDesign name='closecircle' size={24} color='black' />
+        </TouchableOpacity>
       </View>
       <View style={styles.searchWrapper}>
-        <TextInput style={styles.input} placeholder='Search...' />
+        <TextInput
+          style={styles.input}
+          placeholder='Search...'
+          onChangeText={(text) => {
+            setSearchText(text);
+          }}
+        />
         <TouchableOpacity style={styles.searchButton}>
           <Ionicons
             name='search'
@@ -145,14 +197,68 @@ const LostPetsScreen = () => {
         </TouchableOpacity>
       </View>
 
-      <FlatList
+      {/* <FlatList
         data={lostPetList}
         keyExtractor={(item) => item.name}
         renderItem={renderItem} //method to render the data in the way you want using styling u need
         horizontal={false}
         numColumns={2}
         style={{ marginTop: scaleSize(20) }}
-      />
+      /> */}
+      <ScrollView style={{ flex: 1, paddingTop: scaleSize(20) }}>
+        {visibleData
+          .filter((item) => {
+            if (
+              searchText !== '' &&
+              !item.petName.toLowerCase().includes(searchText.toLowerCase())
+            ) {
+              return false;
+            }
+            if (
+              filteredDistricts &&
+              !item.district
+                .toLowerCase()
+                .includes(filteredDistricts.label.toLowerCase())
+            ) {
+              return false;
+            }
+            if (
+              filteredProvinces &&
+              !item.province
+                .toLowerCase()
+                .includes(filteredProvinces.label.toLowerCase())
+            ) {
+              return false;
+            }
+            return true;
+          })
+          .map((item, index) => (
+            <LostPetsItem
+              key={index}
+              image={item.images[0]}
+              gender={item.gender}
+              name={item.petName}
+              district={item.district}
+              province={item.province}
+              onDetail={() => {
+                onDetail(item);
+              }}
+            />
+            // <PetSearchCard
+            //   key={index}
+            //   image={item.images}
+            //   name={item.petName}
+            //   age={item.age}
+            //   type={item.breed}
+            //   district={item.district}
+            //   province={item.province}
+            //   gender={item.gender}
+            //   onDetail={() => {
+            //     onDetail(item);
+            //   }}
+            // />
+          ))}
+      </ScrollView>
     </View>
   );
 };

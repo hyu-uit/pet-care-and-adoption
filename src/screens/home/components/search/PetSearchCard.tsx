@@ -45,19 +45,13 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
         <View style={styles.horizontalWrapper}>
           <Text style={styles.name}>{name}</Text>
           <View style={styles.iconWrapper}>
-            {gender === SEX.MALE ? (
-              <Ionicons
-                name='female'
-                size={scaleSize(18)}
-                color={COLORS.blue8EB1E5}
-              />
-            ) : (
-              <Ionicons
-                name='female'
-                size={scaleSize(18)}
-                color={COLORS.pinkF672E1}
-              />
-            )}
+            <Ionicons
+              name={gender === SEX.MALE ? 'male' : 'female'}
+              size={scaleSize(18)}
+              color={
+                gender === SEX.MALE ? COLORS.blue8EB1E5 : COLORS.pinkF672E1
+              }
+            />
           </View>
         </View>
         <View style={[styles.horizontalWrapper, { marginTop: scaleSize(10) }]}>

@@ -31,6 +31,7 @@ export type HomeStackParamList = {
 };
 
 export type AdoptionStackParamList = {
+  [SCREEN.SEARCH]: undefined;
   [SCREEN.ADD_POST]: undefined;
   [SCREEN.LOCATION]: undefined;
 };
@@ -41,6 +42,6 @@ export type ProfileStackParamList = {
   [SCREEN.MY_PET_DETAIL]: undefined;
 };
 
-export type PetCareStackParamList ={
-  [SCREEN.BOT_CHAT]:undefined;
-}
+export type PetCareStackParamList = {
+  [SCREEN.BOT_CHAT]: undefined;
+};

@@ -366,7 +366,7 @@ const AddPostScreen = ({
               secureTextEntry={false}
               placeholderTextColor={COLORS.grayC2C2CE}
               style={[styles.input]}
-              keyboardType='numeric'
+              keyboardType='number-pad'
             />
           </View>
         )}
@@ -469,6 +469,7 @@ const AddPostScreen = ({
               secureTextEntry={false}
               placeholderTextColor={COLORS.grayC2C2CE}
               style={[styles.input]}
+              // keyboardType='numbers-and-punctuation'
               keyboardType='numeric'
             />
           </View>
@@ -476,8 +477,9 @@ const AddPostScreen = ({
         rules={{
           required: 'Weight is required',
           pattern: {
-            value: /^[0-9]*(\.[0-9]*)?$/,
-            message: 'Only numeric values are allowed',
+            value: /^[0-9]+(?:,[0-9]+)?$/,
+            message:
+              'Only numeric values with a comma as decimal separator are allowed',
           },
         }}
       />

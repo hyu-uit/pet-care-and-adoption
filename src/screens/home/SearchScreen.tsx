@@ -26,12 +26,15 @@ import {
 import { Dropdown } from 'react-native-element-dropdown';
 import { SEX } from '../../types/enum/sex.enum';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { HomeStackParamList } from '../../navigators/config';
+import {
+  AdoptionStackParamList,
+  HomeStackParamList,
+} from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
 
 const SearchScreen = ({
   navigation,
-}: NativeStackScreenProps<HomeStackParamList, SCREEN.SEARCH>) => {
+}: NativeStackScreenProps<AdoptionStackParamList, SCREEN.SEARCH>) => {
   const { data: allPosts } = useGetPostsQuery();
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
@@ -83,7 +86,6 @@ const SearchScreen = ({
   useEffect(() => {
     const visible = allPosts
       ?.filter((post) => post.postAdoptModel.isAdopt === true)
-      .slice(0, 7)
       .map((post) => ({
         images: post.images,
         postID: post.postAdoptModel.postID,
@@ -107,9 +109,6 @@ const SearchScreen = ({
 
   useEffect(() => {
     switch (selectedCategory) {
-      case CATEGORY.ALL:
-        const newData = allPostList;
-        setVisibleData(newData);
       case CATEGORY.CAT:
         const newData1 = allPostList?.filter((post) => post.species === 'Cat');
         setVisibleData(newData1);
@@ -388,6 +387,7 @@ const SearchScreen = ({
               type={CATEGORY.ALL}
               onPress={() => {
                 setSelectedCategory(CATEGORY.ALL);
+                setVisibleData(allPostList);
               }}
               style={{
                 borderColor:
@@ -565,10 +565,10 @@ const SearchScreen = ({
               image={item.images}
               name={item.petName}
               age={item.age}
-              type={item.type}
+              type={item.breed}
               district={item.district}
               province={item.province}
-              gender={item.gender}
+              gender={item.sex}
               onDetail={() => {
                 onDetail(item);
               }}

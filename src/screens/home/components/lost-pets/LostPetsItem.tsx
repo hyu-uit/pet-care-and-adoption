@@ -3,6 +3,7 @@ import React, { FC } from 'react';
 import { scaleSize } from '../../../../utils/DeviceUtils';
 import { COLORS, FONTS } from '../../../../config';
 import { Ionicons } from '@expo/vector-icons';
+import { SEX } from '../../../../types/enum/sex.enum';
 
 type LostPetsItemProps = {
   image: string;
@@ -10,6 +11,7 @@ type LostPetsItemProps = {
   name: string;
   district: string;
   province: string;
+  onDetail: () => void;
 };
 const LostPetsItem: FC<LostPetsItemProps> = ({
   image,
@@ -17,9 +19,10 @@ const LostPetsItem: FC<LostPetsItemProps> = ({
   name,
   district,
   province,
+  onDetail,
 }) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onDetail}>
       <View style={styles.favouriteContainer}>
         <TouchableOpacity>
           <Ionicons
@@ -41,9 +44,11 @@ const LostPetsItem: FC<LostPetsItemProps> = ({
           <Text style={styles.name}>{name}</Text>
           <View style={styles.iconWrapper}>
             <Ionicons
-              name='male'
+              name={gender === SEX.MALE ? 'male' : 'female'}
               size={scaleSize(10)}
-              color={COLORS.blue8EB1E5}
+              color={
+                gender === SEX.MALE ? COLORS.blue8EB1E5 : COLORS.pinkF672E1
+              }
             />
           </View>
         </View>
