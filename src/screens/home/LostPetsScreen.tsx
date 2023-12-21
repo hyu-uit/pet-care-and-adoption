@@ -32,8 +32,8 @@ const LostPetsScreen = ({
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [visibleData, setVisibleData] = useState([]);
-  const [filteredProvinces, setFilteredProvinces] = useState();
-  const [filteredDistricts, setFilteredDistricts] = useState();
+  const [filteredProvinces, setFilteredProvinces] = useState('');
+  const [filteredDistricts, setFilteredDistricts] = useState('');
   const [searchText, setSearchText] = useState('');
 
   useEffect(() => {
@@ -175,6 +175,7 @@ const LostPetsScreen = ({
             setFilteredDistricts('');
             setFilteredProvinces('');
             setSearchText('');
+            setDistricts([]);
           }}
         >
           <AntDesign name='closecircle' size={24} color='black' />

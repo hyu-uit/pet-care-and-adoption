@@ -10,6 +10,7 @@ import ChatDetailScreen from '../screens/chats/ChatDetailScreen';
 import { COLORS } from '../config';
 import ProfileEditScreen from '../screens/profile/ProfileEditScreen';
 import ProfileMyPetDetail from '../screens/profile/ProfileMyPetDetail';
+import PetDetailScreen from '../screens/home/PetDetailScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,6 +26,13 @@ const MainNavigator = () => {
         <Stack.Screen name={SCREEN.AUTH_STACK} component={AuthNavigator} />
       )}
       <Stack.Screen name={SCREEN.BOTTOM_TABS} component={BottomTabs} />
+      <Stack.Screen
+        name={SCREEN.PET_DETAIL}
+        component={PetDetailScreen}
+        options={{
+          headerShown: false,
+        }}
+      />
       <Stack.Screen
         name={SCREEN.CHAT_HISTORY}
         component={ChatHistoryScreen}

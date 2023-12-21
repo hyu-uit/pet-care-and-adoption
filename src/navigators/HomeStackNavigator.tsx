@@ -79,13 +79,7 @@ const HomeStackNavigator = () => {
           },
         }}
       />
-      <Stack.Screen
-        name={SCREEN.PET_DETAIL}
-        component={PetDetailScreen}
-        options={{
-          headerShown: false,
-        }}
-      />
+
       <Stack.Screen
         name={SCREEN.NOTIFICATION}
         component={NotificationScreen}

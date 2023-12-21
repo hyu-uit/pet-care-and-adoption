@@ -17,10 +17,25 @@ import {
   useGetProvincesQuery,
   useLazyGetDistrictQuery,
 } from '../../store/province/province.api';
+import { Controller, useForm } from 'react-hook-form';
+
+type EditInfoREQ = {
+  avatar: string;
+  name: string;
+  province: string;
+  district: string;
+};
 
 const ProfileEditScreen = () => {
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<EditInfoREQ>();
 
   // const provinces = dataProvinces.map((item) => ({
   //   label: item.name,
@@ -74,49 +89,76 @@ const ProfileEditScreen = () => {
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={{
-          flexDirection: 'row',
-          marginTop: scaleSize(20),
-          alignItems: 'flex-end',
-        }}
-        onPress={pickImage}
-      >
-        <Image
-          source={{
-            uri: img
-              ? img
-              : 'https://images.ctfassets.net/ub3bwfd53mwy/6atCoddzStFzz0RcaztYCh/1c3e8a37eebe3c6a435038f8d9eef7f3/3_Image.jpg?w=750',
-          }}
-          style={styles.image}
-        />
-        <MaterialIcons
-          name='mode-edit'
-          size={scaleSize(20)}
-          color={COLORS.primary}
-          style={{ marginRight: scaleSize(10), left: -scaleSize(10) }}
-        />
-      </TouchableOpacity>
+      <Controller
+        control={control}
+        name='avatar'
+        render={({ field: { value, onChange }, fieldState: { error } }) => (
+          <TouchableOpacity
+            style={{
+              flexDirection: 'row',
+              marginTop: scaleSize(20),
+              alignItems: 'flex-end',
+            }}
+            onPress={pickImage}
+          >
+            <Image
+              source={{
+                uri: img
+                  ? img
+                  : 'https://images.ctfassets.net/ub3bwfd53mwy/6atCoddzStFzz0RcaztYCh/1c3e8a37eebe3c6a435038f8d9eef7f3/3_Image.jpg?w=750',
+              }}
+              style={styles.image}
+            />
+            <MaterialIcons
+              name='mode-edit'
+              size={scaleSize(20)}
+              color={COLORS.primary}
+              style={{ marginRight: scaleSize(10), left: -scaleSize(10) }}
+            />
+          </TouchableOpacity>
+        )}
+      />
+      {errors.avatar && (
+        <Text style={styles.errorText}>{errors.avatar.message}</Text>
+      )}
 
       <Text style={styles.label}>Name</Text>
 
-      <View style={styles.inputWrapper}>
-        <Image
-          source={require('../../assets/icons/name.png')}
-          height={10}
-          width={10}
-          style={styles.icon}
-        />
-        <TextInput
-          placeholder={'Enter your name'}
-          // onChangeText={onChange}
-          // value={value}
-          value='Vincent'
-          secureTextEntry={false}
-          placeholderTextColor={COLORS.grayC2C2CE}
-          style={styles.input}
-        />
-      </View>
+      <Controller
+        control={control}
+        name='name'
+        render={({
+          field: { value, onBlur, onChange },
+          fieldState: { error },
+        }) => (
+          <View style={styles.inputWrapper}>
+            <Image
+              source={require('../../assets/icons/name.png')}
+              height={10}
+              width={10}
+              style={styles.icon}
+            />
+            <TextInput
+              placeholder={'Enter your name'}
+              onChangeText={onChange}
+              value={value}
+              secureTextEntry={false}
+              placeholderTextColor={COLORS.grayC2C2CE}
+              style={styles.input}
+            />
+          </View>
+        )}
+        rules={{
+          required: 'Name is required',
+          pattern: {
+            value: /^[a-zA-Z\s]+$/,
+            message: 'Name must not contain numbers or special characters',
+          },
+        }}
+      />
+      {errors.name && (
+        <Text style={styles.errorText}>{errors.name.message}</Text>
+      )}
 
       <Text style={styles.label}>Phone</Text>
 
@@ -140,36 +182,64 @@ const ProfileEditScreen = () => {
       </View>
 
       <Text style={styles.label}>Address</Text>
-      <Dropdown
-        data={provinces}
-        labelField={'label'}
-        valueField={'value'}
-        placeholder='Select province'
-        style={[
-          styles.input,
-          { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-        ]}
-        onChange={onSelectProvince}
-        containerStyle={{
-          height: scaleSize(200),
-          borderRadius: scaleSize(10),
-        }}
+
+      <Controller
+        control={control}
+        name='province'
+        render={({
+          field: { value, onBlur, onChange },
+          fieldState: { error },
+        }) => (
+          <Dropdown
+            data={provinces}
+            labelField={'label'}
+            valueField={'value'}
+            placeholder='Select province'
+            value={value}
+            style={[
+              styles.input,
+              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+            ]}
+            onChange={onSelectProvince}
+            containerStyle={{
+              height: scaleSize(200),
+              borderRadius: scaleSize(10),
+            }}
+          />
+        )}
       />
-      <Dropdown
-        data={districts}
-        labelField={'label'}
-        valueField={'value'}
-        placeholder='Select district'
-        style={[
-          styles.input,
-          { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-        ]}
-        onChange={() => {}}
-        containerStyle={{
-          height: scaleSize(200),
-          borderRadius: scaleSize(10),
-        }}
+      {errors.province && (
+        <Text style={styles.errorText}>{errors.province.message}</Text>
+      )}
+
+      <Controller
+        control={control}
+        name='district'
+        render={({
+          field: { value, onBlur, onChange },
+          fieldState: { error },
+        }) => (
+          <Dropdown
+            data={districts}
+            labelField={'label'}
+            valueField={'value'}
+            placeholder='Select district'
+            value={value}
+            style={[
+              styles.input,
+              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+            ]}
+            onChange={() => {}}
+            containerStyle={{
+              height: scaleSize(200),
+              borderRadius: scaleSize(10),
+            }}
+          />
+        )}
       />
+      {errors.district && (
+        <Text style={styles.errorText}>{errors.district.message}</Text>
+      )}
 
       <Button
         title='Update'
@@ -220,5 +290,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginTop: scaleSize(20),
     color: COLORS.primary,
+  },
+  errorText: {
+    ...FONTS.body5,
+    color: COLORS.redPrimary,
+    fontSize: scaleSize(12),
+    marginTop: scaleSize(3),
   },
 });

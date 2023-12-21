@@ -500,7 +500,7 @@ const SearchScreen = ({
         {/* post.name.toLowerCase().includes(text.toLowerCase()) */}
 
         {visibleData
-          .filter((item) => {
+          ?.filter((item) => {
             if (
               searchText !== '' &&
               !item.petName.toLowerCase().includes(searchText.toLowerCase())

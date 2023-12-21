@@ -13,25 +13,16 @@ import { scaleSize } from '../../utils/DeviceUtils';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import HandBookItem from './components/HandBookItem';
 import BotService from './components/BotService';
+import { HandBook } from '../../constants/Handbook.constant';
 
 const PetCareHandBookScreen = () => {
   const [tab, setTab] = useState(0);
-  const data = [
-    'Pet care',
-    'Pet care',
-    'Pet care',
-    'Pet care',
-    'Pet care',
-    'Pet care',
-    'Pet care',
-    'Pet care',
-    'Pet care',
-  ];
+  const handbookData = HandBook;
 
   const renderItem = ({ item }) => {
-    return <HandBookItem title={item} />;
+    return <HandBookItem bigTitle={item.bigTitle} sections={item.sections} />;
   };
-  
+
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.tabContainer}>
@@ -44,19 +35,17 @@ const PetCareHandBookScreen = () => {
           <Text style={styles.tabText}>Bot advices</Text>
         </TouchableOpacity>
       </View>
-      {tab === 0 &&
-      <FlatList
-        data={data}
-        keyExtractor={(item) => item.title}
-        renderItem={renderItem} //method to render the data in the way you want using styling u need
-        horizontal={false}
-        numColumns={2}
-        style={{ marginTop: scaleSize(20) }}
-      />
-    }
-    {tab ===1 &&
-     <BotService/>
-    }
+      {tab === 0 && (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={handbookData}
+          keyExtractor={(item) => item.title}
+          renderItem={renderItem} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          style={{ marginTop: scaleSize(20) }}
+        />
+      )}
+      {tab === 1 && <BotService />}
     </SafeAreaView>
   );
 };
