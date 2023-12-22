@@ -84,7 +84,7 @@ const ProfileRequest = () => {
           }}
         >
           <Text style={tab === 0 ? styles.primaryText : styles.sent}>
-            Received
+            Requested
           </Text>
         </TouchableOpacity>
         <TouchableOpacity

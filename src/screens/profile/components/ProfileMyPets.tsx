@@ -63,15 +63,16 @@ const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
         name={item.name}
         age={item.age}
         type={item.type}
-        location={item.location}
-        kilometer={item.kilometer}
         myPet={true}
+        onDetail={() => {
+          navigation.navigate(SCREEN.MY_PET_DETAIL);
+        }}
       />
     );
   };
 
   const onAddMyPet = () => {
-    navigation.navigate(SCREEN.MY_PET_DETAIL);
+    navigation.navigate(SCREEN.ADD_MY_PET);
   };
 
   return (

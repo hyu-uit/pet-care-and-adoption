@@ -11,6 +11,7 @@ import { COLORS } from '../config';
 import ProfileEditScreen from '../screens/profile/ProfileEditScreen';
 import ProfileMyPetDetail from '../screens/profile/ProfileMyPetDetail';
 import PetDetailScreen from '../screens/home/PetDetailScreen';
+import AddMyPetScreen from '../screens/profile/AddMyPetScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -59,6 +60,17 @@ const MainNavigator = () => {
       <Stack.Screen
         name={SCREEN.MY_PET_DETAIL}
         component={ProfileMyPetDetail}
+        options={{
+          headerTintColor: COLORS.blackContent,
+          headerStyle: { backgroundColor: COLORS.background },
+          headerShadowVisible: false,
+          headerShown: true,
+          headerTitle: 'My pet',
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.ADD_MY_PET}
+        component={AddMyPetScreen}
         options={{
           headerTintColor: COLORS.blackContent,
           headerStyle: { backgroundColor: COLORS.background },

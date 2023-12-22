@@ -40,6 +40,7 @@ export type ProfileStackParamList = {
   [SCREEN.PROFILE]: undefined;
   [SCREEN.EDIT_PROFILE]: undefined;
   [SCREEN.MY_PET_DETAIL]: undefined;
+  [SCREEN.ADD_MY_PET]: undefined;
 };
 
 export type PetCareStackParamList = {

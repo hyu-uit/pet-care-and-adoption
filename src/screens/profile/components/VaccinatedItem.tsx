@@ -7,8 +7,9 @@ import { AntDesign, MaterialIcons } from '@expo/vector-icons';
 type VaccinatedItemProps = {
   date: string;
   note: string;
+  detail?: boolean;
 };
-const VaccinatedItem: FC<VaccinatedItemProps> = ({ date, note }) => {
+const VaccinatedItem: FC<VaccinatedItemProps> = ({ date, note, detail }) => {
   return (
     <View style={styles.container}>
       <View>
@@ -22,30 +23,32 @@ const VaccinatedItem: FC<VaccinatedItemProps> = ({ date, note }) => {
           {note}
         </Text>
       </View>
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          gap: scaleSize(10),
-        }}
-      >
-        <TouchableOpacity>
-          <MaterialIcons
-            name='mode-edit'
-            size={scaleSize(15)}
-            color={COLORS.primary}
-            style={{ marginRight: scaleSize(2) }}
-          />
-        </TouchableOpacity>
+      {!detail && (
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: scaleSize(10),
+          }}
+        >
+          <TouchableOpacity>
+            <MaterialIcons
+              name='mode-edit'
+              size={scaleSize(15)}
+              color={COLORS.primary}
+              style={{ marginRight: scaleSize(2) }}
+            />
+          </TouchableOpacity>
 
-        <TouchableOpacity>
-          <AntDesign
-            name='delete'
-            size={scaleSize(15)}
-            color={COLORS.primary}
-          />
-        </TouchableOpacity>
-      </View>
+          <TouchableOpacity>
+            <AntDesign
+              name='delete'
+              size={scaleSize(15)}
+              color={COLORS.primary}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };
@@ -61,5 +64,6 @@ const styles = StyleSheet.create({
   },
   date: {
     ...FONTS.body5,
+    color: COLORS.blackPrimary,
   },
 });

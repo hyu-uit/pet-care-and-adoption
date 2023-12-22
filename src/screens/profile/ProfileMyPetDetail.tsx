@@ -4,117 +4,46 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  TextInput,
+  StatusBar,
+  Linking,
+  Touchable,
   ScrollView,
   FlatList,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
+import React, { useState } from 'react';
+import { COLORS, SIZES, FONTS, IMAGES, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
-import { Entypo, Ionicons } from '@expo/vector-icons';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import {
-  AdoptionStackParamList,
+  Feather,
+  FontAwesome,
+  Ionicons,
+  MaterialCommunityIcons,
+} from '@expo/vector-icons';
+import {
+  HomeStackParamList,
   ProfileStackParamList,
 } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
-import * as ImagePicker from 'expo-image-picker';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useRoute } from '@react-navigation/native';
+import Carousel, { Pagination } from 'react-native-snap-carousel';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
+import ImageModal from '../../components/ImageModal';
 import VaccinatedItem from './components/VaccinatedItem';
-import VaccinatedModal from './components/VaccinatedModal';
-import { Controller, useForm } from 'react-hook-form';
-import { AddPostType } from '../../types/add-post.type';
-import { SEX } from '../../types/enum/sex.enum';
-import { Dropdown } from 'react-native-element-dropdown';
-import {
-  useGetSpeciesQuery,
-  useLazyGetBreedsQuery,
-} from '../../store/pet-type/pet-type.api';
-import Button from '../../components/Button';
-import {
-  useGetProvincesQuery,
-  useLazyGetDistrictQuery,
-} from '../../store/province/province.api';
 
-type ImageType = {
-  uri: string;
-};
-
-const ProfileMyPetDetail = ({
+const MyPetDetailScreen = ({
   navigation,
-}: NativeStackScreenProps<ProfileStackParamList, SCREEN.MY_PET_DETAIL>) => {
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm<AddPostType>({
-    defaultValues: {
-      sex: SEX.MALE,
-      isAdopt: true,
-      isVaccinated: false,
-      description: '',
-    },
-  });
+}: NativeStackScreenProps<ProfileStackParamList, SCREEN.PROFILE>) => {
+  const route = useRoute();
+  // const postDetail = route.params?.postData;
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [showModal, setShowModal] = useState(false);
+  const [modalUri, setModalUri] = useState('');
 
-  const { data: dataSpecices } = useGetSpeciesQuery();
-  const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
-  const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
-  const { data: dataProvinces } = useGetProvincesQuery();
-
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
-  const [species, setSpecies] = useState([]);
-  const [breeds, setBreeds] = useState([]);
-
-  const [img, setImg] = useState([]);
-
-  const [isModalShown, setIsModalShown] = useState(false);
-
-  const onOpenModal = () => {
-    setIsModalShown(true);
-  };
-
-  const onCloseModal = () => {
-    setIsModalShown(false);
-  };
-
-  useEffect(() => {
-    if (!dataProvinces) return;
-    const provincesUpdate = dataProvinces?.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setProvinces(provincesUpdate);
-  }, [dataProvinces]);
-
-  useEffect(() => {
-    if (!dataDistricts) return;
-    const districtsUpdate = dataDistricts?.districts.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setDistricts(districtsUpdate);
-  }, [dataDistricts]);
-
-  useEffect(() => {
-    if (!dataSpecices) return;
-    const speciesUpdate = dataSpecices?.map((item) => ({
-      label: item.speciesName,
-      value: item.speciesID,
-    }));
-    setSpecies(speciesUpdate);
-  }, [dataSpecices]);
-
-  useEffect(() => {
-    if (!dataBreeds) return;
-    const breedsUpdate = dataBreeds?.map((item) => ({
-      label: item.breedName,
-      value: item.breedID,
-    }));
-    setBreeds(breedsUpdate);
-  }, [dataBreeds]);
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
 
   const vaccinatedHistory = [
     {
@@ -138,712 +67,385 @@ const ProfileMyPetDetail = ({
     },
   ];
 
-  const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: false,
-      quality: 1,
-      base64: true,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      const image = {
-        uri: result.assets[0].uri,
-        base64: result.assets[0].base64,
-      };
-      const isMatch = img.some(
-        (item) => item.base64 === result.assets[0].base64
-      );
-      if (isMatch) {
-        return;
-      }
-
-      setImg([...img, image]);
-    }
-  };
-
-  const renderImage = ({ item }) => {
-    return (
-      <TouchableOpacity
-        style={styles.imageWrapper}
-        onPress={() => {
-          console.log(img);
-        }}
-      >
-        <Image source={{ uri: item.uri }} style={styles.image} />
-      </TouchableOpacity>
-    );
-  };
-
-  const renderListFooter = () => {
-    if (img.length < 6)
-      return (
-        <TouchableOpacity style={styles.imageWrapper} onPress={pickImage}>
-          <Entypo name='plus' size={scaleSize(30)} color={COLORS.primary} />
-        </TouchableOpacity>
-      );
-  };
-
   const renderItemHistory = ({ item }) => {
-    return <VaccinatedItem date={item.date} note={item.note} />;
+    return <VaccinatedItem date={item.date} note={item.note} detail={true} />;
   };
 
-  const validateImageExistence = () => {
-    if (img.length <= 0) {
-      return false;
-    } else return true;
+  // const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
+
+  const onGoBack = () => {
+    navigation.goBack();
   };
 
-  const onSelectProvince = (value) => {
-    getDistricts(value.value);
-  };
+  const renderItem = ({ item }) => (
+    <TouchableOpacity
+      onPress={() => {
+        setModalUri(item);
+        setShowModal(true);
+      }}
+    >
+      <Image
+        source={{
+          uri: item,
+        }}
+        style={styles.image}
+      />
+    </TouchableOpacity>
+  );
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* <VaccinatedModal open={isModalShown} onClose={onCloseModal} />
-      <Text style={styles.title}>Images</Text>
-      <View style={styles.imageContainer}>
-        <FlatList
-          data={img}
-          keyExtractor={(item) => item.image}
-          renderItem={renderImage} //method to render the data in the way you want using styling u need
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          ListFooterComponent={renderListFooter}
-        />
-      </View>
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Name</Text>
-      <TextInput
-        placeholder={`Enter your pet\'s name`}
-        onChangeText={() => {}}
-        secureTextEntry={false}
-        placeholderTextColor={COLORS.grayC2C2CE}
-        style={[styles.input, { marginTop: scaleSize(5) }]}
+      <StatusBar barStyle='dark-content' />
+      <ImageModal
+        uri={modalUri}
+        open={showModal}
+        onClose={() => {
+          setShowModal(false);
+        }}
       />
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Age</Text>
-      <View style={{ marginTop: scaleSize(5) }}>
-        <View style={styles.unitWrapper}>
-          <Text style={styles.unit}>Month</Text>
-        </View>
-        <TextInput
-          placeholder={`Enter your pet\'s age`}
-          onChangeText={() => {}}
-          secureTextEntry={false}
-          placeholderTextColor={COLORS.grayC2C2CE}
-          style={[styles.input]}
-          keyboardType='numeric'
+      <View style={{ zIndex: 10000 }}>
+        <Carousel
+          // data={postDetail?.images}
+          data={[
+            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Labrador_Retriever_portrait.jpg/1200px-Labrador_Retriever_portrait.jpg',
+          ]}
+          renderItem={renderItem}
+          sliderWidth={SIZES.WindowWidth}
+          itemWidth={SIZES.WindowWidth}
+          onSnapToItem={(index) => setActiveIndex(index)}
+          loop
         />
-      </View>
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Breed</Text>
-      <TextInput
-        placeholder={`Enter your pet\'s breed`}
-        onChangeText={() => {}}
-        secureTextEntry={false}
-        placeholderTextColor={COLORS.grayC2C2CE}
-        style={[styles.input, { marginTop: scaleSize(5) }]}
-      />
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Weight</Text>
-      <View style={{ marginTop: scaleSize(5) }}>
-        <View style={styles.unitWrapper}>
-          <Text style={styles.unit}>Kg</Text>
-        </View>
-        <TextInput
-          placeholder={`Enter your pet\'s weight`}
-          onChangeText={() => {}}
-          secureTextEntry={false}
-          placeholderTextColor={COLORS.grayC2C2CE}
-          style={[styles.input]}
-          keyboardType='numeric'
+        <Pagination
+          // dotsLength={postDetail?.images?.length}
+          dotsLength={1}
+          activeDotIndex={activeIndex}
+          containerStyle={styles.paginationContainer}
+          dotStyle={styles.paginationDot}
+          inactiveDotStyle={styles.paginationInactiveDot}
+          inactiveDotOpacity={0.6}
+          inactiveDotScale={0.8}
         />
-      </View>
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Height</Text>
-      <View style={{ marginTop: scaleSize(5) }}>
-        <View style={styles.unitWrapper}>
-          <Text style={styles.unit}>cm</Text>
-        </View>
-        <TextInput
-          placeholder={`Enter your pet\'s weight`}
-          onChangeText={() => {}}
-          secureTextEntry={false}
-          placeholderTextColor={COLORS.grayC2C2CE}
-          style={[styles.input]}
-          keyboardType='numeric'
-        />
-      </View>
-
-      <View style={styles.selectionContainer}>
-        <View>
-          <Text style={styles.title}>Sex</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
-            <View style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Male</Text>
-            </View>
-            <View style={styles.optionWrapper}>
-              <Text style={styles.optionText}>Female</Text>
+        {/* <Image
+          source={{
+            uri: postDetail.images[0],
+          }}
+          style={styles.image}
+        /> */}
+        <View style={styles.infoContainer}>
+          <View style={styles.horizontalWrapper}>
+            <Text style={styles.name}>name</Text>
+            {/* <Text style={styles.name}>{postDetail?.petName}</Text> */}
+            <View style={styles.iconWrapper}>
+              <Ionicons
+                // name={postDetail?.sex === SEX.MALE ? 'male' : 'female'}
+                name={'male'}
+                size={scaleSize(20)}
+                color={
+                  COLORS.blue8EB1E5
+                  // postDetail?.sex === SEX.MALE
+                  //   ? COLORS.blue8EB1E5
+                  //   : COLORS.pinkF672E1
+                }
+              />
             </View>
           </View>
         </View>
       </View>
 
       <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: scaleSize(20),
-        }}
-      >
-        <Text style={styles.title}>Vaccinated</Text>
-        <TouchableOpacity
-          style={{ marginLeft: scaleSize(5) }}
-          onPress={onOpenModal}
-        >
-          <Ionicons
-            name='add-circle'
-            size={scaleSize(24)}
-            color={COLORS.primary}
-          />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.vaccinatedWrapper}>
-        <Text style={styles.vaccinatedTitle}>Hisotry</Text>
-        <FlatList
-          data={vaccinatedHistory}
-          keyExtractor={(item) => item.title}
-          renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
-          horizontal={false}
-          numColumns={1}
-          showsVerticalScrollIndicator={false}
-        />
-        <Text style={styles.vaccinatedTitle}>Next Vaccination</Text>
-        <FlatList
-          data={nextVaccination}
-          keyExtractor={(item) => item.title}
-          renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
-          horizontal={false}
-          numColumns={1}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Describe</Text>
-      <TextInput
-        placeholder={`Enter your pet\'s breed`}
-        onChangeText={() => {}}
-        secureTextEntry={false}
-        placeholderTextColor={COLORS.grayC2C2CE}
         style={[
-          styles.input,
+          styles.horizontalWrapper,
           {
-            marginTop: scaleSize(5),
-            height: scaleSize(200),
+            marginTop: scaleSize(80),
+            paddingHorizontal: SIZES.padding,
+            width: '80%',
+            alignSelf: 'center',
           },
         ]}
-        multiline={true}
-      />
-
-      <TouchableOpacity style={styles.button}>
-        <Text style={styles.buttonText}>Upload</Text>
-      </TouchableOpacity> */}
-      <Text style={styles.title}>Images</Text>
-      <Controller
-        control={control}
-        name='images'
-        defaultValue={img}
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <View style={styles.imageContainer}>
-            <FlatList
-              data={img}
-              keyExtractor={(item) => item.image}
-              renderItem={renderImage} //method to render the data in the way you want using styling u need
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              ListFooterComponent={renderListFooter}
-            />
-          </View>
-        )}
-        rules={{
-          required: 'Image is required',
-          validate: validateImageExistence,
-        }}
-      />
-      {errors.images && (
-        <Text style={styles.errorText}>{errors.images.message}</Text>
-      )}
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Name</Text>
-      <Controller
-        control={control}
-        name='name'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <TextInput
-            placeholder={`Enter your pet\'s name`}
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry={false}
-            placeholderTextColor={COLORS.grayC2C2CE}
-            style={[styles.input, { marginTop: scaleSize(5) }]}
-          />
-        )}
-        rules={{
-          required: 'Name is required',
-          maxLength: {
-            value: 30,
-            message: 'Please enter name less than 30 characters',
-          },
-        }}
-      />
-      {errors.name && (
-        <Text style={styles.errorText}>{errors.name.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Age</Text>
-      <Controller
-        control={control}
-        name='age'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <View style={{ marginTop: scaleSize(5) }}>
-            <View style={styles.unitWrapper}>
-              <Text style={styles.unit}>Month</Text>
-            </View>
-            <TextInput
-              placeholder={`Enter your pet\'s age`}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={false}
-              placeholderTextColor={COLORS.grayC2C2CE}
-              style={[styles.input]}
-              keyboardType='number-pad'
-            />
-          </View>
-        )}
-        rules={{
-          required: 'Age is required',
-          pattern: {
-            value: /^[0-9]*(\.[0-9]*)?$/,
-            message: 'Only numeric values are allowed',
-          },
-        }}
-      />
-      {errors.age && <Text style={styles.errorText}>{errors.age.message}</Text>}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Specie</Text>
-      <Controller
-        control={control}
-        name='specie'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={species}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select specie'
-            value={value}
-            placeholderStyle={{ color: COLORS.grayPrimary }}
+      >
+        <View style={styles.detailCell}>
+          <Text style={styles.detailText}>Category</Text>
+          <Text
             style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+              styles.detailText,
+              {
+                ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
+                fontWeight: 'bold',
+                color: COLORS.primary,
+                marginTop: scaleSize(7),
+              },
             ]}
-            onChange={(value) => {
-              onChange(value);
-              getBreeds(value.value);
-            }}
-            containerStyle={{
-              minHeight: scaleSize(100),
-              borderRadius: scaleSize(10),
-            }}
-          />
-        )}
-        rules={{
-          required: 'Specie is required',
-        }}
-      />
-      {errors.specie && (
-        <Text style={styles.errorText}>{errors.specie.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Breed</Text>
-      <Controller
-        control={control}
-        name='breed'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={breeds}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select breed'
-            placeholderStyle={{ color: COLORS.grayPrimary }}
+          >
+            {/* {postDetail?.isAdopt ? 'Adopt' : 'Lost'} */}
+            Adopt
+          </Text>
+        </View>
+        <View style={styles.detailCell}>
+          <Text style={styles.detailText}>Breed</Text>
+          <Text
             style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+              styles.detailText,
+              {
+                ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
+                fontWeight: 'bold',
+                color: COLORS.primary,
+                marginTop: scaleSize(7),
+              },
             ]}
-            onChange={onChange}
-            containerStyle={{
-              minHeight: scaleSize(100),
-              borderRadius: scaleSize(10),
+          >
+            {/* {postDetail?.species} */}
+            DOG
+          </Text>
+        </View>
+        <View style={styles.detailCell}>
+          <Text style={styles.detailText}>Weight</Text>
+          <Text
+            style={[
+              styles.detailText,
+              {
+                ...FONTS.body4,
+                fontFamily: 'CercoDEMO-Black',
+                fontWeight: 'bold',
+                color: COLORS.primary,
+                marginTop: scaleSize(7),
+              },
+            ]}
+          >
+            {/* {postDetail.weight} KG */}2 KG
+          </Text>
+        </View>
+      </View>
+
+      <View style={{ paddingHorizontal: SIZES.padding }}>
+        <View style={styles.vaccineContainer}>
+          <Text
+            style={{
+              ...FONTS.h5,
+              textAlign: 'center',
+              color: COLORS.primary,
+              fontFamily: 'CercoDEMO-Bold',
             }}
-          />
-        )}
-        rules={{
-          required: 'Breed is required',
-        }}
-      />
-      {errors.breed && (
-        <Text style={styles.errorText}>{errors.breed.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Weight</Text>
-      <Controller
-        control={control}
-        name='weight'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <View style={{ marginTop: scaleSize(5) }}>
-            <View style={styles.unitWrapper}>
-              <Text style={styles.unit}>Kg</Text>
+          >
+            Vaccination
+          </Text>
+          <View
+            style={[styles.horizontalWrapper, { marginTop: scaleSize(10) }]}
+          >
+            <View>
+              <Text style={styles.vaccineTitle}>History</Text>
+              <FlatList
+                data={vaccinatedHistory}
+                keyExtractor={(item) => item.title}
+                renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
+                horizontal={false}
+                numColumns={1}
+                showsVerticalScrollIndicator={false}
+              />
             </View>
-            <TextInput
-              placeholder={`Enter your pet\'s weight`}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={false}
-              placeholderTextColor={COLORS.grayC2C2CE}
-              style={[styles.input]}
-              // keyboardType='numbers-and-punctuation'
-              keyboardType='numeric'
-            />
-          </View>
-        )}
-        rules={{
-          required: 'Weight is required',
-          pattern: {
-            value: /^[0-9]+(?:,[0-9]+)?$/,
-            message:
-              'Only numeric values with a comma as decimal separator are allowed',
-          },
-        }}
-      />
-      {errors.weight && (
-        <Text style={styles.errorText}>{errors.weight.message}</Text>
-      )}
-
-      <View style={styles.selectionContainer}>
-        <View>
-          <Text style={styles.title}>Sex</Text>
-          <View style={{ ...STYLES.horizontal, marginTop: scaleSize(5) }}>
-            <Controller
-              control={control}
-              name='sex'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === SEX.MALE ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(SEX.MALE);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === SEX.MALE
-                            ? COLORS.whitePrimary
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    Male
-                  </Text>
-                </TouchableOpacity>
-              )}
-              rules={{
-                required: 'Sex is required',
-              }}
-            />
-            {errors.sex && (
-              <Text style={styles.errorText}>{errors.sex.message}</Text>
-            )}
-            <Controller
-              control={control}
-              name='sex'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === SEX.FEMALE ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(SEX.FEMALE);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === SEX.FEMALE
-                            ? COLORS.whitePrimary
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    Female
-                  </Text>
-                </TouchableOpacity>
-              )}
-              rules={{
-                required: 'Sex is required',
-              }}
-            />
-            {errors.sex && (
-              <Text style={styles.errorText}>{errors.sex.message}</Text>
-            )}
+            <View>
+              <Text style={styles.vaccineTitle}>Next</Text>
+              <FlatList
+                data={nextVaccination}
+                keyExtractor={(item) => item.title}
+                renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
+                horizontal={false}
+                numColumns={1}
+                showsVerticalScrollIndicator={false}
+              />
+            </View>
           </View>
         </View>
       </View>
 
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Location</Text>
+      <View style={{ paddingHorizontal: SIZES.padding }}>
+        <Text
+          style={{
+            ...FONTS.body4,
+            marginTop: scaleSize(20),
+            fontFamily: 'CercoDEMO-Bold',
+          }}
+        >
+          Note
+        </Text>
+        <Text style={{ ...FONTS.body4 }}>note description</Text>
+      </View>
 
-      <Controller
-        control={control}
-        name='province'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={provinces}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select province'
-            placeholderStyle={{ color: COLORS.grayPrimary }}
-            style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-            ]}
-            value={value}
-            onChange={(value) => {
-              onChange(value);
-              onSelectProvince(value);
-            }}
-            containerStyle={{
-              height: scaleSize(200),
-              borderRadius: scaleSize(10),
-            }}
-          />
-        )}
-        rules={{
-          required: 'Province is required',
+      <View
+        style={{
+          paddingHorizontal: SIZES.padding,
+          marginBottom: SIZES.bottomPadding,
+          marginTop: scaleSize(20),
+          flexDirection: 'row',
+          justifyContent: 'space-between',
         }}
-      />
-      {errors.province && (
-        <Text style={styles.errorText}>{errors.province.message}</Text>
-      )}
+      >
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: COLORS.tertiary }]}
+        >
+          <Text style={[styles.buttonText, { color: COLORS.primary }]}>
+            Delete
+          </Text>
+        </TouchableOpacity>
 
-      <Controller
-        control={control}
-        name='district'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={districts}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select district'
-            placeholderStyle={{ color: COLORS.grayPrimary }}
-            style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-            ]}
-            onChange={onChange}
-            containerStyle={{
-              height: scaleSize(200),
-              borderRadius: scaleSize(10),
-            }}
-          />
-        )}
-        rules={{
-          required: 'District is required',
-        }}
-      />
-      {errors.district && (
-        <Text style={styles.errorText}>{errors.district.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Describe</Text>
-      <Controller
-        control={control}
-        name='description'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <TextInput
-            placeholder={`Description about this pet`}
-            onChangeText={onChange}
-            value={value}
-            secureTextEntry={false}
-            placeholderTextColor={COLORS.grayC2C2CE}
-            style={[
-              styles.input,
-              {
-                marginTop: scaleSize(5),
-                height: scaleSize(200),
-              },
-            ]}
-            multiline={true}
-          />
-        )}
-      />
-
-      <Button
-        onPress={() => {}}
-        title='Publish'
-        style={{ marginTop: scaleSize(19), marginBottom: SIZES.bottomPadding }}
-        isLoading={false}
-      />
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Edit</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
 
-export default ProfileMyPetDetail;
+export default MyPetDetailScreen;
 
 const styles = StyleSheet.create({
   container: {
     display: 'flex',
     flex: 1,
-    paddingHorizontal: SIZES.padding,
     backgroundColor: COLORS.background,
-  },
-  title: {
-    ...FONTS.body1,
-    fontWeight: '600',
   },
   image: {
     width: '100%',
-    height: '100%',
+    height: scaleSize(360),
     resizeMode: 'cover',
-    borderRadius: scaleSize(30),
-  },
-  imageWrapper: {
-    width: scaleSize(60),
-    height: scaleSize(60),
-    borderRadius: scaleSize(30),
-    borderWidth: scaleSize(2),
-    borderColor: COLORS.primary,
-    borderStyle: 'dashed',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: scaleSize(10),
-  },
-  imageContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    gap: scaleSize(10),
-    alignItems: 'center',
-    marginTop: scaleSize(10),
-  },
-  input: {
-    ...STYLES.input,
-  },
-  unitWrapper: {
-    position: 'absolute',
-    right: 0,
-    borderRadius: SIZES.radius,
-    height: '100%',
-    width: scaleSize(73),
-    zIndex: 1000,
     backgroundColor: COLORS.primary,
+  },
+  infoContainer: {
+    width: scaleSize(300),
+    height: scaleSize(80),
+    padding: scaleSize(15),
+    backgroundColor: COLORS.whitePrimary,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
-  unit: {
-    ...FONTS.body4,
-    color: COLORS.whitePrimary,
-  },
-  selectionContainer: {
-    ...STYLES.horizontal,
-    marginTop: scaleSize(20),
-  },
-  optionWrapper: {
-    paddingHorizontal: scaleSize(8),
-    paddingVertical: scaleSize(3),
-    backgroundColor: COLORS.tertiary,
+    borderRadius: scaleSize(15),
+    position: 'absolute',
+    bottom: -scaleSize(50),
+    left: SIZES.WindowWidth / 2 - scaleSize(300) / 2,
     borderWidth: scaleSize(1),
     borderColor: COLORS.grayLight,
-    borderRadius: scaleSize(5),
-    marginRight: scaleSize(10),
+    paddingHorizontal: scaleSize(22),
   },
-  optionText: {
-    ...FONTS.body6,
+  name: {
+    ...FONTS.h2,
     color: COLORS.primary,
+  },
+  iconWrapper: {
+    width: scaleSize(30),
+    height: scaleSize(30),
+    backgroundColor: COLORS.tertiary,
+    borderRadius: scaleSize(23),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  horizontalWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  infoText: {
+    ...FONTS.body4,
+    color: COLORS.blackContent,
+    marginLeft: scaleSize(4),
+  },
+  iconFoot: {
+    width: scaleSize(15),
+    height: scaleSize(15),
+  },
+  favouriteContainer: {
+    position: 'absolute',
+    backgroundColor: COLORS.primary,
+    width: scaleSize(45),
+    height: scaleSize(48),
+    zIndex: 1000,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderTopRightRadius: scaleSize(20),
+    borderBottomLeftRadius: scaleSize(20),
+    top: 0,
+    right: 0,
+  },
+  detailCell: {
+    width: scaleSize(70),
+    height: scaleSize(70),
+    backgroundColor: COLORS.tertiary,
+    borderRadius: scaleSize(20),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  detailText: {
+    ...FONTS.body7,
+    color: COLORS.primary,
+  },
+  ownerImage: {
+    width: scaleSize(40),
+    height: scaleSize(40),
+    borderRadius: scaleSize(20),
+    resizeMode: 'cover',
+  },
+  postedBy: {
+    ...FONTS.body7,
+    color: COLORS.blackContent,
+  },
+  ownerName: {
+    ...FONTS.body4,
+    fontWeight: 'bold',
+    color: COLORS.blackContent,
+    marginTop: scaleSize(5),
+  },
+  contactWrapper: {
+    width: scaleSize(30),
+    height: scaleSize(30),
+    borderRadius: scaleSize(5),
+    backgroundColor: COLORS.tertiary,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  comment: {
+    ...FONTS.body4,
+    paddingHorizontal: SIZES.padding,
+    marginTop: scaleSize(10),
   },
   button: {
     ...STYLES.button,
     marginTop: scaleSize(20),
-    marginBottom: SIZES.bottomPadding,
+    width: '48%',
   },
   buttonText: {
     ...STYLES.buttonText,
   },
-  vaccinatedWrapper: {
-    width: '100%',
-    minHeight: scaleSize(150),
-    borderRadius: scaleSize(10),
+  backIcon: {
+    position: 'absolute',
+    top: scaleSize(45),
+    left: scaleSize(10),
+    zIndex: 1000,
+  },
+  paginationContainer: {
+    position: 'absolute',
+    zIndex: 1000,
+    bottom: 20,
+    alignSelf: 'center',
+  },
+  paginationDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: COLORS.primary,
+  },
+  paginationInactiveDot: {
+    backgroundColor: COLORS.blackContent,
+  },
+  vaccineContainer: {
+    padding: SIZES.padding,
+    marginTop: scaleSize(18),
     backgroundColor: COLORS.tertiary,
-    borderWidth: scaleSize(1),
-    borderColor: COLORS.grayLight,
-    padding: scaleSize(20),
-    marginTop: scaleSize(10),
+    borderRadius: scaleSize(20),
+    minHeight: scaleSize(100),
   },
-  vaccinatedTitle: {
-    ...FONTS.body3,
-    color: COLORS.primary,
+  vaccineTitle: {
+    ...FONTS.body4,
+    fontFamily: 'CercoDEMO-Medium',
+    color: '#776DC6',
     marginBottom: scaleSize(5),
-  },
-  errorText: {
-    ...FONTS.body5,
-    color: COLORS.redPrimary,
-    fontSize: scaleSize(12),
-    marginTop: scaleSize(3),
   },
 });
