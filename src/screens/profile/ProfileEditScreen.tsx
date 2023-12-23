@@ -36,6 +36,15 @@ import { v4 as uuidv4 } from 'uuid';
 import Popup from '../../components/Popup';
 import { POPUP_TYPE } from '../../types/enum/popup.enum';
 import { setUserInformation } from '../../store/shared/shared.slice';
+import {
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from 'firebase/firestore';
+import { firestoreDB } from '../../../firebaseConfig';
 
 type EditInfoREQ = {
   avatar: string;
@@ -222,6 +231,21 @@ const ProfileEditScreen = () => {
       let res = null;
       if (data.avatar !== userData.avatar) {
         res = (await uploadToFirebaseStorage(data.avatar)) as string;
+        await updateDoc(doc(firestoreDB, 'users', userData.phoneNumber), {
+          avatar: res.downloadUrl,
+        });
+
+        const userChatsRef = collection(firestoreDB, 'userChats');
+        const querySnapshot = await getDocs(
+          query(userChatsRef, where('userInfo.id', '==', userData.phoneNumber))
+        );
+
+        querySnapshot.forEach(async (d) => {
+          const chatId = d.id;
+          await updateDoc(doc(firestoreDB, 'userChats', chatId), {
+            avatar: res.downloadUrl,
+          });
+        });
       }
       await updateInfo({
         userID: userData.phoneNumber,

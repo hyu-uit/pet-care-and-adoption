@@ -44,6 +44,9 @@ const ChatHistoryScreen = ({
   const [username, setUsername] = useState('');
   const [user, setUser] = useState('');
   const [chats, setChats] = useState([]);
+  const [imgs, setImgs] = useState([]);
+
+  let avatars = [];
 
   useEffect(() => {
     const getChats = () => {
@@ -79,6 +82,30 @@ const ChatHistoryScreen = ({
       console.error(error);
     }
   };
+
+  useEffect(() => {
+    const getData = async () => {
+      // const docRef = doc(firestoreDB, 'users', );
+      // const docSnap = await getDoc(docRef);
+      // console.log(docSnap.data());
+      if (
+        Object.entries(chats).length > 0 &&
+        Object.entries(chats).length >= imgs.length
+      ) {
+        if (Object.entries(chats).length >= avatars.length) {
+          Object.entries(chats).forEach(async (chat, index) => {
+            console.log(chat[1].userInfo.displayName);
+            const docRef = doc(firestoreDB, 'users', chat[1].userInfo.id);
+            const docSnap = await getDoc(docRef);
+            avatars = [...avatars, docSnap.data()?.avatar];
+            setImgs(avatars);
+          });
+        }
+      }
+    };
+
+    getData();
+  }, [Object.entries(chats).length]);
 
   const onSelect = async () => {
     const id1 = '0848867679';
@@ -195,7 +222,9 @@ const ChatHistoryScreen = ({
             >
               <Image
                 source={{
-                  uri: 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdog-puns-1581708208.jpg?alt=media&token=39969852-94c9-41fd-8f4b-afd05f1201f9',
+                  uri: imgs[index]
+                    ? imgs[index]
+                    : 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdog-puns-1581708208.jpg?alt=media&token=39969852-94c9-41fd-8f4b-afd05f1201f9',
                 }}
                 style={styles.image}
               ></Image>

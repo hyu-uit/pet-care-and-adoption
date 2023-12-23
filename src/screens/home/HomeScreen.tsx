@@ -200,7 +200,7 @@ const HomeScreen = ({
   };
 
   const onAdoptPets = () => {
-    navigation.navigate(SCREEN.SEARCH);
+    navigation.navigate('Adoption', { screen: SCREEN.SEARCH });
   };
 
   const onPetCareVideos = () => {
