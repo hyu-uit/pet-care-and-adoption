@@ -45,6 +45,8 @@ import {
 import VaccinatedModal from './components/VaccinatedModal';
 import VaccinatedItem from './components/VaccinatedItem';
 import { VaccinatedListType } from '../../types/vaccinated-list.type';
+import { AddMyPetREQ } from '../../store/my-pet/request/add-my-pet.request';
+import { useAddMyPetMutation } from '../../store/my-pet/my-pet.api';
 
 type ImageType = {
   uri: string;
@@ -57,7 +59,6 @@ const AddMyPetScreen = ({
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
-  const [publishPost, { isLoading }] = useAddPostMutation();
 
   const {
     control,
@@ -75,28 +76,6 @@ const AddMyPetScreen = ({
     },
   });
 
-  const vaccinatedHistory = [
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-  ];
-
-  const nextVaccination = [
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-  ];
-
   const [img, setImg] = useState([]);
   const [url, setUrl] = useState([]);
   const [provinces, setProvinces] = useState([]);
@@ -105,6 +84,9 @@ const AddMyPetScreen = ({
   const [breeds, setBreeds] = useState([]);
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
   const [isModalShown, setIsModalShown] = useState(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const [addMyPet] = useAddMyPetMutation();
 
   const [vaccinatedList, setVaccinatedList] = useState<VaccinatedListType>({
     history: [],
@@ -251,44 +233,44 @@ const AddMyPetScreen = ({
   };
 
   const handleUpload = async (data) => {
-    console.log(data);
-    // const urlArray = [];
-    // for (let i = 0; i < img.length; i++) {
-    //   const res = await uploadToFirebaseStorage(img[i]);
-    //   urlArray.push(res.downloadUrl);
-    // }
+    try {
+      setIsLoading(true);
+      const urlArray = [];
+      for (let i = 0; i < img.length; i++) {
+        const res = await uploadToFirebaseStorage(img[i]);
+        urlArray.push(res.downloadUrl);
+      }
 
-    // try {
-    //   const body: AddPostREQ = {
-    //     postModel: {
-    //       petName: data.name,
-    //       sex: data.sex,
-    //       age: data.age,
-    //       species: data.specie.label,
-    //       breed: data.breed.label,
-    //       weight: data.weight,
-    //       district: data.district.label,
-    //       province: data.province.label,
-    //       isVaccinated: data.isVaccinated,
-    //       isAdopt: data.isAdopt,
-    //       userID: myPhoneNumber,
-    //       description: data.description,
-    //     },
-    //     // images: data.images.map((image) => ({ image })),
-    //     images: Array.isArray(urlArray)
-    //       ? urlArray.map((image) => ({ image }))
-    //       : [],
-    //   };
-    //   await publishPost(body).unwrap();
+      const body: AddMyPetREQ = {
+        petModel: {
+          petName: data.name,
+          sex: data.sex,
+          age: data.age,
+          species: data.specie.label,
+          breed: data.breed.label,
+          weight: data.weight,
+          description: data.description,
+          userID: myPhoneNumber,
+        },
+        images: Array.isArray(urlArray)
+          ? urlArray.map((image) => ({ image }))
+          : [],
+        history: vaccinatedList.history,
+        next: vaccinatedList.next,
+      };
 
-    //   setIsSuccessPopup(true);
-    //   setBreeds([]);
-    //   reset();
-    //   setDistricts([]);
-    //   setImg([]);
-    // } catch (error) {
-    //   console.log(error);
-    // }
+      await addMyPet(body).unwrap();
+
+      setIsSuccessPopup(true);
+      setBreeds([]);
+      reset();
+      setDistricts([]);
+      setImg([]);
+      setIsLoading(false);
+    } catch (error) {
+      setIsLoading(false);
+      console.log(error);
+    }
   };
 
   const handleDeleteHistoryItem = (index: number) => {

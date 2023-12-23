@@ -8,7 +8,7 @@ type VaccinatedItemProps = {
   date: string;
   note: string;
   detail?: boolean;
-  onDelete: () => void;
+  onDelete?: () => void;
 };
 const VaccinatedItem: FC<VaccinatedItemProps> = ({
   date,

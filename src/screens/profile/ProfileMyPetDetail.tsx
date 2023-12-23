@@ -31,6 +31,7 @@ import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import ImageModal from '../../components/ImageModal';
 import VaccinatedItem from './components/VaccinatedItem';
+import { SEX } from '../../types/enum/sex.enum';
 
 const MyPetDetailScreen = ({
   navigation,
@@ -45,27 +46,11 @@ const MyPetDetailScreen = ({
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const vaccinatedHistory = [
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-  ];
+  const myPetInfo = route.params?.myPetInfo;
 
-  const nextVaccination = [
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-    {
-      date: '28/12/2023',
-      note: 'Tiêm ngừa dại lần 1',
-    },
-  ];
+  const vaccinatedHistory = myPetInfo.history;
+
+  const nextVaccination = myPetInfo.next;
 
   const renderItemHistory = ({ item }) => {
     return <VaccinatedItem date={item.date} note={item.note} detail={true} />;
@@ -105,10 +90,7 @@ const MyPetDetailScreen = ({
       />
       <View style={{ zIndex: 10000 }}>
         <Carousel
-          // data={postDetail?.images}
-          data={[
-            'https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Labrador_Retriever_portrait.jpg/1200px-Labrador_Retriever_portrait.jpg',
-          ]}
+          data={myPetInfo.images}
           renderItem={renderItem}
           sliderWidth={SIZES.WindowWidth}
           itemWidth={SIZES.WindowWidth}
@@ -116,8 +98,7 @@ const MyPetDetailScreen = ({
           loop
         />
         <Pagination
-          // dotsLength={postDetail?.images?.length}
-          dotsLength={1}
+          dotsLength={myPetInfo.images.length}
           activeDotIndex={activeIndex}
           containerStyle={styles.paginationContainer}
           dotStyle={styles.paginationDot}
@@ -125,26 +106,19 @@ const MyPetDetailScreen = ({
           inactiveDotOpacity={0.6}
           inactiveDotScale={0.8}
         />
-        {/* <Image
-          source={{
-            uri: postDetail.images[0],
-          }}
-          style={styles.image}
-        /> */}
         <View style={styles.infoContainer}>
           <View style={styles.horizontalWrapper}>
-            <Text style={styles.name}>name</Text>
-            {/* <Text style={styles.name}>{postDetail?.petName}</Text> */}
+            <Text style={styles.name}>{myPetInfo.petInfoModel.petName}</Text>
             <View style={styles.iconWrapper}>
               <Ionicons
-                // name={postDetail?.sex === SEX.MALE ? 'male' : 'female'}
-                name={'male'}
+                name={
+                  myPetInfo?.petInfoModel?.sex === SEX.MALE ? 'male' : 'female'
+                }
                 size={scaleSize(20)}
                 color={
-                  COLORS.blue8EB1E5
-                  // postDetail?.sex === SEX.MALE
-                  //   ? COLORS.blue8EB1E5
-                  //   : COLORS.pinkF672E1
+                  myPetInfo?.petInfoModel?.sex === SEX.MALE
+                    ? COLORS.blue8EB1E5
+                    : COLORS.pinkF672E1
                 }
               />
             </View>
@@ -177,8 +151,7 @@ const MyPetDetailScreen = ({
               },
             ]}
           >
-            {/* {postDetail?.isAdopt ? 'Adopt' : 'Lost'} */}
-            Adopt
+            {myPetInfo.petInfoModel.species}
           </Text>
         </View>
         <View style={styles.detailCell}>
@@ -195,8 +168,7 @@ const MyPetDetailScreen = ({
               },
             ]}
           >
-            {/* {postDetail?.species} */}
-            DOG
+            {myPetInfo.petInfoModel.breed}
           </Text>
         </View>
         <View style={styles.detailCell}>
@@ -213,7 +185,7 @@ const MyPetDetailScreen = ({
               },
             ]}
           >
-            {/* {postDetail.weight} KG */}2 KG
+            {myPetInfo.petInfoModel.weight} KG
           </Text>
         </View>
       </View>
@@ -269,7 +241,9 @@ const MyPetDetailScreen = ({
         >
           Note
         </Text>
-        <Text style={{ ...FONTS.body4 }}>note description</Text>
+        <Text style={{ ...FONTS.body4, marginTop: scaleSize(10) }}>
+          {myPetInfo.petInfoModel.description}
+        </Text>
       </View>
 
       <View

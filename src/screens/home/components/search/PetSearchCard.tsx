@@ -11,8 +11,8 @@ type PetSearchCardProps = {
   age: number;
   type: string;
   gender: SEX;
-  district: string;
-  province: string;
+  district?: string;
+  province?: string;
   myPet?: boolean;
   onDetail: () => void;
 };
@@ -66,21 +66,23 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
             <Text style={styles.infoText}>{type}</Text>
           </View>
         </View>
-        <View
-          style={[
-            styles.horizontalWrapper,
-            { marginTop: scaleSize(5), justifyContent: 'flex-start' },
-          ]}
-        >
-          <Ionicons
-            name='location-sharp'
-            size={scaleSize(10)}
-            color={COLORS.primary}
-          />
-          <Text style={styles.infoText}>
-            {district}, {province}
-          </Text>
-        </View>
+        {(province || district) && (
+          <View
+            style={[
+              styles.horizontalWrapper,
+              { marginTop: scaleSize(5), justifyContent: 'flex-start' },
+            ]}
+          >
+            <Ionicons
+              name='location-sharp'
+              size={scaleSize(10)}
+              color={COLORS.primary}
+            />
+            <Text style={styles.infoText}>
+              {district}, {province}
+            </Text>
+          </View>
+        )}
       </View>
     </TouchableOpacity>
   );

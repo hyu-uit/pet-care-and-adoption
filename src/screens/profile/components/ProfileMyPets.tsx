@@ -11,61 +11,26 @@ import { scaleSize } from '../../../utils/DeviceUtils';
 import { SIZES, FONTS, COLORS } from '../../../config';
 import { Foundation } from '@expo/vector-icons';
 import { SCREEN } from '../../../navigators/AppRoute';
+import { useGetMyPetsQuery } from '../../../store/my-pet/my-pet.api';
 
 type ProfileMyPetProps = {
   navigation: any;
 };
 
 const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
-  const data = [
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-  ];
+  const { data: myPets } = useGetMyPetsQuery();
 
   const renderItem = ({ item }) => {
     return (
       <PetSearchCard
-        image={item.image}
-        name={item.name}
-        age={item.age}
-        type={item.type}
+        image={item.images}
+        name={item.petInfoModel.petName}
+        age={item.petInfoModel.age}
+        gender={item.petInfoModel.sex}
+        type={item.petInfoModel.breed}
         myPet={true}
         onDetail={() => {
-          navigation.navigate(SCREEN.MY_PET_DETAIL);
+          navigation.navigate(SCREEN.MY_PET_DETAIL, { myPetInfo: item });
         }}
       />
     );
@@ -78,7 +43,7 @@ const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
-        data={data}
+        data={myPets}
         keyExtractor={(item) => item.title}
         renderItem={renderItem} //method to render the data in the way you want using styling u need
         horizontal={false}
