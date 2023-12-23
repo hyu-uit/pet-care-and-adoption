@@ -12,6 +12,7 @@ type AdoptedCardProps = {
   district: string;
   province: string;
   onDetail: () => void;
+  own?: boolean;
 };
 
 const AdoptedPetCard: FC<AdoptedCardProps> = ({
@@ -21,19 +22,22 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
   district,
   province,
   onDetail,
+  own,
 }) => {
   console.log(image);
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
-      <View style={styles.favouriteContainer}>
-        <TouchableOpacity>
-          <Ionicons
-            name='heart'
-            size={scaleSize(10)}
-            color={COLORS.whitePrimary}
-          />
-        </TouchableOpacity>
-      </View>
+      {!own && (
+        <View style={styles.favouriteContainer}>
+          <TouchableOpacity>
+            <Ionicons
+              name='heart'
+              size={scaleSize(10)}
+              color={COLORS.whitePrimary}
+            />
+          </TouchableOpacity>
+        </View>
+      )}
       <Image source={{ uri: image ? image[0] : '' }} style={styles.image} />
       <View style={styles.infoWrapper}>
         <View

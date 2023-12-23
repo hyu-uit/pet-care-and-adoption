@@ -23,4 +23,8 @@ export const provinceApi = createApi({
   }),
 });
 
-export const { useGetProvincesQuery, useLazyGetDistrictQuery } = provinceApi;
+export const {
+  useGetProvincesQuery,
+  useLazyGetDistrictQuery,
+  useLazyGetProvincesQuery,
+} = provinceApi;

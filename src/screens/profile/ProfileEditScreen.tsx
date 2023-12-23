@@ -19,7 +19,7 @@ import {
 } from '../../store/province/province.api';
 import { Controller, useForm } from 'react-hook-form';
 import { RootState } from '../../store';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { EditInformationREQ } from '../../store/users/request/edit-info.request';
 import { ButtonVariant } from '../../enums/ButtonVariant.enum';
 import {
@@ -28,7 +28,10 @@ import {
   ref,
   uploadBytesResumable,
 } from 'firebase/storage';
-import { useEditInformationMutation } from '../../store/users/users.api';
+import {
+  useEditInformationMutation,
+  useGetUserInformationQuery,
+} from '../../store/users/users.api';
 
 type EditInfoREQ = {
   avatar: string;
@@ -41,22 +44,25 @@ const ProfileEditScreen = () => {
   const userData = useSelector((state: RootState) => state.shared.user);
   const [updateInfo, { isLoading }] = useEditInformationMutation();
 
+  const { data: user } = useGetUserInformationQuery(userData.phoneNumber);
+
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
+  const [key, setKey] = useState(0);
+  const dispatch = useDispatch();
 
   const {
     control,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<EditInformationREQ>({
     defaultValues: {
       name: userData.name,
-      district: userData.district,
-      province: provinces.find((item) => item.label === userData.province),
-      avatar: districts.find((item) => item.label === userData.district),
+      avatar: userData.avatar,
     },
   });
 
@@ -91,6 +97,49 @@ const ProfileEditScreen = () => {
     }));
     setDistricts(districtsUpdate);
   }, [dataDistricts]);
+
+  useEffect(() => {
+    const fetchAddess = async () => {
+      // if (key === 0) {
+      // if (user.province) {
+      //   const provinceOrder = provinces.find(
+      //     (item) => item.label === user.province
+      //   )?.value;
+      //   setValue('province', provinceOrder);
+      //   if (user.district) {
+      //     await getDistricts(provinceOrder);
+      //     setValue(
+      //       'district',
+      //       districts.find((item) => item.label === user.district)?.value
+      //     );
+      //   }
+      //   setKey((pre) => pre + 1);
+      // }
+      if (userData.province) {
+        const provinceOrder = dataProvinces.find(
+          (item) => item.name === userData.province
+        )?.code;
+        setValue('province', provinceOrder);
+        if (userData.district) {
+          try {
+            const districtList = await getDistricts(provinceOrder).unwrap();
+            console.log(districtList.districts[0].name);
+            setValue(
+              'district',
+              districtList?.districts?.find(
+                (item) => item.name === userData.district
+              )?.code
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
+    };
+    // };
+
+    fetchAddess();
+  }, [dataProvinces]);
 
   const [img, setImg] = useState();
 
@@ -162,17 +211,19 @@ const ProfileEditScreen = () => {
         (item) => item.value === data.district
       ).label;
 
-      let res = '';
-      // if (data.avatar !== userData.avatar) {
-      //   res = (await uploadToFirebaseStorage(data.avatar)) as string;
-      // }
+      let res;
+      if (data.avatar !== userData.avatar) {
+        res = (await uploadToFirebaseStorage(data.avatar)) as string;
+      }
+      console.log(res.downloadUrl);
 
       await updateInfo({
         userID: userData.phoneNumber,
         name: data.name,
         district: districtSelected,
         province: provinceSelected,
-        avatar: res,
+        avatar: res.downloadUrl,
+        password: 'fake',
       }).unwrap;
     } catch (error) {
       console.log(error);

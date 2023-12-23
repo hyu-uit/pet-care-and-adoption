@@ -114,14 +114,18 @@ const LostPetsScreen = ({
   //   },
   // ];
 
-  const renderItem = ({ item }) => {
+  const renderItem = ({ item, index }) => {
     return (
       <LostPetsItem
-        image={item.image}
+        key={index}
+        image={item.images[0]}
         gender={item.gender}
-        name={item.name}
+        name={item.petName}
         district={item.district}
         province={item.province}
+        onDetail={() => {
+          onDetail(item);
+        }}
       />
     );
   };
@@ -206,60 +210,37 @@ const LostPetsScreen = ({
         numColumns={2}
         style={{ marginTop: scaleSize(20) }}
       /> */}
-      <ScrollView style={{ flex: 1, paddingTop: scaleSize(20) }}>
-        {visibleData
-          .filter((item) => {
-            if (
-              searchText !== '' &&
-              !item.petName.toLowerCase().includes(searchText.toLowerCase())
-            ) {
-              return false;
-            }
-            if (
-              filteredDistricts &&
-              !item.district
-                .toLowerCase()
-                .includes(filteredDistricts.label.toLowerCase())
-            ) {
-              return false;
-            }
-            if (
-              filteredProvinces &&
-              !item.province
-                .toLowerCase()
-                .includes(filteredProvinces.label.toLowerCase())
-            ) {
-              return false;
-            }
-            return true;
-          })
-          .map((item, index) => (
-            <LostPetsItem
-              key={index}
-              image={item.images[0]}
-              gender={item.gender}
-              name={item.petName}
-              district={item.district}
-              province={item.province}
-              onDetail={() => {
-                onDetail(item);
-              }}
-            />
-            // <PetSearchCard
-            //   key={index}
-            //   image={item.images}
-            //   name={item.petName}
-            //   age={item.age}
-            //   type={item.breed}
-            //   district={item.district}
-            //   province={item.province}
-            //   gender={item.gender}
-            //   onDetail={() => {
-            //     onDetail(item);
-            //   }}
-            // />
-          ))}
-      </ScrollView>
+      <FlatList
+        data={visibleData.filter((item) => {
+          if (
+            searchText !== '' &&
+            !item.petName.toLowerCase().includes(searchText.toLowerCase())
+          ) {
+            return false;
+          }
+          if (
+            filteredDistricts &&
+            !item.district
+              .toLowerCase()
+              .includes(filteredDistricts.label.toLowerCase())
+          ) {
+            return false;
+          }
+          if (
+            filteredProvinces &&
+            !item.province
+              .toLowerCase()
+              .includes(filteredProvinces.label.toLowerCase())
+          ) {
+            return false;
+          }
+          return true;
+        })}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        numColumns={2} // Set the number of columns to 2
+        contentContainerStyle={{ paddingVertical: 20 }}
+      />
     </View>
   );
 };

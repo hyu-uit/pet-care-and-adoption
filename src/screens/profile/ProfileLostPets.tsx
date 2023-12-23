@@ -1,100 +1,85 @@
-import { View, Text, StyleSheet, FlatList } from 'react-native';
-import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import React, { useMemo } from 'react';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { COLORS, FONTS, SIZES } from '../../config';
 import AdoptedPetCard from '../home/components/home/AdoptedPetCard';
+import { useGetPostsQuery } from '../../store/post/post.api';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const ProfileLostPets = () => {
-  const adoptedList = [
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: 'Samatha',
-      gender: 'Male',
-      address: 'Binh Duong',
-      kilometer: 2.5,
-    },
-  ];
+  const { data: allPosts } = useGetPostsQuery();
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
+
+  const myLostList = useMemo(() => {
+    if (!allPosts) {
+      return [];
+    }
+
+    return allPosts.filter(
+      (item) =>
+        item.postAdoptModel.isAdopt === false &&
+        item.postAdoptModel.userID === myPhoneNumber
+    );
+  }, [allPosts, myPhoneNumber]);
+
+  const onDetail = () => {};
 
   const renderItemLost = ({ item }) => {
     return (
       <AdoptedPetCard
-        image={item.image}
-        name={item.name}
-        gender={item.gender}
-        address={item.address}
-        kilometer={item.kilometer}
+        image={item.images}
+        name={item.postAdoptModel.petName}
+        gender={item.postAdoptModel.sex}
+        district={item.postAdoptModel.district}
+        province={item.postAdoptModel.province}
+        own={true}
+        onDetail={() => {
+          onDetail();
+        }}
       />
     );
   };
 
   return (
     <View style={{ paddingHorizontal: SIZES.padding }}>
-      <View style={styles.container}>
-        <Text style={styles.title}>My Lost Pets</Text>
-      </View>
+      {myLostList && (
+        <>
+          <View style={styles.container}>
+            <Text style={styles.title}>My Lost Pets</Text>
+          </View>
 
-      <FlatList
-        data={adoptedList}
-        keyExtractor={(item) => item.image}
-        renderItem={renderItemLost} //method to render the data in the way you want using styling u need
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-        style={{ marginTop: scaleSize(20) }}
-      />
+          <FlatList
+            data={myLostList}
+            keyExtractor={(item) => item.image}
+            renderItem={renderItemLost} //method to render the data in the way you want using styling u need
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        </>
+      )}
 
       <View style={styles.container}>
         <Text style={styles.title}>Lost Pets Near me</Text>
       </View>
 
-      <FlatList
+      {/* <FlatList
         data={adoptedList}
         keyExtractor={(item) => item.image}
         renderItem={renderItemLost} //method to render the data in the way you want using styling u need
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         style={{ marginTop: scaleSize(20) }}
-      />
+      /> */}
     </View>
   );
 };
