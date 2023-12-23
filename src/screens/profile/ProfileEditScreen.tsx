@@ -32,6 +32,10 @@ import {
   useEditInformationMutation,
   useGetUserInformationQuery,
 } from '../../store/users/users.api';
+import { v4 as uuidv4 } from 'uuid';
+import Popup from '../../components/Popup';
+import { POPUP_TYPE } from '../../types/enum/popup.enum';
+import { setUserInformation } from '../../store/shared/shared.slice';
 
 type EditInfoREQ = {
   avatar: string;
@@ -42,7 +46,7 @@ type EditInfoREQ = {
 
 const ProfileEditScreen = () => {
   const userData = useSelector((state: RootState) => state.shared.user);
-  const [updateInfo, { isLoading }] = useEditInformationMutation();
+  const [updateInfo] = useEditInformationMutation();
 
   const { data: user } = useGetUserInformationQuery(userData.phoneNumber);
 
@@ -50,7 +54,9 @@ const ProfileEditScreen = () => {
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
-  const [key, setKey] = useState(0);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
+
   const dispatch = useDispatch();
 
   const {
@@ -69,11 +75,13 @@ const ProfileEditScreen = () => {
   const pro = watch('province');
   const dis = watch('district');
   const name = watch('name');
+  const ava = watch('avatar');
 
   const isChanged =
-    pro !== userData.province ||
-    dis !== userData.district.province ||
-    name !== userData.name;
+    provinces.find((item) => item.value === pro)?.label !== userData.province ||
+    districts.find((item) => item.value === dis)?.label !== userData.district ||
+    name !== userData.name ||
+    ava !== userData.avatar;
 
   // const provinces = dataProvinces.map((item) => ({
   //   label: item.name,
@@ -123,7 +131,6 @@ const ProfileEditScreen = () => {
         if (userData.district) {
           try {
             const districtList = await getDistricts(provinceOrder).unwrap();
-            console.log(districtList.districts[0].name);
             setValue(
               'district',
               districtList?.districts?.find(
@@ -168,7 +175,7 @@ const ProfileEditScreen = () => {
 
     const name = uri.split('/').pop();
 
-    const imageRef = ref(getStorage(), `images/${name}`);
+    const imageRef = ref(getStorage(), `images/${name}` + uuidv4());
 
     const uploadTask = uploadBytesResumable(imageRef, theBlob);
 
@@ -198,12 +205,13 @@ const ProfileEditScreen = () => {
 
   const onSelectProvince = (value, onChange) => {
     getDistricts(value.value);
-    console.log(value.label);
+    setValue('district', null);
     onChange(value.value);
   };
 
   const onUpdateInfo = async (data) => {
     try {
+      setIsLoading(true);
       const provinceSelected = provinces.find(
         (item) => item.value === data.province
       ).label;
@@ -211,27 +219,46 @@ const ProfileEditScreen = () => {
         (item) => item.value === data.district
       ).label;
 
-      let res;
+      let res = null;
       if (data.avatar !== userData.avatar) {
         res = (await uploadToFirebaseStorage(data.avatar)) as string;
       }
-      console.log(res.downloadUrl);
-
       await updateInfo({
         userID: userData.phoneNumber,
         name: data.name,
         district: districtSelected,
         province: provinceSelected,
-        avatar: res.downloadUrl,
+        avatar: res ? res.downloadUrl : userData.avatar,
         password: 'fake',
       }).unwrap;
+      dispatch(
+        setUserInformation({
+          phoneNumber: userData.phoneNumber,
+          name: data.name,
+          district: districtSelected,
+          province: provinceSelected,
+          avatar: res ? res.downloadUrl : userData.avatar,
+        })
+      );
+      setIsPopupShow(true);
+      setIsLoading(false);
     } catch (error) {
+      setIsLoading(false);
       console.log(error);
     }
   };
 
   return (
     <View style={styles.container}>
+      <Popup
+        type={POPUP_TYPE.SUCCESS}
+        open={isPopupShow}
+        title='Information'
+        content='Your information was updated successfully!'
+        onCancel={() => {
+          setIsPopupShow(false);
+        }}
+      />
       <Controller
         control={control}
         name='avatar'
@@ -251,10 +278,10 @@ const ProfileEditScreen = () => {
                 // uri: img
                 //   ? img
                 //   : 'https://images.ctfassets.net/ub3bwfd53mwy/6atCoddzStFzz0RcaztYCh/1c3e8a37eebe3c6a435038f8d9eef7f3/3_Image.jpg?w=750',
-                uri: userData.avatar
-                  ? userData.avatar
-                  : img
+                uri: img
                   ? img
+                  : userData.avatar
+                  ? userData.avatar
                   : 'https://images.unsplash.com/photo-1615751072497-5f5169febe17?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGRvZ3xlbnwwfHwwfHx8MA%3D%3D',
               }}
               style={styles.image}
@@ -397,9 +424,11 @@ const ProfileEditScreen = () => {
 
       <Button
         title='Update'
-        variant={isChanged ? ButtonVariant.ACTIVE : ButtonVariant.DISABLE}
+        variant={
+          isChanged && dis ? ButtonVariant.ACTIVE : ButtonVariant.DISABLE
+        }
         onPress={handleSubmit(onUpdateInfo.bind(null))}
-        isLoading={false}
+        isLoading={isLoading}
         style={{ marginTop: scaleSize(50) }}
       />
     </View>
@@ -451,5 +480,6 @@ const styles = StyleSheet.create({
     color: COLORS.redPrimary,
     fontSize: scaleSize(12),
     marginTop: scaleSize(3),
+    alignSelf: 'flex-start',
   },
 });

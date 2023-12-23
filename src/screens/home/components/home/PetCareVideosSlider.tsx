@@ -2,56 +2,102 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { scaleSize } from '../../../../utils/DeviceUtils';
-import { COLORS } from '../../../../config';
+import { COLORS, FONTS } from '../../../../config';
+import YoutubePlayer from 'react-native-youtube-iframe';
 
 const PetCareVideosSlider = () => {
-  const carouselData = [
+  const [activeSlide, setActiveSlide] = useState<number>(0);
+
+  const videoData = [
     {
-      title: 'Slide 1',
-      image:
-        'https://images.unsplash.com/photo-1615751072497-5f5169febe17?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGRvZ3xlbnwwfHwwfHx8MA%3D%3D',
+      link: 'https://www.youtube.com/watch?v=BH4rlk0NLkc',
+      thumbnail:
+        'https://drive.google.com/file/d/1WGsPkjUAaAK5_MRCyt-HXS_kq3bNSCMX/view?usp=drive_link',
+      videoId: 'BH4rlk0NLkc',
+      title: 'How to Gain the Trust of a Cat',
     },
     {
-      title: 'Slide 2',
-      image:
-        'https://i.pinimg.com/736x/a0/b8/f9/a0b8f9f0626229914b1716a94d9533e8.jpg',
+      link: 'https://www.youtube.com/watch?v=lrCFOlM8GnU',
+      thumbnail:
+        'https://drive.google.com/file/d/1DqYGGNUBE2rVMxurfFKgCgJZYBvVUSlU/view?usp=drive_link',
+      videoId: 'lrCFOlM8GnU',
+      title:
+        'How to give a SUBCUTANEOUS INJECTION to a dog 🐶💉 | Step-by-Step Explanation',
     },
     {
-      title: 'Slide 3',
-      image:
-        'https://i.pinimg.com/originals/0f/3f/e4/0f3fe4c1901f2784b9e2a42b6b8b99db.jpg',
+      link: 'https://www.youtube.com/watch?v=m8WFxmGxatA',
+      thumbnail:
+        'https://drive.google.com/file/d/1dBwedmTA9hrha1rmLkPEvkeVqdESWHC3/view?usp=sharing',
+      videoId: 'm8WFxmGxatA',
+      title: 'Why Dogs Get Stuck After MATING - Breeding Explanation',
     },
     {
-      title: 'Slide 4',
-      image:
-        'https://i.pinimg.com/736x/14/cc/8e/14cc8e5b7285693cf637aee8660d7ed1.jpg',
+      link: 'https://www.youtube.com/watch?v=wI9xARUzo1E',
+      thumbnail:
+        'https://drive.google.com/file/d/1dATR4mWZ6SPHqiBhmg2zoA2Lzp6A3yBy/view?usp=drive_link',
+      videoId: 'wI9xARUzo1E',
+      title: 'How to Cut a Dogs Hair? 🐶 BASIC GROOMING Tutorial',
     },
     {
-      title: 'Slide 5',
-      image:
-        'https://hips.hearstapps.com/goodhousekeeping/assets/17/30/pembroke-welsh-corgi.jpg',
+      link: 'https://www.youtube.com/watch?v=Rn1WnrH-pdw',
+      thumbnail:
+        'https://drive.google.com/file/d/1jab84Q0AtA32Z9-h-yNL3oI7vM6ygSQT/view?usp=drive_link',
+      videoId: 'Rn1WnrH-pdw',
+      title: 'How to Get a Cat to Like You | Lifehacker',
     },
   ];
 
-  const [activeSlide, setActiveSlide] = useState<number>(0);
-
-  const renderCarouselItem = ({ item, index }) => {
-    const isMainImage = index === activeSlide;
-
+  const YoutubeVideo = ({ videoId }) => {
     return (
-      <View
-        style={[
-          styles.slide,
-          {
-            height: isMainImage ? scaleSize(165) : scaleSize(140),
-            width: isMainImage ? scaleSize(130) : scaleSize(103),
-          },
-        ]}
-      >
-        <Image source={{ uri: item.image }} style={styles.image} />
-      </View>
+      <YoutubePlayer
+        height={'80%'}
+        width={'100%'}
+        play={true}
+        videoId={videoId}
+      />
     );
   };
+
+  const renderCarouselItem = ({ item, index }) => {
+    return (
+      <>
+        <YoutubeVideo videoId={item.videoId} />
+        <Text style={styles.title}>{item.title}</Text>
+      </>
+    );
+  };
+
+  // const renderCarouselItem = ({ item, index }) => {
+  //   return (
+  //     <>
+  //       <YoutubePlayer
+  //         key={index}
+  //         height={'80%'}
+  //         width={'100%'}
+  //         play={true}
+  //         videoId={item.videoId}
+  //       />
+  //       <Text style={styles.title}>{item.title}</Text>
+  //     </>
+  //   );
+  // };
+  // const renderCarouselItem = ({ item, index }) => {
+  //   const isMainImage = index === activeSlide;
+
+  //   return (
+  //     <View
+  //       style={[
+  //         styles.slide,
+  //         {
+  //           height: isMainImage ? scaleSize(165) : scaleSize(140),
+  //           width: isMainImage ? scaleSize(130) : scaleSize(103),
+  //         },
+  //       ]}
+  //     >
+  //       <Image source={{ uri: item.image }} style={styles.image} />
+  //     </View>
+  //   );
+  // };
 
   const carouselRef = React.useRef(null);
 
@@ -59,14 +105,12 @@ const PetCareVideosSlider = () => {
     <View style={styles.container}>
       <Carousel
         ref={carouselRef}
-        data={carouselData}
+        data={videoData}
         renderItem={renderCarouselItem}
         sliderWidth={390}
-        itemWidth={110}
-        autoplay={true}
-        loop={true}
-        autoplayInterval={3000} // Adjust the interval for auto slide (in milliseconds)
-        decelerationRate={'fast'} // Set the speed of the slide animation
+        itemWidth={390}
+        autoplay={false}
+        onSnapToItem={(index) => setActiveSlide(index)}
       />
     </View>
   );
@@ -77,10 +121,10 @@ export default PetCareVideosSlider;
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
-    alignItems: 'center',
+
     marginTop: scaleSize(25),
     width: '100%',
-    height: scaleSize(170),
+    height: scaleSize(300),
   },
   slide: {
     height: scaleSize(140),
@@ -95,5 +139,10 @@ const styles = StyleSheet.create({
     height: '100%',
     resizeMode: 'stretch',
     borderRadius: scaleSize(20),
+  },
+  title: {
+    ...FONTS.h5,
+    textAlign: 'left',
+    marginTop: scaleSize(10),
   },
 });

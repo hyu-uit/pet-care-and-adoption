@@ -30,10 +30,17 @@ export const sharedSlice = createSlice({
       state.token = payload.token;
       state.user = payload.user;
     },
+    setUserInformation: (
+      state,
+      { payload }: PayloadAction<UserInformation>
+    ) => {
+      state.user = payload;
+    },
     resetState: () => initialState,
   },
 });
 
-export const { setLoginToken, resetState } = sharedSlice.actions;
+export const { setLoginToken, resetState, setUserInformation } =
+  sharedSlice.actions;
 
 export default sharedSlice.reducer;

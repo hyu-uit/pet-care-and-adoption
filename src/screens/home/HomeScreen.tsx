@@ -377,6 +377,8 @@ const HomeScreen = ({
 
         <PetCareVideosSlider />
 
+        <View style={{ marginTop: scaleSize(30) }}></View>
+
         <Title title='Nearby veterinary clinic' onSeeAll={onNearlyClinic} />
 
         <FlatList
