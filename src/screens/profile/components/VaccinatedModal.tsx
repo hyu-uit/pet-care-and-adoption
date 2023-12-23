@@ -6,20 +6,45 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React, { FC } from 'react';
+import React, { FC, useState } from 'react';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { COLORS, SIZES, STYLES, FONTS } from '../../../config';
 import { Dropdown } from 'react-native-element-dropdown';
 import { MaterialIcons } from '@expo/vector-icons';
 import Button from '../../../components/Button';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { ButtonVariant } from '../../../enums/ButtonVariant.enum';
 
 type VaccinatedModalProps = {
   open: boolean;
   onClose: () => void;
+  update: ({ type, note, date }) => void;
 };
 
-const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
+const VaccinatedModal: FC<VaccinatedModalProps> = ({
+  open,
+  update,
+  onClose,
+}) => {
+  const [date, setDate] = useState<Date>(new Date());
+  const [note, setNote] = useState<string>('');
+  const [type, setType] = useState<{ value: number; label: string }>();
+
+  const convertDate = (date) => {
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-based, so we add 1
+    const year = date.getFullYear();
+
+    return `${day}/${month}/${year}`;
+  };
+
+  const addVaccination = () => {
+    update({ type: type, note: note, date: convertDate(date) });
+    setDate(new Date());
+    setNote('');
+    setType(null);
+  };
+
   return (
     <Modal
       animationType='fade'
@@ -32,7 +57,7 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
         <View style={styles.wrapper}>
           <Dropdown
             data={[
-              { value: 0, label: 'Addd to history' },
+              { value: 0, label: 'Add to history' },
               { value: 1, label: 'Next vaccination' },
             ]}
             labelField={'label'}
@@ -43,7 +68,10 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
               styles.input,
               { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
             ]}
-            onChange={() => {}}
+            value={type}
+            onChange={(value) => {
+              setType(value);
+            }}
             containerStyle={{
               minHeight: scaleSize(100),
               borderRadius: scaleSize(10),
@@ -61,8 +89,11 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
           <Text style={styles.title}>Note</Text>
           <TextInput
             placeholder={`Vaccinated notes`}
-            onChangeText={() => {}}
+            onChangeText={(value) => {
+              setNote(value);
+            }}
             secureTextEntry={false}
+            value={note}
             placeholderTextColor={COLORS.grayC2C2CE}
             style={[
               styles.input,
@@ -72,11 +103,14 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
           <Text style={styles.title}>Date</Text>
           <DateTimePicker
             testID='dateTimePicker'
-            value={new Date()}
+            value={date}
             mode='date'
             is24Hour={true}
             display='calendar' // Set display to 'calendar' to show only the date picker
-            onChange={() => {}}
+            onChange={(value) => {
+              setDate(new Date(value.nativeEvent.timestamp));
+              // setDate(new Date(value.nativeEvent.timestamp));
+            }}
           />
           {/* <View>
             <TextInput
@@ -121,7 +155,12 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({ open, onClose }) => {
             </TouchableOpacity>
 
             <Button
-              onPress={() => {}}
+              variant={
+                type && note !== ''
+                  ? ButtonVariant.ACTIVE
+                  : ButtonVariant.DISABLE
+              }
+              onPress={addVaccination}
               title={'Update'}
               isLoading={false}
               style={{ width: scaleSize(140) }}

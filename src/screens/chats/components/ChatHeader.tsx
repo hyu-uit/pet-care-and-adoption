@@ -29,7 +29,7 @@ const ChatHeader: FC<ChatHeaderProps> = ({ displayName, onBack }) => {
         </TouchableOpacity>
         <Image
           source={{
-            uri: 'https://i.natgeofe.com/k/ad9b542e-c4a0-4d0b-9147-da17121b4c98/MOmeow1_square.png',
+            uri: 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdog-puns-1581708208.jpg?alt=media&token=39969852-94c9-41fd-8f4b-afd05f1201f9',
           }}
           style={styles.image}
         />
@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     width: scaleSize(36),
     height: scaleSize(36),
     borderRadius: scaleSize(18),
-    resizeMode: 'contain',
+    resizeMode: 'cover',
     marginLeft: scaleSize(20),
   },
   name: {

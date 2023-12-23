@@ -196,7 +196,7 @@ const HomeScreen = ({
   ];
 
   const onSearch = () => {
-    navigation.navigate(SCREEN.SEARCH);
+    navigation.navigate('Adoption', { screen: SCREEN.SEARCH });
   };
 
   const onAdoptPets = () => {
@@ -275,7 +275,7 @@ const HomeScreen = ({
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <View style={styles.logoWrapper}>
           <Image

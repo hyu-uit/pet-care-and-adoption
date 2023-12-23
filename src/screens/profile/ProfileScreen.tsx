@@ -10,11 +10,16 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProfileStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
 import ProfileRequest from './components/ProfileRequest';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const ProfileScreen = ({
   navigation,
 }: NativeStackScreenProps<ProfileStackParamList, SCREEN.PROFILE>) => {
   const [tab, setTab] = useState<number>(0);
+
+  const myName = useSelector((state: RootState) => state.shared.user.name);
+  const myAvatar = useSelector((state: RootState) => state.shared.user.avatar);
 
   const onEditProfile = () => {
     navigation.navigate(SCREEN.EDIT_PROFILE);
@@ -28,12 +33,14 @@ const ProfileScreen = ({
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Image
               source={{
-                uri: 'https://images.unsplash.com/photo-1615751072497-5f5169febe17?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGRvZ3xlbnwwfHwwfHx8MA%3D%3D',
+                uri: myAvatar
+                  ? myAvatar
+                  : 'https://images.unsplash.com/photo-1615751072497-5f5169febe17?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGRvZ3xlbnwwfHwwfHx8MA%3D%3D',
               }}
               style={styles.image}
             />
             <View style={{ marginLeft: scaleSize(10) }}>
-              <Text style={styles.name}>Vincent</Text>
+              <Text style={styles.name}>{myName}</Text>
               <Text style={styles.status}>Pet owner</Text>
             </View>
           </View>

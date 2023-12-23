@@ -257,41 +257,21 @@ const SearchScreen = ({
   ];
 
   const onDetail = (item) => {
-    console.log('item', item);
     navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
   };
 
-  const filterAge = (age: number, index: number[]) => {
-    console.log(age);
-    for (let i = 0; i < index.length; i++) {
-      switch (index[i]) {
-        case 0:
-          if (age < 2) {
-            return true;
-          }
-        case 1:
-          if (age > 2 || age < 4) {
-            return true;
-          }
-        case 2:
-          if (age > 4 || age < 7) {
-            return true;
-          }
-        case 3:
-          if (age > 7 || age < 12) {
-            return true;
-          }
-        case 4:
-          if (age > 12 || age < 24) {
-            return true;
-          }
-        case 4:
-          if (age > 24) {
-            return true;
-          }
-      }
-    }
-    return false;
+  const getAgeRangeIndex = (ageInMonths) => {
+    if (ageInMonths < 2) {
+      return 0;
+    } else if (ageInMonths >= 2 && ageInMonths < 4) {
+      return 1;
+    } else if (ageInMonths >= 4 && ageInMonths < 7) {
+      return 2;
+    } else if (ageInMonths >= 7 && ageInMonths < 12) {
+      return 3;
+    } else if (ageInMonths >= 12 && ageInMonths < 24) {
+      return 4;
+    } else return 5;
   };
 
   return (
@@ -469,6 +449,9 @@ const SearchScreen = ({
                   <FilterItem key={index} title={ages[age]} />
                 ))}
               {filteredVaccinated === true && <FilterItem title='vaccinated' />}
+              {filteredVaccinated === false && (
+                <FilterItem title='non-vaccinated' />
+              )}
             </ScrollView>
             <TouchableOpacity
               style={{
@@ -480,6 +463,7 @@ const SearchScreen = ({
                 setFilteredAge([]);
                 setFilteredSex(null);
                 setFilteredVaccinated(null);
+                setFilteredAge([]);
               }}
             >
               <Text style={styles.clear}>Clear</Text>
@@ -526,37 +510,12 @@ const SearchScreen = ({
             if (filteredSex && item.sex !== filteredSex) {
               return false;
             }
-            if (
-              filteredVaccinated &&
-              filteredVaccinated !== item.isVaccinated
-            ) {
-              return false;
+            if (filteredVaccinated !== null) {
+              return filteredVaccinated === item.isVaccinated;
             }
-            //implement age
-            // if (filteredAge.length > 0) {
-            //   for (let i = 0; i < filteredAge.length; i++) {
-            //     switch (filteredAge[i]) {
-            //       case 0:
-            //         if (item.age > 2) return false;
-            //         else return true;
-            //       case 1:
-            //         if (item.age < 2 || item.age > 4) return false;
-            //         else return true;
-            //       case 2:
-            //         if (item.age < 4 || item.age > 7) return false;
-            //         else return true;
-            //       case 3:
-            //         if (item.age < 7 || item.age > 12) return false;
-            //         else return true;
-            //       case 4:
-            //         if (item.age < 12 || item.age > 24) return false;
-            //         else return true;
-            //       case 5:
-            //         if (item.age < 24) return false;
-            //         else return true;
-            //     }
-            //   }
-            // }
+            if (filteredAge.length > 0) {
+              return filteredAge.includes(getAgeRangeIndex(item.age));
+            }
             return true;
           })
           .map((item, index) => (

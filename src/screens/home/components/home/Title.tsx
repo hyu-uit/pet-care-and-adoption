@@ -26,7 +26,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: scaleSize(40),
     borderRadius: scaleSize(15),
-    backgroundColor: COLORS.whitePrimary,
+    backgroundColor: COLORS.tertiary,
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',

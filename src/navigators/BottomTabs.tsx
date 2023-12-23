@@ -14,6 +14,8 @@ import AdoptionStack from './AdoptionStackNavigator';
 import PostStackNavigator from './PostStackNavigator';
 import PetCareHandBookScreen from '../screens/pet-care/PetCareHandBookScreen';
 import ProfileScreen from '../screens/profile/ProfileScreen';
+import { CommonActions, useNavigation } from '@react-navigation/native';
+import { SCREEN } from './AppRoute';
 
 const Tab = createBottomTabNavigator();
 
@@ -34,6 +36,17 @@ const CustomPostButton = ({ props }) => (
 );
 
 const BottomTabs = () => {
+  const navigation = useNavigation();
+
+  // const navigateToHomeWithReset = () => {
+  //   navigation.dispatch(
+  //     CommonActions.reset({
+  //       index: 0,
+  //       routes: [{ name: SCREEN.HOME }],
+  //     })
+  //   );
+  //   navigation.navigate('Home');
+  // };
   return (
     <Tab.Navigator
       screenOptions={{

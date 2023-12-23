@@ -11,6 +11,7 @@ export const postApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: `https://petcareapi.azurewebsites.net/api/Post`,
   }),
+  tagTypes: ['POST'],
   endpoints: (build) => ({
     addPost: build.mutation<AddPostRESP, AddPostREQ>({
       query: (body) => ({
@@ -18,6 +19,9 @@ export const postApi = createApi({
         method: HTTP_METHOD.POST,
         body,
       }),
+      invalidatesTags: () => {
+        return [{ type: 'POST', id: 'LIST' }];
+      },
     }),
 
     getPosts: build.query<GetPostsRESP, void>({
@@ -28,6 +32,9 @@ export const postApi = createApi({
       transformResponse: (response: GetPostsRESP) => {
         console.log('res ne', response);
         return response;
+      },
+      providesTags: () => {
+        return [{ type: 'POST', id: 'LIST' }];
       },
     }),
 

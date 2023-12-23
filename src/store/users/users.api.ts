@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
 
 import { HTTP_METHOD } from '../../utils/constants/http.constants';
 import { UserInformation } from './response/users.response';
+import { EditInformationREQ } from './request/edit-info.request';
 
 export const usersApi = createApi({
   reducerPath: 'users',
@@ -18,7 +19,15 @@ export const usersApi = createApi({
         return response;
       },
     }),
+    editInformation: build.mutation<void, EditInformationREQ>({
+      query: (body) => ({
+        url: `${body.userID}`,
+        body: body,
+        method: HTTP_METHOD.PUT,
+      }),
+    }),
   }),
 });
 
-export const { useGetUserInformationQuery } = usersApi;
+export const { useGetUserInformationQuery, useEditInformationMutation } =
+  usersApi;

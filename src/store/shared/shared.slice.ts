@@ -13,8 +13,11 @@ export const initialState: SharedState = {
   token: null,
   user: {
     name: '',
-    address: '',
+    // address: '',
     phoneNumber: '',
+    province: '',
+    district: '',
+    avatar: '',
   },
 };
 

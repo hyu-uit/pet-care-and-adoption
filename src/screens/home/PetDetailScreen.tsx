@@ -26,9 +26,18 @@ import { Post } from '../../store/post/response/get-add.response';
 import { SEX } from '../../types/enum/sex.enum';
 import { useGetUserInformationQuery } from '../../store/users/users.api';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import ImageModal from '../../components/ImageModal';
+import { firestoreDB } from '../../../firebaseConfig';
+import {
+  doc,
+  getDoc,
+  serverTimestamp,
+  setDoc,
+  updateDoc,
+} from 'firebase/firestore';
+import { changeOtherUser } from '../../store/chat/chat.slice';
 
 const PetDetailScreen = ({
   navigation,
@@ -42,6 +51,8 @@ const PetDetailScreen = ({
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+  const myName = useSelector((state: RootState) => state.shared.user.name);
+  const dispatch = useDispatch();
 
   const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
 
@@ -64,6 +75,69 @@ const PetDetailScreen = ({
       />
     </TouchableOpacity>
   );
+
+  const onMessage = async () => {
+    const id1 = myPhoneNumber;
+    const id2 = postedBy.userID;
+
+    const combinedId = id1 > id2 ? id1 + id2 : id2 + id1;
+
+    const chatDocRef = doc(firestoreDB, 'chats', combinedId);
+    try {
+      //Check chats exists or not?
+      const chatDocSnapshot = await getDoc(chatDocRef);
+
+      if (chatDocSnapshot.exists()) {
+        // Access the chat data using the data() method
+        // const chatData = chatDocSnapshot.data();
+        // console.log('chat', JSON.stringify(chatData));
+
+        dispatch(
+          changeOtherUser({
+            displayName: postedBy.name,
+            id: postedBy.userID,
+          })
+        );
+
+        navigation.navigate(SCREEN.CHAT_DETAIL);
+      } else {
+        //If do not exist will create empty chat in collection chats
+        await setDoc(doc(firestoreDB, 'chats', combinedId), { messages: [] });
+
+        //Also create history chat in userChats Collection inside our id
+        //Destination is updadte history you belongs to you and other
+        await updateDoc(doc(firestoreDB, 'userChats', id1), {
+          [combinedId + '.userInfo']: {
+            //user ID of oyou
+            id: id2,
+            displayName: postedBy.name,
+          },
+          [combinedId + '.date']: serverTimestamp(),
+        });
+        pet;
+        //Update for other user who you chat with as well
+        await updateDoc(doc(firestoreDB, 'userChats', id2), {
+          [combinedId + '.userInfo']: {
+            //user ID of other people who you chat with
+            id: id1,
+            displayName: myName,
+          },
+          [combinedId + '.date']: serverTimestamp(),
+        });
+
+        dispatch(
+          changeOtherUser({
+            displayName: postedBy.name,
+            id: postedBy.userID,
+          })
+        );
+
+        navigation.navigate(SCREEN.CHAT_DETAIL);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -145,7 +219,7 @@ const PetDetailScreen = ({
           <View
             style={[
               styles.horizontalWrapper,
-              { marginTop: scaleSize(5), justifyContent: 'flex-start' },
+              { marginTop: scaleSize(10), justifyContent: 'flex-start' },
             ]}
           >
             <Ionicons
@@ -267,7 +341,7 @@ const PetDetailScreen = ({
                 color={COLORS.primary}
               />
             </TouchableOpacity>
-            <TouchableOpacity style={styles.contactWrapper}>
+            <TouchableOpacity onPress={onMessage} style={styles.contactWrapper}>
               <MaterialCommunityIcons
                 name='email'
                 size={scaleSize(19)}
@@ -418,11 +492,11 @@ const styles = StyleSheet.create({
   comment: {
     ...FONTS.body4,
     paddingHorizontal: SIZES.padding,
-    marginTop: scaleSize(10),
+    marginTop: scaleSize(20),
   },
   button: {
     ...STYLES.button,
-    marginTop: scaleSize(20),
+    marginTop: scaleSize(50),
   },
   buttonText: {
     ...STYLES.buttonText,

@@ -44,6 +44,7 @@ import {
 } from 'firebase/storage';
 import VaccinatedModal from './components/VaccinatedModal';
 import VaccinatedItem from './components/VaccinatedItem';
+import { VaccinatedListType } from '../../types/vaccinated-list.type';
 
 type ImageType = {
   uri: string;
@@ -104,6 +105,11 @@ const AddMyPetScreen = ({
   const [breeds, setBreeds] = useState([]);
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
   const [isModalShown, setIsModalShown] = useState(false);
+
+  const [vaccinatedList, setVaccinatedList] = useState<VaccinatedListType>({
+    history: [],
+    next: [],
+  });
 
   const uriImage = watch('images');
 
@@ -245,47 +251,92 @@ const AddMyPetScreen = ({
   };
 
   const handleUpload = async (data) => {
-    const urlArray = [];
-    for (let i = 0; i < img.length; i++) {
-      const res = await uploadToFirebaseStorage(img[i]);
-      urlArray.push(res.downloadUrl);
-    }
+    console.log(data);
+    // const urlArray = [];
+    // for (let i = 0; i < img.length; i++) {
+    //   const res = await uploadToFirebaseStorage(img[i]);
+    //   urlArray.push(res.downloadUrl);
+    // }
 
-    try {
-      const body: AddPostREQ = {
-        postModel: {
-          petName: data.name,
-          sex: data.sex,
-          age: data.age,
-          species: data.specie.label,
-          breed: data.breed.label,
-          weight: data.weight,
-          district: data.district.label,
-          province: data.province.label,
-          isVaccinated: data.isVaccinated,
-          isAdopt: data.isAdopt,
-          userID: myPhoneNumber,
-          description: data.description,
-        },
-        // images: data.images.map((image) => ({ image })),
-        images: Array.isArray(urlArray)
-          ? urlArray.map((image) => ({ image }))
-          : [],
-      };
-      await publishPost(body).unwrap();
+    // try {
+    //   const body: AddPostREQ = {
+    //     postModel: {
+    //       petName: data.name,
+    //       sex: data.sex,
+    //       age: data.age,
+    //       species: data.specie.label,
+    //       breed: data.breed.label,
+    //       weight: data.weight,
+    //       district: data.district.label,
+    //       province: data.province.label,
+    //       isVaccinated: data.isVaccinated,
+    //       isAdopt: data.isAdopt,
+    //       userID: myPhoneNumber,
+    //       description: data.description,
+    //     },
+    //     // images: data.images.map((image) => ({ image })),
+    //     images: Array.isArray(urlArray)
+    //       ? urlArray.map((image) => ({ image }))
+    //       : [],
+    //   };
+    //   await publishPost(body).unwrap();
 
-      setIsSuccessPopup(true);
-      setBreeds([]);
-      reset();
-      setDistricts([]);
-      setImg([]);
-    } catch (error) {
-      console.log(error);
-    }
+    //   setIsSuccessPopup(true);
+    //   setBreeds([]);
+    //   reset();
+    //   setDistricts([]);
+    //   setImg([]);
+    // } catch (error) {
+    //   console.log(error);
+    // }
   };
 
-  const renderItemHistory = ({ item }) => {
-    return <VaccinatedItem date={item.date} note={item.note} />;
+  const handleDeleteHistoryItem = (index: number) => {
+    // Create a copy of the state and remove the item at the specified index
+    const updatedHistory = [...vaccinatedList.history];
+    updatedHistory.splice(index, 1);
+
+    // Update the state with the modified history array
+    setVaccinatedList((prevList) => ({
+      ...prevList,
+      history: updatedHistory,
+    }));
+  };
+
+  const handleDeleteNextItem = (index: number) => {
+    // Create a copy of the state and remove the item at the specified index
+    const updatedNext = [...vaccinatedList.next];
+    updatedNext.splice(index, 1);
+
+    // Update the state with the modified next array
+    setVaccinatedList((prevList) => ({
+      ...prevList,
+      next: updatedNext,
+    }));
+  };
+
+  const renderItemHistory = ({ item, index }) => {
+    return (
+      <VaccinatedItem
+        date={item.date}
+        note={item.note}
+        onDelete={() => {
+          handleDeleteHistoryItem(index);
+        }}
+      />
+    );
+  };
+
+  const renderItemNext = ({ item, index }) => {
+    return (
+      <VaccinatedItem
+        date={item.date}
+        note={item.note}
+        onDelete={() => {
+          handleDeleteNextItem(index);
+        }}
+      />
+    );
   };
 
   const validateImageExistence = () => {
@@ -302,9 +353,38 @@ const AddMyPetScreen = ({
     setIsModalShown(true);
   };
 
+  const handleModalUpdate = (
+    data: {
+      date: string;
+      note: string;
+      type: { label: string; value: number };
+    } | null
+  ) => {
+    if (data) {
+      if (data.type.value === 0) {
+        setVaccinatedList((prevList) => ({
+          ...prevList,
+          history: [...prevList.history, { date: data.date, note: data.note }],
+        }));
+      } else {
+        setVaccinatedList((prevList) => ({
+          ...prevList,
+          next: [...prevList.next, { date: data.date, note: data.note }],
+        }));
+      }
+    }
+
+    // Close the modal
+    setIsModalShown(false);
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <VaccinatedModal open={isModalShown} onClose={onCloseModal} />
+      <VaccinatedModal
+        open={isModalShown}
+        onClose={onCloseModal}
+        update={handleModalUpdate}
+      />
       <Popup
         title='Published your post'
         content='Everyone can see your pet now'
@@ -625,7 +705,7 @@ const AddMyPetScreen = ({
       <View style={styles.vaccinatedWrapper}>
         <Text style={styles.vaccinatedTitle}>Hisotry</Text>
         <FlatList
-          data={vaccinatedHistory}
+          data={vaccinatedList.history}
           keyExtractor={(item) => item.title}
           renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
           horizontal={false}
@@ -634,9 +714,9 @@ const AddMyPetScreen = ({
         />
         <Text style={styles.vaccinatedTitle}>Next Vaccination</Text>
         <FlatList
-          data={nextVaccination}
+          data={vaccinatedList.next}
           keyExtractor={(item) => item.title}
-          renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
+          renderItem={renderItemNext} //method to render the data in the way you want using styling u need
           horizontal={false}
           numColumns={1}
           showsVerticalScrollIndicator={false}

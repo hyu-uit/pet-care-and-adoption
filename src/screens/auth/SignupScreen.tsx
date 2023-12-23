@@ -112,7 +112,7 @@ const SignupScreen = ({
       {errors.name && (
         <Text style={styles.errorText}>{errors.name.message}</Text>
       )}
-      <Controller
+      {/* <Controller
         control={control}
         name='address'
         render={({
@@ -142,7 +142,7 @@ const SignupScreen = ({
       />
       {errors.address && (
         <Text style={styles.errorText}>{errors.address.message}</Text>
-      )}
+      )} */}
       <Controller
         control={control}
         name='phoneNumber'

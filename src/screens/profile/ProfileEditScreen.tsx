@@ -18,6 +18,17 @@ import {
   useLazyGetDistrictQuery,
 } from '../../store/province/province.api';
 import { Controller, useForm } from 'react-hook-form';
+import { RootState } from '../../store';
+import { useSelector } from 'react-redux';
+import { EditInformationREQ } from '../../store/users/request/edit-info.request';
+import { ButtonVariant } from '../../enums/ButtonVariant.enum';
+import {
+  getDownloadURL,
+  getStorage,
+  ref,
+  uploadBytesResumable,
+} from 'firebase/storage';
+import { useEditInformationMutation } from '../../store/users/users.api';
 
 type EditInfoREQ = {
   avatar: string;
@@ -27,22 +38,41 @@ type EditInfoREQ = {
 };
 
 const ProfileEditScreen = () => {
+  const userData = useSelector((state: RootState) => state.shared.user);
+  const [updateInfo, { isLoading }] = useEditInformationMutation();
+
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
+  const [provinces, setProvinces] = useState([]);
+  const [districts, setDistricts] = useState([]);
 
   const {
     control,
     handleSubmit,
     watch,
     formState: { errors },
-  } = useForm<EditInfoREQ>();
+  } = useForm<EditInformationREQ>({
+    defaultValues: {
+      name: userData.name,
+      district: userData.district,
+      province: provinces.find((item) => item.label === userData.province),
+      avatar: districts.find((item) => item.label === userData.district),
+    },
+  });
+
+  const pro = watch('province');
+  const dis = watch('district');
+  const name = watch('name');
+
+  const isChanged =
+    pro !== userData.province ||
+    dis !== userData.district.province ||
+    name !== userData.name;
 
   // const provinces = dataProvinces.map((item) => ({
   //   label: item.name,
   //   value: item.code,
   // }));
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
 
   useEffect(() => {
     if (!dataProvinces) return;
@@ -64,7 +94,7 @@ const ProfileEditScreen = () => {
 
   const [img, setImg] = useState();
 
-  const pickImage = async () => {
+  const pickImage = async (onChange) => {
     // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.All,
@@ -78,13 +108,75 @@ const ProfileEditScreen = () => {
         uri: result.assets[0].uri,
         base64: result.assets[0].base64,
       };
-      console.log(image);
       setImg(image.uri);
+      onChange(image.uri);
     }
   };
 
-  const onSelectProvince = (value) => {
+  const uploadToFirebaseStorage = async (uri: string) => {
+    const fetchResponse = await fetch(uri);
+    const theBlob = await fetchResponse.blob();
+
+    const name = uri.split('/').pop();
+
+    const imageRef = ref(getStorage(), `images/${name}`);
+
+    const uploadTask = uploadBytesResumable(imageRef, theBlob);
+
+    return new Promise((resolve, reject) => {
+      uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+          const progress =
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('progress', progress);
+        },
+        (error) => {
+          // Handle unsuccessful uploads
+          console.log(error);
+          reject(error);
+        },
+        async () => {
+          const downloadUrl = await getDownloadURL(uploadTask.snapshot.ref);
+          resolve({
+            downloadUrl,
+            metadata: uploadTask.snapshot.metadata,
+          });
+        }
+      );
+    });
+  };
+
+  const onSelectProvince = (value, onChange) => {
     getDistricts(value.value);
+    console.log(value.label);
+    onChange(value.value);
+  };
+
+  const onUpdateInfo = async (data) => {
+    try {
+      const provinceSelected = provinces.find(
+        (item) => item.value === data.province
+      ).label;
+      const districtSelected = districts.find(
+        (item) => item.value === data.district
+      ).label;
+
+      let res = '';
+      // if (data.avatar !== userData.avatar) {
+      //   res = (await uploadToFirebaseStorage(data.avatar)) as string;
+      // }
+
+      await updateInfo({
+        userID: userData.phoneNumber,
+        name: data.name,
+        district: districtSelected,
+        province: provinceSelected,
+        avatar: res,
+      }).unwrap;
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -99,13 +191,20 @@ const ProfileEditScreen = () => {
               marginTop: scaleSize(20),
               alignItems: 'flex-end',
             }}
-            onPress={pickImage}
+            onPress={() => {
+              pickImage(onChange);
+            }}
           >
             <Image
               source={{
-                uri: img
+                // uri: img
+                //   ? img
+                //   : 'https://images.ctfassets.net/ub3bwfd53mwy/6atCoddzStFzz0RcaztYCh/1c3e8a37eebe3c6a435038f8d9eef7f3/3_Image.jpg?w=750',
+                uri: userData.avatar
+                  ? userData.avatar
+                  : img
                   ? img
-                  : 'https://images.ctfassets.net/ub3bwfd53mwy/6atCoddzStFzz0RcaztYCh/1c3e8a37eebe3c6a435038f8d9eef7f3/3_Image.jpg?w=750',
+                  : 'https://images.unsplash.com/photo-1615751072497-5f5169febe17?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Y3V0ZSUyMGRvZ3xlbnwwfHwwfHx8MA%3D%3D',
               }}
               style={styles.image}
             />
@@ -173,7 +272,7 @@ const ProfileEditScreen = () => {
           placeholder={'Enter your name'}
           // onChangeText={onChange}
           // value={value}
-          value='0848867679'
+          value={userData.phoneNumber}
           secureTextEntry={false}
           placeholderTextColor={COLORS.grayC2C2CE}
           style={[styles.input, { color: COLORS.grayPrimary }]}
@@ -200,7 +299,9 @@ const ProfileEditScreen = () => {
               styles.input,
               { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
             ]}
-            onChange={onSelectProvince}
+            onChange={(value) => {
+              onSelectProvince(value, onChange);
+            }}
             containerStyle={{
               height: scaleSize(200),
               borderRadius: scaleSize(10),
@@ -229,7 +330,9 @@ const ProfileEditScreen = () => {
               styles.input,
               { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
             ]}
-            onChange={() => {}}
+            onChange={(value) => {
+              onChange(value.value);
+            }}
             containerStyle={{
               height: scaleSize(200),
               borderRadius: scaleSize(10),
@@ -243,7 +346,8 @@ const ProfileEditScreen = () => {
 
       <Button
         title='Update'
-        onPress={() => {}}
+        variant={isChanged ? ButtonVariant.ACTIVE : ButtonVariant.DISABLE}
+        onPress={handleSubmit(onUpdateInfo.bind(null))}
         isLoading={false}
         style={{ marginTop: scaleSize(50) }}
       />

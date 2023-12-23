@@ -54,7 +54,7 @@ const MainNavigator = () => {
           headerStyle: { backgroundColor: COLORS.background },
           headerShadowVisible: false,
           headerShown: true,
-          headerTitle: 'Message',
+          headerTitle: 'Edit Information',
         }}
       />
       <Stack.Screen

@@ -30,7 +30,7 @@ const ChatMessage: FC<ChatMessageProps> = ({ date, id, senderId, text }) => {
       {myPhoneNumber !== senderId && (
         <Image
           source={{
-            uri: 'https://i.pinimg.com/736x/d8/55/c6/d855c66f95e9d3babeebd1e88bf4026d.jpg',
+            uri: 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdog-puns-1581708208.jpg?alt=media&token=39969852-94c9-41fd-8f4b-afd05f1201f9',
           }}
           style={[styles.image, { marginRight: scaleSize(5) }]}
         />
@@ -41,7 +41,7 @@ const ChatMessage: FC<ChatMessageProps> = ({ date, id, senderId, text }) => {
       {myPhoneNumber === senderId && (
         <Image
           source={{
-            uri: 'https://i.pinimg.com/736x/d8/55/c6/d855c66f95e9d3babeebd1e88bf4026d.jpg',
+            uri: 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdownload.jpeg?alt=media&token=823463a0-0620-4089-ac65-8b55f429fc4e',
           }}
           style={[styles.image, { marginLeft: scaleSize(5) }]}
         />

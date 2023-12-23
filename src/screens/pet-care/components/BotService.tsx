@@ -7,7 +7,7 @@ import {
   Image,
 } from 'react-native';
 import React, { useEffect, useRef, useState } from 'react';
-import { COLORS, FONTS, IMAGES } from '../../../config';
+import { COLORS, FONTS, IMAGES, SIZES } from '../../../config';
 import { scaleSize } from '../../../utils/DeviceUtils';
 
 function BotMessageItem({ message, onActionClick }) {
@@ -161,7 +161,7 @@ function ChatBox({ conversationId }) {
           )}
         </ScrollView>
 
-        <View>
+        <View style={{ marginBottom: SIZES.bottomBarHeight }}>
           <TextInput
             style={{
               borderColor: 'gray',

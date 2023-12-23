@@ -8,8 +8,14 @@ type VaccinatedItemProps = {
   date: string;
   note: string;
   detail?: boolean;
+  onDelete: () => void;
 };
-const VaccinatedItem: FC<VaccinatedItemProps> = ({ date, note, detail }) => {
+const VaccinatedItem: FC<VaccinatedItemProps> = ({
+  date,
+  note,
+  detail,
+  onDelete,
+}) => {
   return (
     <View style={styles.container}>
       <View>
@@ -40,7 +46,7 @@ const VaccinatedItem: FC<VaccinatedItemProps> = ({ date, note, detail }) => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onDelete}>
             <AntDesign
               name='delete'
               size={scaleSize(15)}

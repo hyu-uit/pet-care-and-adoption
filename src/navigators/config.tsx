@@ -27,6 +27,7 @@ export type HomeStackParamList = {
   [SCREEN.MENU]: undefined;
   [SCREEN.AUTH_STACK]: undefined;
   [SCREEN.CHAT_HISTORY]: undefined;
+  [SCREEN.CHAT_DETAIL]: undefined;
   [SCREEN.PET_DETAIL]: undefined | { petData: PetDetailType };
 };
 

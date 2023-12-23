@@ -24,15 +24,49 @@ const PetCareHandBookScreen = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.tabContainer}>
-        <TouchableOpacity onPress={() => setTab(0)} style={styles.tabWrapper}>
+        <TouchableOpacity
+          onPress={() => setTab(0)}
+          style={[
+            styles.tabWrapper,
+            {
+              backgroundColor: tab === 0 ? COLORS.primary : COLORS.transparent,
+              borderColor: tab === 0 ? COLORS.transparent : COLORS.grayLight,
+              borderWidth: tab === 0 ? 0 : scaleSize(1),
+            },
+          ]}
+        >
           <Image source={IMAGES.BOOK} style={styles.icon} />
-          <Text style={styles.tabText}>Hand book</Text>
+          <Text
+            style={[
+              styles.tabText,
+              { color: tab === 0 ? COLORS.whitePrimary : COLORS.primary },
+            ]}
+          >
+            Hand book
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={() => setTab(1)} style={styles.tabWrapper}>
+        <TouchableOpacity
+          onPress={() => setTab(1)}
+          style={[
+            styles.tabWrapper,
+            {
+              backgroundColor: tab === 1 ? COLORS.primary : COLORS.transparent,
+              borderColor: tab === 1 ? COLORS.transparent : COLORS.grayLight,
+              borderWidth: tab === 1 ? 1 : scaleSize(1),
+            },
+          ]}
+        >
           <Image source={IMAGES.BOT} style={styles.icon} />
-          <Text style={styles.tabText}>Bot advices</Text>
+          <Text
+            style={[
+              styles.tabText,
+              { color: tab === 1 ? COLORS.whitePrimary : COLORS.primary },
+            ]}
+          >
+            Bot advices
+          </Text>
         </TouchableOpacity>
       </View>
       {tab === 0 && (
@@ -43,6 +77,9 @@ const PetCareHandBookScreen = () => {
           renderItem={renderItem} //method to render the data in the way you want using styling u need
           horizontal={false}
           style={{ marginTop: scaleSize(20) }}
+          ListFooterComponent={
+            <View style={{ marginBottom: SIZES.bottomPadding }}></View>
+          }
         />
       )}
       {tab === 1 && <BotService />}
