@@ -41,12 +41,40 @@ const Popup: FC<PopupProps> = ({
           />
           <Text style={styles.title}>{title}</Text>
           <Text style={styles.content}>{content}</Text>
-          <Button
-            title='OK'
-            onPress={onCancel}
-            isLoading={false}
-            style={{ marginTop: scaleSize(40), marginBottom: scaleSize(23) }}
-          />
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Button
+              title={onSubmit ? 'Cancel' : 'OK'}
+              onPress={onCancel}
+              isLoading={false}
+              style={{
+                marginTop: scaleSize(40),
+                marginBottom: scaleSize(23),
+                width: onSubmit ? '48%' : '100%',
+                backgroundColor: onSubmit ? COLORS.tertiary : COLORS.secondary,
+              }}
+              textStyle={{
+                color: onSubmit ? COLORS.primary : COLORS.whitePrimary,
+              }}
+            />
+            {onSubmit && (
+              <Button
+                title='OK'
+                onPress={onSubmit}
+                isLoading={false}
+                style={{
+                  marginTop: scaleSize(40),
+                  marginBottom: scaleSize(23),
+                  width: '48%',
+                }}
+              />
+            )}
+          </View>
         </View>
       </View>
     </Modal>

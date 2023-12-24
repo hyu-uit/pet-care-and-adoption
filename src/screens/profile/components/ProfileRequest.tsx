@@ -5,15 +5,38 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES, FONTS, STYLES } from '../../../config';
 import Button from '../../../components/Button';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import ProfileRequestItem from './ProfileRequestItem';
 import PetSearchCard from '../../home/components/search/PetSearchCard';
+import {
+  useCancelRequestMutation,
+  useGetRequestedPostsQuery,
+} from '../../../store/post/post.api';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
+import { useGetUserInformationQuery } from '../../../store/users/users.api';
+import { cancelRequestREQ } from '../../../store/post/request/cancel-request.request';
+import Popup from '../../../components/Popup';
+import { POPUP_TYPE } from '../../../types/enum/popup.enum';
 
 const ProfileRequest = () => {
   const [tab, setTab] = useState<number>(0);
+
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
+
+  const { data: requestedPosts } = useGetRequestedPostsQuery(myPhoneNumber);
+  const [cancelRequest, { isLoading }] = useCancelRequestMutation();
+
+  const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
+  const [cancelPostID, setCancelPostID] = useState<string>('');
+  const [cancelUserID, setCancelUserID] = useState<string>('');
+
+  console.log(requestedPosts);
 
   const data = [
     {
@@ -46,6 +69,24 @@ const ProfileRequest = () => {
     },
   ];
 
+  const onCancelRequest = async (postID, userID) => {
+    setCancelPostID(postID);
+    setCancelUserID(userID);
+  };
+
+  const onConfirmCancel = async () => {
+    try {
+      await cancelRequest({
+        postID: cancelPostID,
+        userID: cancelUserID,
+      }).unwrap();
+      setIsPopupShow(false);
+    } catch (error) {
+      setIsPopupShow(false);
+      console.log(error);
+    }
+  };
+
   const renderItem = ({ item }) => {
     return (
       <ProfileRequestItem
@@ -59,16 +100,31 @@ const ProfileRequest = () => {
   const renderItemSent = ({ item }) => {
     return (
       <ProfileRequestItem
-        imagePet={item.imagePet}
-        imageUser={item.imageUser}
-        name={item.name}
+        imagePet={item.images[0]}
+        imageUser={item.userInfo?.avatar}
+        name={item.userInfo?.name}
         sent={true}
+        userID={item.postAdoptModel.userID}
+        onCancel={() => {
+          onCancelRequest(item.postAdoptModel?.postID, myPhoneNumber);
+          setIsPopupShow(true);
+        }}
       />
     );
   };
 
   return (
     <View style={styles.container}>
+      <Popup
+        title='Cancel request'
+        content='Do you really want to cancel your request?'
+        onCancel={() => {
+          setIsPopupShow(false);
+        }}
+        type={POPUP_TYPE.ERROR}
+        open={isPopupShow}
+        onSubmit={onConfirmCancel}
+      />
       <View
         style={{
           flexDirection: 'row',
@@ -84,7 +140,7 @@ const ProfileRequest = () => {
           }}
         >
           <Text style={tab === 0 ? styles.primaryText : styles.sent}>
-            Requested
+            Wating requests
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -93,7 +149,9 @@ const ProfileRequest = () => {
             setTab(1);
           }}
         >
-          <Text style={tab === 0 ? styles.sent : styles.primaryText}>Sent</Text>
+          <Text style={tab === 0 ? styles.sent : styles.primaryText}>
+            My requests
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -111,7 +169,7 @@ const ProfileRequest = () => {
 
       {tab === 1 && (
         <FlatList
-          data={data}
+          data={requestedPosts}
           keyExtractor={(item) => item.title}
           renderItem={renderItemSent} //method to render the data in the way you want using styling u need
           horizontal={false}
@@ -135,7 +193,7 @@ const styles = StyleSheet.create({
   },
   outlined: {
     backgroundColor: COLORS.tertiary,
-    width: scaleSize(145),
+    width: '48%',
     height: scaleSize(50),
     borderRadius: scaleSize(17),
     borderWidth: scaleSize(1),
@@ -152,7 +210,7 @@ const styles = StyleSheet.create({
   },
   primary: {
     ...STYLES.button,
-    width: scaleSize(145),
+    width: '48%',
   },
   primaryText: {
     ...STYLES.buttonText,

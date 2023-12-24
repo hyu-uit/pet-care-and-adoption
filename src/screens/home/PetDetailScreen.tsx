@@ -61,7 +61,7 @@ const PetDetailScreen = ({
   const dispatch = useDispatch();
 
   const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
-  const [reuqestAdoption, { isLoading }] = useRequestAdoptionMutation();
+  const [requestAdoption, { isLoading }] = useRequestAdoptionMutation();
 
   const onGoBack = () => {
     navigation.goBack();
@@ -152,11 +152,10 @@ const PetDetailScreen = ({
         postID: postDetail.postID,
         userRequest: myPhoneNumber,
       };
-
-      await reuqestAdoption(body).unwrap();
+      await requestAdoption(body).unwrap();
       setIsSuccessPopup(true);
     } catch (error) {
-      console.log(error);
+      console.log('error at request', error);
     }
   };
 
@@ -168,6 +167,7 @@ const PetDetailScreen = ({
         content={`Your request sent to user\nYou can check that in Profile`}
         onCancel={() => {
           setIsSuccessPopup(false);
+          navigation.goBack();
         }}
         type={POPUP_TYPE.SUCCESS}
         open={isSuccessPopup}

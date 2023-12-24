@@ -7,6 +7,8 @@ import { GetPostsRESP } from './response/get-add.response';
 import { GetPostDetailRESP } from './response/get-post-detail.response';
 import { RequestAdoptionREQ } from './request/request-adoption.request';
 import { getAllPostsWithUserRESP } from './response/get-all-posts.response';
+import { getReuqestedPostsRESP } from './response/get-requested-posts.response';
+import { cancelRequestREQ } from './request/cancel-request.request';
 
 export const postApi = createApi({
   reducerPath: 'post',
@@ -55,7 +57,11 @@ export const postApi = createApi({
       query: (body) => ({
         url: `/RequestAdoption?postID=${body.postID}&userRequest=${body.userRequest}`,
         method: HTTP_METHOD.POST,
+        responseHandler: 'text',
       }),
+      transformErrorResponse: (response) => {
+        console.log('ressssss', response);
+      },
       invalidatesTags: () => {
         return [{ type: 'REQUEST', id: 'LIST' }];
       },
@@ -73,6 +79,29 @@ export const postApi = createApi({
         return [{ type: 'REQUEST', id: 'LIST' }];
       },
     }),
+
+    getRequestedPosts: build.query<getReuqestedPostsRESP[], string>({
+      query: (body) => ({
+        url: `GetRequestPosts?userID=${body}`,
+        method: HTTP_METHOD.GET,
+      }),
+      transformResponse: (response: getReuqestedPostsRESP[]) => {
+        return response;
+      },
+      providesTags: () => {
+        return [{ type: 'REQUEST', id: 'LIST' }];
+      },
+    }),
+
+    cancelRequest: build.mutation<void, cancelRequestREQ>({
+      query: (body) => ({
+        url: `/CancelRequest?postID=${body.postID}&userID=${body.userID}`,
+        method: HTTP_METHOD.POST,
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'REQUEST', id: 'LIST' }];
+      },
+    }),
   }),
 });
 
@@ -82,4 +111,6 @@ export const {
   useGetPostDetailQuery,
   useRequestAdoptionMutation,
   useGetAllPostsWithUserQuery,
+  useGetRequestedPostsQuery,
+  useCancelRequestMutation,
 } = postApi;

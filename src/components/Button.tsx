@@ -18,6 +18,7 @@ type ButtonProps = {
   variant?: ButtonVariant;
   isLoading: boolean;
   style?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<ViewStyle>;
 };
 const Button: FC<ButtonProps> = ({
   title,
@@ -25,6 +26,7 @@ const Button: FC<ButtonProps> = ({
   variant,
   style,
   isLoading,
+  textStyle,
 }) => {
   return (
     <TouchableOpacity
@@ -44,7 +46,7 @@ const Button: FC<ButtonProps> = ({
       {isLoading ? (
         <ActivityIndicator color={COLORS.whitePrimary} />
       ) : (
-        <Text style={styles.title}>{title}</Text>
+        <Text style={[styles.title, textStyle]}>{title}</Text>
       )}
     </TouchableOpacity>
   );
