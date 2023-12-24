@@ -17,7 +17,10 @@ import CategoryItem from './components/search/CategoryItem';
 import PetSearchCard from './components/search/PetSearchCard';
 import FilterItem from './components/search/FilterItem';
 import FilterModal from '../../components/FilterModal';
-import { useGetPostsQuery } from '../../store/post/post.api';
+import {
+  useGetAllPostsWithUserQuery,
+  useGetPostsQuery,
+} from '../../store/post/post.api';
 import { CATEGORY } from '../../types/enum/category.enum';
 import {
   useGetProvincesQuery,
@@ -31,11 +34,17 @@ import {
   HomeStackParamList,
 } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const SearchScreen = ({
   navigation,
 }: NativeStackScreenProps<AdoptionStackParamList, SCREEN.SEARCH>) => {
-  const { data: allPosts } = useGetPostsQuery();
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
+
+  const { data: allPosts } = useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
 

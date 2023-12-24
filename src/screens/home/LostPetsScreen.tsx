@@ -211,7 +211,7 @@ const LostPetsScreen = ({
         style={{ marginTop: scaleSize(20) }}
       /> */}
       <FlatList
-        data={visibleData.filter((item) => {
+        data={visibleData?.filter((item) => {
           if (
             searchText !== '' &&
             !item.petName.toLowerCase().includes(searchText.toLowerCase())

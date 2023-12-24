@@ -53,6 +53,7 @@ const PetCareVideosSlider = () => {
         height={'80%'}
         width={'100%'}
         play={true}
+        mute={true}
         videoId={videoId}
       />
     );

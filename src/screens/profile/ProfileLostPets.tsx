@@ -28,7 +28,7 @@ const ProfileLostPets = () => {
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: myPosts } = useGetAllPostsWithUserQuery(myPhoneNumber);
+  const { data: myPosts } = useGetPostsQuery();
 
   const myLostList = useMemo(() => {
     if (!allPosts) {
@@ -69,7 +69,7 @@ const ProfileLostPets = () => {
           </View>
 
           <FlatList
-            data={myPosts}
+            data={myLostList}
             keyExtractor={(item) => item.image}
             renderItem={renderItemLost} //method to render the data in the way you want using styling u need
             horizontal={true}

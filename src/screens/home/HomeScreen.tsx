@@ -25,23 +25,28 @@ import {
   HomeStackParamList,
 } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
-import { useGetPostsQuery } from '../../store/post/post.api';
+import {
+  useGetAllPostsWithUserQuery,
+  useGetPostsQuery,
+} from '../../store/post/post.api';
 import { Post } from '../../store/post/response/get-add.response';
 import { doc, onSnapshot } from 'firebase/firestore';
 import { firestoreDB } from '../../../firebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useGetUserInformationQuery } from '../../store/users/users.api';
 
 const HomeScreen = ({
   navigation,
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.HOME>) => {
-  const { data: allPosts } = useGetPostsQuery();
-
-  console.log('model', allPosts);
-
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+
+  const { data: allPosts } = useGetAllPostsWithUserQuery(myPhoneNumber);
+  const { data: userData } = useGetUserInformationQuery(myPhoneNumber);
+
+  console.log('model', allPosts);
 
   const [chats, setChats] = useState([]);
   const [newMessage, setNewMessage] = useState(false);
@@ -334,7 +339,11 @@ const HomeScreen = ({
             >
               <Text>Location</Text>
             </View>
-            <Text style={styles.address}>Thu Duc City, Vietnam</Text>
+            {userData.district && userData.province && (
+              <Text style={styles.address}>
+                {userData?.district + `,\n` + userData?.province}
+              </Text>
+            )}
           </View>
           <View>
             <TouchableOpacity onPress={onSearch} style={styles.searchWrapper}>

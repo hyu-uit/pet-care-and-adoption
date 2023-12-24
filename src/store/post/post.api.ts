@@ -38,7 +38,10 @@ export const postApi = createApi({
         return response;
       },
       providesTags: () => {
-        return [{ type: 'POST', id: 'LIST' }];
+        return [
+          { type: 'POST', id: 'LIST' },
+          { type: 'REQUEST', id: 'LIST' },
+        ];
       },
     }),
 
