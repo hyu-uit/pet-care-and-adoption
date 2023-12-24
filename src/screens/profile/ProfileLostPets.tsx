@@ -5,19 +5,30 @@ import {
   FlatList,
   TouchableOpacity,
 } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { COLORS, FONTS, SIZES } from '../../config';
 import AdoptedPetCard from '../home/components/home/AdoptedPetCard';
-import { useGetPostsQuery } from '../../store/post/post.api';
+import {
+  useGetAllPostsWithUserQuery,
+  useGetPostsQuery,
+} from '../../store/post/post.api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { getAllPostsWithUserRESP } from '../../store/post/response/get-all-posts.response';
+import MyPostCard from './components/MyPostCard';
+import { useNavigation } from '@react-navigation/native';
+import { SCREEN } from '../../navigators/AppRoute';
 
 const ProfileLostPets = () => {
   const { data: allPosts } = useGetPostsQuery();
+  const navigation = useNavigation();
+
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+
+  const { data: myPosts } = useGetAllPostsWithUserQuery(myPhoneNumber);
 
   const myLostList = useMemo(() => {
     if (!allPosts) {
@@ -31,19 +42,19 @@ const ProfileLostPets = () => {
     );
   }, [allPosts, myPhoneNumber]);
 
-  const onDetail = () => {};
+  const onDetail = (item) => {
+    navigation.navigate(SCREEN.UPDATE_MY_POST, { postDetail: item });
+  };
 
   const renderItemLost = ({ item }) => {
     return (
-      <AdoptedPetCard
+      <MyPostCard
         image={item.images}
         name={item.postAdoptModel.petName}
         gender={item.postAdoptModel.sex}
-        district={item.postAdoptModel.district}
-        province={item.postAdoptModel.province}
-        own={true}
+        isAdopt={item.postAdoptModel.isAdopt}
         onDetail={() => {
-          onDetail();
+          onDetail(item);
         }}
       />
     );
@@ -51,14 +62,14 @@ const ProfileLostPets = () => {
 
   return (
     <View style={{ paddingHorizontal: SIZES.padding }}>
-      {myLostList && (
+      {myPosts && (
         <>
           <View style={styles.container}>
-            <Text style={styles.title}>My Lost Pets</Text>
+            <Text style={styles.title}>My posts</Text>
           </View>
 
           <FlatList
-            data={myLostList}
+            data={myPosts}
             keyExtractor={(item) => item.image}
             renderItem={renderItemLost} //method to render the data in the way you want using styling u need
             horizontal={true}

@@ -165,6 +165,7 @@ const MyPetDetailScreen = ({
                 fontWeight: 'bold',
                 color: COLORS.primary,
                 marginTop: scaleSize(7),
+                textAlign: 'center',
               },
             ]}
           >

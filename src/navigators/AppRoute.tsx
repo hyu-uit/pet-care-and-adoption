@@ -31,4 +31,6 @@ export enum SCREEN {
   ADD_MY_PET = 'ADD_MY_PET',
 
   BOT_CHAT = 'BOT_CHAT',
+
+  UPDATE_MY_POST = 'UPDATE_MY_POST',
 }

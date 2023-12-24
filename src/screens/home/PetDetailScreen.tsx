@@ -8,6 +8,7 @@ import {
   Linking,
   Touchable,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useState } from 'react';
 import { COLORS, SIZES, FONTS, IMAGES, STYLES } from '../../config';
@@ -38,6 +39,10 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import { changeOtherUser } from '../../store/chat/chat.slice';
+import { useRequestAdoptionMutation } from '../../store/post/post.api';
+import { RequestAdoptionREQ } from '../../store/post/request/request-adoption.request';
+import Popup from '../../components/Popup';
+import { POPUP_TYPE } from '../../types/enum/popup.enum';
 
 const PetDetailScreen = ({
   navigation,
@@ -47,6 +52,7 @@ const PetDetailScreen = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modalUri, setModalUri] = useState('');
+  const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
 
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
@@ -55,6 +61,7 @@ const PetDetailScreen = ({
   const dispatch = useDispatch();
 
   const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
+  const [reuqestAdoption, { isLoading }] = useRequestAdoptionMutation();
 
   const onGoBack = () => {
     navigation.goBack();
@@ -139,9 +146,32 @@ const PetDetailScreen = ({
     }
   };
 
+  const onRequestAdoptPet = async () => {
+    try {
+      const body: RequestAdoptionREQ = {
+        postID: postDetail.postID,
+        userRequest: myPhoneNumber,
+      };
+
+      await reuqestAdoption(body).unwrap();
+      setIsSuccessPopup(true);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle='dark-content' />
+      <Popup
+        title='Request sent successfully'
+        content={`Your request sent to user\nYou can check that in Profile`}
+        onCancel={() => {
+          setIsSuccessPopup(false);
+        }}
+        type={POPUP_TYPE.SUCCESS}
+        open={isSuccessPopup}
+      />
       <ImageModal
         uri={modalUri}
         open={showModal}
@@ -363,21 +393,26 @@ const PetDetailScreen = ({
                       : COLORS.primary,
                 },
               ]}
+              onPress={onRequestAdoptPet}
               disabled={postedBy?.userID === myPhoneNumber}
             >
-              <Text
-                style={[
-                  styles.buttonText,
-                  {
-                    color:
-                      postedBy?.userID === myPhoneNumber
-                        ? COLORS.grayLight
-                        : COLORS.whitePrimary,
-                  },
-                ]}
-              >
-                Adopt me
-              </Text>
+              {isLoading ? (
+                <ActivityIndicator />
+              ) : (
+                <Text
+                  style={[
+                    styles.buttonText,
+                    {
+                      color:
+                        postedBy?.userID === myPhoneNumber
+                          ? COLORS.grayLight
+                          : COLORS.whitePrimary,
+                    },
+                  ]}
+                >
+                  Adopt me
+                </Text>
+              )}
             </TouchableOpacity>
           </View>
         )}

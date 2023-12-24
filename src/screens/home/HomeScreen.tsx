@@ -148,18 +148,6 @@ const HomeScreen = ({
   //     userID: post.userID,
   //   }));
 
-  const lostList =
-    allPosts?.postAdoptModel &&
-    limitedLostPosts.map((post) => ({
-      image:
-        'https://hips.hearstapps.com/hmg-prod/images/beautiful-smooth-haired-red-cat-lies-on-the-sofa-royalty-free-image-1678488026.jpg?crop=0.668xw:1.00xh;0.119xw,0&resize=1200:*',
-      name: post.petName,
-      gender: post.sex,
-      district: post.district,
-      province: post.province,
-      postId: post.postID,
-    }));
-
   const clinicList = [
     {
       name: 'Petzone - 283 VVN',

@@ -66,19 +66,6 @@ const HomeStackNavigator = () => {
           },
         }}
       />
-      <Stack.Screen
-        name={SCREEN.LOST_PETS}
-        component={LostPetsScreen}
-        options={{
-          headerShown: true,
-          headerTitle: 'Lost Pets',
-          headerTitleStyle: {
-            ...FONTS.body2,
-            fontWeight: 'bold',
-            color: COLORS.blackTitle,
-          },
-        }}
-      />
 
       <Stack.Screen
         name={SCREEN.NOTIFICATION}

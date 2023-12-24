@@ -12,6 +12,8 @@ import ProfileEditScreen from '../screens/profile/ProfileEditScreen';
 import ProfileMyPetDetail from '../screens/profile/ProfileMyPetDetail';
 import PetDetailScreen from '../screens/home/PetDetailScreen';
 import AddMyPetScreen from '../screens/profile/AddMyPetScreen';
+import LostPetsScreen from '../screens/home/LostPetsScreen';
+import UpdateMyPostScreen from '../screens/profile/UpdateMyPostScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -62,7 +64,7 @@ const MainNavigator = () => {
         component={ProfileMyPetDetail}
         options={{
           headerTintColor: COLORS.blackContent,
-          headerStyle: { backgroundColor: COLORS.background },
+          headerStyle: { backgroundColor: COLORS.tertiary },
           headerShadowVisible: false,
           headerShown: true,
           headerTitle: 'My pet',
@@ -77,6 +79,28 @@ const MainNavigator = () => {
           headerShadowVisible: false,
           headerShown: true,
           headerTitle: 'My pet',
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.LOST_PETS}
+        component={LostPetsScreen}
+        options={{
+          headerTintColor: COLORS.blackContent,
+          headerStyle: { backgroundColor: COLORS.background },
+          headerShadowVisible: false,
+          headerShown: true,
+          headerTitle: 'Lost pets',
+        }}
+      />
+      <Stack.Screen
+        name={SCREEN.UPDATE_MY_POST}
+        component={UpdateMyPostScreen}
+        options={{
+          headerTintColor: COLORS.blackContent,
+          headerStyle: { backgroundColor: COLORS.background },
+          headerShadowVisible: false,
+          headerShown: true,
+          headerTitle: 'My Post',
         }}
       />
     </Stack.Navigator>

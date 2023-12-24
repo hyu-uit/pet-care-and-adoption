@@ -6,10 +6,14 @@ import {
   TouchableOpacity,
   Linking,
 } from 'react-native';
-import React, { FC } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { COLORS, SIZES, FONTS } from '../../../config';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { AntDesign, FontAwesome } from '@expo/vector-icons';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
+import { doc, getDoc } from 'firebase/firestore';
+import { firestoreDB } from '../../../../firebaseConfig';
 
 type ChatHeaderProps = {
   displayName: string;
@@ -17,6 +21,24 @@ type ChatHeaderProps = {
 };
 
 const ChatHeader: FC<ChatHeaderProps> = ({ displayName, onBack }) => {
+  const [img, setImg] = useState();
+
+  const otherPhoneNumber = useSelector(
+    (state: RootState) => state.chat.otherUser.id
+  );
+
+  useEffect(() => {
+    const getOtherUserAvatar = async () => {
+      const docRef = doc(firestoreDB, 'users', otherPhoneNumber);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        setImg(docSnap.data().avatar);
+      }
+    };
+
+    getOtherUserAvatar();
+  }, [otherPhoneNumber]);
+
   return (
     <View style={styles.container}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -29,7 +51,9 @@ const ChatHeader: FC<ChatHeaderProps> = ({ displayName, onBack }) => {
         </TouchableOpacity>
         <Image
           source={{
-            uri: 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdog-puns-1581708208.jpg?alt=media&token=39969852-94c9-41fd-8f4b-afd05f1201f9',
+            uri: img
+              ? img
+              : 'https://firebasestorage.googleapis.com/v0/b/pet-care-and-adoption.appspot.com/o/images%2Fdog-puns-1581708208.jpg?alt=media&token=39969852-94c9-41fd-8f4b-afd05f1201f9',
           }}
           style={styles.image}
         />
@@ -37,7 +61,7 @@ const ChatHeader: FC<ChatHeaderProps> = ({ displayName, onBack }) => {
       </View>
       <TouchableOpacity
         onPress={() => {
-          Linking.openURL('tel:+1234567890');
+          Linking.openURL(`tel:${otherPhoneNumber}`);
         }}
       >
         <FontAwesome name='phone' size={scaleSize(24)} color={COLORS.primary} />

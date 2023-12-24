@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
-import { AntDesign, Entypo, Ionicons } from '@expo/vector-icons';
+import { AntDesign, Entypo } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { AdoptionStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
@@ -42,23 +42,20 @@ import {
   uploadBytes,
   uploadBytesResumable,
 } from 'firebase/storage';
-import VaccinatedModal from './components/VaccinatedModal';
-import VaccinatedItem from './components/VaccinatedItem';
-import { VaccinatedListType } from '../../types/vaccinated-list.type';
-import { AddMyPetREQ } from '../../store/my-pet/request/add-my-pet.request';
-import { useAddMyPetMutation } from '../../store/my-pet/my-pet.api';
+import { useRoute } from '@react-navigation/native';
 
 type ImageType = {
   uri: string;
 };
 
-const AddMyPetScreen = ({
-  navigation,
-}: NativeStackScreenProps<AdoptionStackParamList, SCREEN.LOCATION>) => {
+const UpdateMyPostScreen = () => {
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
+
+  const route = useRoute();
+  const postDetail = route.params?.postDetail;
 
   const {
     control,
@@ -69,35 +66,83 @@ const AddMyPetScreen = ({
     formState: { errors },
   } = useForm<AddPostType>({
     defaultValues: {
-      sex: SEX.MALE,
-      isAdopt: true,
-      isVaccinated: false,
-      description: '',
+      name: postDetail?.postAdoptModel.petName,
+      age: postDetail?.postAdoptModel.age.toString(),
+      weight: postDetail.postAdoptModel.weight,
+      sex: postDetail?.postAdoptModel.sex,
+      isAdopt: postDetail?.postAdoptModel.isAdopt,
+      isVaccinated: postDetail?.postAdoptModel.isVaccinated,
+      description: postDetail?.postAdoptModel.description,
     },
   });
 
-  const [img, setImg] = useState([]);
+  const [img, setImg] = useState(postDetail.images);
   const [url, setUrl] = useState([]);
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
   const [species, setSpecies] = useState([]);
   const [breeds, setBreeds] = useState([]);
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
-  const [isModalShown, setIsModalShown] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  const [addMyPet] = useAddMyPetMutation();
-
-  const [vaccinatedList, setVaccinatedList] = useState<VaccinatedListType>({
-    history: [],
-    next: [],
-  });
 
   const uriImage = watch('images');
 
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+
+  useEffect(() => {
+    const fetchSpecies = async () => {
+      if (postDetail.postAdoptModel.species) {
+        const speciesOrder = dataSpecices?.find(
+          (item) => item.speciesName === postDetail.postAdoptModel.species
+        )?.speciesID;
+        setValue('specie', speciesOrder);
+        if (postDetail?.postAdoptModel.breed) {
+          try {
+            const breedList = await getBreeds(speciesOrder).unwrap();
+            setValue(
+              'breed',
+              breedList?.find(
+                (item) => item.breedName === postDetail?.postAdoptModel.breed
+              ).breedID
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
+    };
+    // };
+
+    fetchSpecies();
+  }, [dataSpecices]);
+
+  useEffect(() => {
+    const fetchAddess = async () => {
+      if (postDetail.postAdoptModel.province) {
+        const provinceOrder = dataProvinces.find(
+          (item) => item.name === postDetail.postAdoptModel.province
+        )?.code;
+        setValue('province', provinceOrder);
+        if (postDetail.postAdoptModel.district) {
+          try {
+            const districtList = await getDistricts(provinceOrder).unwrap();
+            setValue(
+              'district',
+              districtList?.districts?.find(
+                (item) => item.name === postDetail.postAdoptModel.district
+              )?.code
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
+    };
+    // };
+
+    fetchAddess();
+  }, [dataProvinces]);
 
   useEffect(() => {
     if (!dataProvinces) return;
@@ -137,10 +182,6 @@ const AddMyPetScreen = ({
 
   const onSelectProvince = (value) => {
     getDistricts(value.value);
-  };
-
-  const onLocation = () => {
-    navigation.navigate(SCREEN.LOCATION);
   };
 
   const pickImage = async () => {
@@ -233,93 +274,57 @@ const AddMyPetScreen = ({
   };
 
   const handleUpload = async (data) => {
-    try {
-      setIsLoading(true);
-      const urlArray = [];
-      for (let i = 0; i < img.length; i++) {
-        const res = await uploadToFirebaseStorage(img[i]);
-        urlArray.push(res.downloadUrl);
-      }
+    const urlArray = [];
+    for (let i = 0; i < img.length; i++) {
+      const res = await uploadToFirebaseStorage(img[i]);
+      urlArray.push(res.downloadUrl);
+    }
 
-      const body: AddMyPetREQ = {
-        petModel: {
+    // const uploadPromises = img.map(async (uri) => {
+    //   try {
+    //     const result = await uploadToFirebaseStorage(uri);
+    //     console.log('kylantochau', result.downloadUrl);
+    //     // setUrl([...url, result.downloadUrl]);
+    //     //  return result.downloadUrl;c
+    //   } catch (error) {
+    //     console.error(`Error uploading ${uri}`, error);
+    //     return null; // or handle error as needed
+    //   }
+    // });
+
+    // const downloadUrls = await Promise.all(uploadPromises);
+
+    try {
+      const body: AddPostREQ = {
+        postModel: {
           petName: data.name,
           sex: data.sex,
           age: data.age,
           species: data.specie.label,
           breed: data.breed.label,
           weight: data.weight,
-          description: data.description,
+          district: data.district.label,
+          province: data.province.label,
+          isVaccinated: data.isVaccinated,
+          isAdopt: data.isAdopt,
           userID: myPhoneNumber,
+          description: data.description,
         },
+        // images: data.images.map((image) => ({ image })),
         images: Array.isArray(urlArray)
           ? urlArray.map((image) => ({ image }))
           : [],
-        history: vaccinatedList.history,
-        next: vaccinatedList.next,
       };
-
-      await addMyPet(body).unwrap();
+      await publishPost(body).unwrap();
 
       setIsSuccessPopup(true);
       setBreeds([]);
       reset();
       setDistricts([]);
       setImg([]);
-      setVaccinatedList({ history: [], next: [] });
-      setIsLoading(false);
     } catch (error) {
-      setIsLoading(false);
       console.log(error);
     }
-  };
-
-  const handleDeleteHistoryItem = (index: number) => {
-    // Create a copy of the state and remove the item at the specified index
-    const updatedHistory = [...vaccinatedList.history];
-    updatedHistory.splice(index, 1);
-
-    // Update the state with the modified history array
-    setVaccinatedList((prevList) => ({
-      ...prevList,
-      history: updatedHistory,
-    }));
-  };
-
-  const handleDeleteNextItem = (index: number) => {
-    // Create a copy of the state and remove the item at the specified index
-    const updatedNext = [...vaccinatedList.next];
-    updatedNext.splice(index, 1);
-
-    // Update the state with the modified next array
-    setVaccinatedList((prevList) => ({
-      ...prevList,
-      next: updatedNext,
-    }));
-  };
-
-  const renderItemHistory = ({ item, index }) => {
-    return (
-      <VaccinatedItem
-        date={item.date}
-        note={item.note}
-        onDelete={() => {
-          handleDeleteHistoryItem(index);
-        }}
-      />
-    );
-  };
-
-  const renderItemNext = ({ item, index }) => {
-    return (
-      <VaccinatedItem
-        date={item.date}
-        note={item.note}
-        onDelete={() => {
-          handleDeleteNextItem(index);
-        }}
-      />
-    );
   };
 
   const validateImageExistence = () => {
@@ -328,46 +333,8 @@ const AddMyPetScreen = ({
     } else return true;
   };
 
-  const onCloseModal = () => {
-    setIsModalShown(false);
-  };
-
-  const onOpenModal = () => {
-    setIsModalShown(true);
-  };
-
-  const handleModalUpdate = (
-    data: {
-      date: string;
-      note: string;
-      type: { label: string; value: number };
-    } | null
-  ) => {
-    if (data) {
-      if (data.type.value === 0) {
-        setVaccinatedList((prevList) => ({
-          ...prevList,
-          history: [...prevList.history, { date: data.date, note: data.note }],
-        }));
-      } else {
-        setVaccinatedList((prevList) => ({
-          ...prevList,
-          next: [...prevList.next, { date: data.date, note: data.note }],
-        }));
-      }
-    }
-
-    // Close the modal
-    setIsModalShown(false);
-  };
-
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <VaccinatedModal
-        open={isModalShown}
-        onClose={onCloseModal}
-        update={handleModalUpdate}
-      />
       <Popup
         title='Published your post'
         content='Everyone can see your pet now'
@@ -514,6 +481,7 @@ const AddMyPetScreen = ({
         }) => (
           <Dropdown
             data={breeds}
+            value={value}
             labelField={'label'}
             valueField={'value'}
             placeholder='Select breed'
@@ -577,7 +545,7 @@ const AddMyPetScreen = ({
       <View style={styles.selectionContainer}>
         <View>
           <Text style={styles.title}>Sex</Text>
-          <View style={{ marginTop: scaleSize(5), flexDirection: 'row' }}>
+          <View style={{ marginTop: scaleSize(5) }}>
             <Controller
               control={control}
               name='sex'
@@ -663,48 +631,227 @@ const AddMyPetScreen = ({
             )}
           </View>
         </View>
+
+        <View>
+          <Text style={styles.title}>Option</Text>
+          <View style={{ marginTop: scaleSize(5) }}>
+            <Controller
+              control={control}
+              name='isAdopt'
+              render={({
+                field: { value, onBlur, onChange },
+                fieldState: { error },
+              }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.optionWrapper,
+                    {
+                      backgroundColor:
+                        value === true ? COLORS.primary : COLORS.tertiary,
+                    },
+                  ]}
+                  onPress={() => {
+                    onChange(true);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {
+                        color:
+                          value === true ? COLORS.whitePrimary : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    Adopt
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name='isAdopt'
+              render={({
+                field: { value, onBlur, onChange },
+                fieldState: { error },
+              }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.optionWrapper,
+                    {
+                      backgroundColor:
+                        value === false ? COLORS.primary : COLORS.tertiary,
+                    },
+                  ]}
+                  onPress={() => {
+                    onChange(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {
+                        color:
+                          value === false
+                            ? COLORS.whitePrimary
+                            : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    Lost
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+        <View>
+          <Text style={styles.title}>Vaccinated</Text>
+          <View style={{ marginTop: scaleSize(5) }}>
+            <Controller
+              control={control}
+              name='isVaccinated'
+              render={({
+                field: { value, onBlur, onChange },
+                fieldState: { error },
+              }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.optionWrapper,
+                    {
+                      backgroundColor:
+                        value === true ? COLORS.primary : COLORS.tertiary,
+                    },
+                  ]}
+                  onPress={() => {
+                    onChange(true);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {
+                        color:
+                          value === true ? COLORS.whitePrimary : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    Yes
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+
+            <Controller
+              control={control}
+              name='isVaccinated'
+              render={({
+                field: { value, onBlur, onChange },
+                fieldState: { error },
+              }) => (
+                <TouchableOpacity
+                  style={[
+                    styles.optionWrapper,
+                    {
+                      backgroundColor:
+                        value === false ? COLORS.primary : COLORS.tertiary,
+                    },
+                  ]}
+                  onPress={() => {
+                    onChange(false);
+                  }}
+                >
+                  <Text
+                    style={[
+                      styles.optionText,
+                      {
+                        color:
+                          value === false
+                            ? COLORS.whitePrimary
+                            : COLORS.primary,
+                      },
+                    ]}
+                  >
+                    No
+                  </Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          marginTop: scaleSize(20),
-        }}
-      >
-        <Text style={styles.title}>Vaccinated</Text>
-        <TouchableOpacity
-          style={{ marginLeft: scaleSize(5) }}
-          onPress={onOpenModal}
-        >
-          <Ionicons
-            name='add-circle'
-            size={scaleSize(24)}
-            color={COLORS.primary}
+      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Location</Text>
+
+      <Controller
+        control={control}
+        name='province'
+        render={({
+          field: { value, onBlur, onChange },
+          fieldState: { error },
+        }) => (
+          <Dropdown
+            data={provinces}
+            labelField={'label'}
+            valueField={'value'}
+            placeholder='Select province'
+            placeholderStyle={{ color: COLORS.grayPrimary }}
+            style={[
+              styles.input,
+              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+            ]}
+            value={value}
+            onChange={(value) => {
+              onChange(value);
+              onSelectProvince(value);
+            }}
+            containerStyle={{
+              height: scaleSize(200),
+              borderRadius: scaleSize(10),
+            }}
           />
-        </TouchableOpacity>
-      </View>
+        )}
+        rules={{
+          required: 'Province is required',
+        }}
+      />
+      {errors.province && (
+        <Text style={styles.errorText}>{errors.province.message}</Text>
+      )}
 
-      <View style={styles.vaccinatedWrapper}>
-        <Text style={styles.vaccinatedTitle}>Hisotry</Text>
-        <FlatList
-          data={vaccinatedList.history}
-          keyExtractor={(item) => item.title}
-          renderItem={renderItemHistory} //method to render the data in the way you want using styling u need
-          horizontal={false}
-          numColumns={1}
-          showsVerticalScrollIndicator={false}
-        />
-        <Text style={styles.vaccinatedTitle}>Next Vaccination</Text>
-        <FlatList
-          data={vaccinatedList.next}
-          keyExtractor={(item) => item.title}
-          renderItem={renderItemNext} //method to render the data in the way you want using styling u need
-          horizontal={false}
-          numColumns={1}
-          showsVerticalScrollIndicator={false}
-        />
-      </View>
+      <Controller
+        control={control}
+        name='district'
+        render={({
+          field: { value, onBlur, onChange },
+          fieldState: { error },
+        }) => (
+          <Dropdown
+            data={districts}
+            value={value}
+            labelField={'label'}
+            valueField={'value'}
+            placeholder='Select district'
+            placeholderStyle={{ color: COLORS.grayPrimary }}
+            style={[
+              styles.input,
+              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+            ]}
+            onChange={onChange}
+            containerStyle={{
+              height: scaleSize(200),
+              borderRadius: scaleSize(10),
+            }}
+          />
+        )}
+        rules={{
+          required: 'District is required',
+        }}
+      />
+      {errors.district && (
+        <Text style={styles.errorText}>{errors.district.message}</Text>
+      )}
 
       <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Describe</Text>
       <Controller
@@ -732,17 +879,31 @@ const AddMyPetScreen = ({
         )}
       />
 
-      <Button
-        onPress={handleSubmit(handleUpload.bind(null))}
-        title='Publish'
-        style={{ marginTop: scaleSize(19), marginBottom: SIZES.bottomPadding }}
-        isLoading={isLoading}
-      />
+      <View
+        style={{
+          paddingHorizontal: SIZES.padding,
+          marginTop: scaleSize(20),
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+        }}
+      >
+        <TouchableOpacity
+          style={[styles.button, { backgroundColor: COLORS.tertiary }]}
+        >
+          <Text style={[styles.buttonText, { color: COLORS.primary }]}>
+            Delete
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.button}>
+          <Text style={styles.buttonText}>Save</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 };
 
-export default AddMyPetScreen;
+export default UpdateMyPostScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -821,6 +982,7 @@ const styles = StyleSheet.create({
     ...STYLES.button,
     marginTop: scaleSize(20),
     marginBottom: SIZES.bottomPadding,
+    width: '48%',
   },
   buttonText: {
     ...STYLES.buttonText,
@@ -830,20 +992,5 @@ const styles = StyleSheet.create({
     color: COLORS.redPrimary,
     fontSize: scaleSize(12),
     marginTop: scaleSize(3),
-  },
-  vaccinatedWrapper: {
-    width: '100%',
-    minHeight: scaleSize(150),
-    borderRadius: scaleSize(10),
-    backgroundColor: COLORS.tertiary,
-    borderWidth: scaleSize(1),
-    borderColor: COLORS.grayLight,
-    padding: scaleSize(20),
-    marginTop: scaleSize(10),
-  },
-  vaccinatedTitle: {
-    ...FONTS.body3,
-    color: COLORS.primary,
-    marginBottom: scaleSize(5),
   },
 });

@@ -2,42 +2,21 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import React from 'react';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { scaleSize } from '../../../../utils/DeviceUtils';
-import { COLORS } from '../../../../config';
+import { COLORS, IMAGES } from '../../../../config';
 
 const Banner = () => {
   const carouselData = [
-    {
-      title: 'Slide 1',
-      image:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGHVuH6bIZRUGtEO6d3kh2oN4kBWeY_zxaeQ&usqp=CAU',
-    },
-    {
-      title: 'Slide 2',
-      image:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGHVuH6bIZRUGtEO6d3kh2oN4kBWeY_zxaeQ&usqp=CAU',
-    },
-    {
-      title: 'Slide 3',
-      image:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGHVuH6bIZRUGtEO6d3kh2oN4kBWeY_zxaeQ&usqp=CAU',
-    },
-    {
-      title: 'Slide 4',
-      image:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGHVuH6bIZRUGtEO6d3kh2oN4kBWeY_zxaeQ&usqp=CAU',
-    },
-    {
-      title: 'Slide 5',
-      image:
-        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGHVuH6bIZRUGtEO6d3kh2oN4kBWeY_zxaeQ&usqp=CAU',
-    },
+    IMAGES.BANNER_1,
+    IMAGES.BANNER_2,
+    IMAGES.BANNER_3,
+    IMAGES.BANNER_4,
   ];
 
   const [activeSlide, setActiveSlide] = React.useState(0);
 
   const renderCarouselItem = ({ item }) => (
     <View style={styles.slide}>
-      <Image source={{ uri: item.image }} style={styles.image} />
+      <Image source={item} style={styles.image} />
     </View>
   );
 
@@ -51,7 +30,7 @@ const Banner = () => {
         onSnapToItem={(index) => setActiveSlide(index)} // Update the active slide index
         autoplay={true} // Enable auto slide
         loop={true} // Loop through slides
-        autoplayInterval={3000} // Set the interval for auto slide (in milliseconds)
+        autoplayInterval={5000} // Set the interval for auto slide (in milliseconds)
         layout='default' // Set the layout type
       />
       <Pagination
