@@ -9,6 +9,9 @@ import { RequestAdoptionREQ } from './request/request-adoption.request';
 import { getAllPostsWithUserRESP } from './response/get-all-posts.response';
 import { getReuqestedPostsRESP } from './response/get-requested-posts.response';
 import { cancelRequestREQ } from './request/cancel-request.request';
+import { getPostsWithRequest } from './request/get-posts-with-request.request';
+import { AcceptRequestREQ } from './request/accept-request.request';
+import { DeniedRequestREQ } from './request/denied-request.request';
 
 export const postApi = createApi({
   reducerPath: 'post',
@@ -79,7 +82,10 @@ export const postApi = createApi({
         return response;
       },
       providesTags: () => {
-        return [{ type: 'REQUEST', id: 'LIST' }];
+        return [
+          { type: 'REQUEST', id: 'LIST' },
+          { type: 'POST', id: 'LIST' },
+        ];
       },
     }),
 
@@ -105,6 +111,39 @@ export const postApi = createApi({
         return [{ type: 'REQUEST', id: 'LIST' }];
       },
     }),
+
+    getPostsWithRequest: build.query<getPostsWithRequest[], string>({
+      query: (body) => ({
+        url: `PostsWithRequest?userID=${body}`,
+        method: HTTP_METHOD.GET,
+      }),
+      transformResponse: (response: getPostsWithRequest[]) => {
+        return response;
+      },
+      providesTags: () => {
+        return [{ type: 'REQUEST', id: 'LIST' }];
+      },
+    }),
+
+    acceptRequest: build.mutation<void, AcceptRequestREQ>({
+      query: (body) => ({
+        url: `/AcceptUser?postID=${body.postID}&receiverID=${body.receiverID}`,
+        method: HTTP_METHOD.POST,
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'REQUEST', id: 'LIST' }];
+      },
+    }),
+
+    deniedRequest: build.mutation<void, DeniedRequestREQ>({
+      query: (body) => ({
+        url: `/RejectUser?postID=${body.postID}&userID=${body.userID}`,
+        method: HTTP_METHOD.POST,
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'REQUEST', id: 'LIST' }];
+      },
+    }),
   }),
 });
 
@@ -116,4 +155,7 @@ export const {
   useGetAllPostsWithUserQuery,
   useGetRequestedPostsQuery,
   useCancelRequestMutation,
+  useGetPostsWithRequestQuery,
+  useAcceptRequestMutation,
+  useDeniedRequestMutation,
 } = postApi;

@@ -54,7 +54,7 @@ function BotMessageItem({ message, onActionClick }) {
 
 function ChatBox({ conversationId }) {
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  // const [inputValue, setInputValue] = useState('');
   const scrollViewRef = useRef(null);
 
   useEffect(() => {
@@ -111,6 +111,45 @@ function ChatBox({ conversationId }) {
   return (
     conversationId && (
       <View style={{ display: 'flex', flex: 1 }}>
+        {messages.length <= 0 ? (
+          <TouchableOpacity
+            onPress={() => {
+              handleSendMessage('Hi there!');
+            }}
+            style={{
+              width: '70%',
+              padding: scaleSize(15),
+              backgroundColor: COLORS.secondary,
+              alignSelf: 'center',
+              marginTop: scaleSize(50),
+              borderRadius: scaleSize(20),
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={{ ...FONTS.h5, color: COLORS.whitePrimary }}>
+              Start chatting
+            </Text>
+          </TouchableOpacity>
+        ) : (
+          <TouchableOpacity
+            onPress={() => {
+              setMessages([]);
+            }}
+          >
+            <Text
+              style={{
+                ...FONTS.body3,
+                textAlign: 'right',
+                marginTop: scaleSize(20),
+                textDecorationLine: 'underline',
+                color: COLORS.primary,
+              }}
+            >
+              Create new Chat
+            </Text>
+          </TouchableOpacity>
+        )}
         <ScrollView
           ref={scrollViewRef}
           style={{ flex: 1 }}
@@ -159,9 +198,10 @@ function ChatBox({ conversationId }) {
               />
             )
           )}
+          <View style={{ paddingBottom: SIZES.bottomPadding }}></View>
         </ScrollView>
 
-        <View style={{ marginBottom: SIZES.bottomBarHeight }}>
+        {/* <View style={{ marginBottom: SIZES.bottomBarHeight }}>
           <TextInput
             style={{
               borderColor: 'gray',
@@ -175,7 +215,7 @@ function ChatBox({ conversationId }) {
           <TouchableOpacity onPress={() => handleSendMessage(inputValue)}>
             <Text>Send</Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
       </View>
     )
   );

@@ -8,6 +8,7 @@ import {
   Image,
   StatusBar,
   FlatList,
+  RefreshControl,
 } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { COLORS, STYLES, FONTS, SIZES, IMAGES } from '../../config';
@@ -44,7 +45,8 @@ const SearchScreen = ({
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: allPosts } = useGetAllPostsWithUserQuery(myPhoneNumber);
+  const { data: allPosts, refetch } =
+    useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
 
@@ -62,6 +64,7 @@ const SearchScreen = ({
   const [filteredVaccinated, setFilteredVaccinated] = useState<boolean | null>(
     null
   );
+  const [refreshing, setRefreshing] = useState(false);
 
   const [allPostList, setAllPostList] = useState([]);
 
@@ -69,6 +72,13 @@ const SearchScreen = ({
   const [renderedCount, setRenderedCount] = useState(10); // Initial number of items to render
   const loading = useRef(false);
   const pageSize = 10; // Number of items to load on each scroll event
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // Call your API or perform any asynchronous task
+    await refetch();
+    setRefreshing(false);
+  };
 
   // useEffect(() => {
   //   const data = allPosts?.map((post) => ({
@@ -296,7 +306,12 @@ const SearchScreen = ({
         vaccinated={filteredVaccinated}
         onSelectVaccinated={setFilteredVaccinated}
       />
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <TouchableOpacity
           style={{
             alignItems: 'flex-end',

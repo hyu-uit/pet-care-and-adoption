@@ -35,6 +35,8 @@ type ProfileRequestProps = {
   sent?: boolean;
   userID: string;
   onCancel?: () => void;
+  onAccept?: () => void;
+  onDenied?: () => void;
 };
 
 const ProfileRequestItem: FC<ProfileRequestProps> = ({
@@ -44,6 +46,8 @@ const ProfileRequestItem: FC<ProfileRequestProps> = ({
   sent,
   userID,
   onCancel,
+  onAccept,
+  onDenied,
 }) => {
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
@@ -160,6 +164,7 @@ const ProfileRequestItem: FC<ProfileRequestProps> = ({
 
         {!sent && (
           <TouchableOpacity
+            onPress={onAccept}
             style={[
               styles.horizontalWrapper,
               {
@@ -193,7 +198,7 @@ const ProfileRequestItem: FC<ProfileRequestProps> = ({
               borderRadius: scaleSize(5),
             },
           ]}
-          onPress={sent ? onCancel : () => {}}
+          onPress={sent ? onCancel : onDenied}
         >
           <Text style={styles.option}>{sent ? 'Cancel' : 'Denied'}</Text>
 

@@ -125,7 +125,7 @@ const ProfileScreen = ({
                 { color: tab === 2 ? COLORS.primary : COLORS.grayPrimary },
               ]}
             >
-              Lost pets
+              My posts
             </Text>
             <View
               style={[

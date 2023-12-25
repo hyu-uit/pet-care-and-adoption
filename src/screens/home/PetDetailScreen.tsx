@@ -349,7 +349,9 @@ const PetDetailScreen = ({
           <View style={styles.horizontalWrapper}>
             <Image
               source={{
-                uri: 'https://api.nongthonviet.com.vn/media/2023/08/26/64e9bf46b7eda301891a99db_ca-si-mat-na-tap-4hippohappy-1692978300539212339639-1693035914-70-widthheight.webp',
+                uri: postedBy?.avatar
+                  ? postedBy.avatar
+                  : 'https://api.nongthonviet.com.vn/media/2023/08/26/64e9bf46b7eda301891a99db_ca-si-mat-na-tap-4hippohappy-1692978300539212339639-1693035914-70-widthheight.webp',
               }}
               style={styles.ownerImage}
             />

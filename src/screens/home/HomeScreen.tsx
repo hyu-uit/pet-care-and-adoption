@@ -7,6 +7,7 @@ import {
   Touchable,
   ScrollView,
   FlatList,
+  RefreshControl,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS } from '../../config';
@@ -43,13 +44,22 @@ const HomeScreen = ({
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: allPosts } = useGetAllPostsWithUserQuery(myPhoneNumber);
+  const { data: allPosts, refetch } =
+    useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: userData } = useGetUserInformationQuery(myPhoneNumber);
 
   console.log('model', allPosts);
 
   const [chats, setChats] = useState([]);
   const [newMessage, setNewMessage] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    // Call your API or perform any asynchronous task
+    await refetch();
+    setRefreshing(false);
+  };
 
   useEffect(() => {
     const getChats = () => {
@@ -327,7 +337,12 @@ const HomeScreen = ({
         </View>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
         <View style={styles.locationContainer}>
           <View>
             <View
@@ -339,7 +354,7 @@ const HomeScreen = ({
             >
               <Text>Location</Text>
             </View>
-            {userData.district && userData.province && (
+            {userData?.district && userData?.province && (
               <Text style={styles.address}>
                 {userData?.district + `,\n` + userData?.province}
               </Text>
@@ -397,6 +412,8 @@ const HomeScreen = ({
           showsHorizontalScrollIndicator={false}
           style={{ marginTop: scaleSize(20) }}
         />
+
+        <View style={{ paddingBottom: SIZES.bottomPadding }}></View>
       </ScrollView>
     </SafeAreaView>
   );
