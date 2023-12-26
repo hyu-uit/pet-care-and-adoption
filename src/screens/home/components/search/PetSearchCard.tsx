@@ -15,6 +15,7 @@ type PetSearchCardProps = {
   province?: string;
   myPet?: boolean;
   onDetail: () => void;
+  onAddFavorite?: () => void;
 };
 const PetSearchCard: FC<PetSearchCardProps> = ({
   image,
@@ -26,12 +27,13 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   myPet,
   gender,
   onDetail,
+  onAddFavorite,
 }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
       {!myPet && (
         <View style={styles.favouriteContainer}>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onAddFavorite}>
             <Ionicons
               name='heart'
               size={scaleSize(21)}

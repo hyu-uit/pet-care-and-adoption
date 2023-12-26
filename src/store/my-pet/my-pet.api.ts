@@ -26,7 +26,6 @@ export const myPetApi = createApi({
         method: HTTP_METHOD.GET,
       }),
       transformResponse: (response: AddMyPetREQ) => {
-        console.log('res ne', response);
         return response;
       },
       providesTags: () => {

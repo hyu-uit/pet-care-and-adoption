@@ -37,7 +37,6 @@ export const postApi = createApi({
         method: HTTP_METHOD.GET,
       }),
       transformResponse: (response: GetPostsRESP) => {
-        console.log('res ne', response);
         return response;
       },
       providesTags: () => {

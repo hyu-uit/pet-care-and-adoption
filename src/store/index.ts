@@ -17,6 +17,7 @@ import { postApi } from './post/post.api';
 import { provinceApi } from './province/province.api';
 import { usersApi } from './users/users.api';
 import { myPetApi } from './my-pet/my-pet.api';
+import { favoritePostApi } from './favorite-post/favorite-post.api';
 import Reactotron from '../ReactotronConfig';
 import sharedReducer from './shared/shared.slice';
 import chatReducer from './chat/chat.slice';
@@ -31,6 +32,7 @@ const rootReducer = combineReducers({
   [petTypeApi.reducerPath]: petTypeApi.reducer,
   [usersApi.reducerPath]: usersApi.reducer,
   [myPetApi.reducerPath]: myPetApi.reducer,
+  [favoritePostApi.reducerPath]: favoritePostApi.reducer,
 });
 
 const persistConfig: PersistConfig<any> = {
@@ -55,7 +57,8 @@ export const store = configureStore({
       postApi.middleware,
       petTypeApi.middleware,
       usersApi.middleware,
-      myPetApi.middleware
+      myPetApi.middleware,
+      favoritePostApi.middleware
     ),
   enhancers: [Reactotron.createEnhancer!()],
   devTools: true,

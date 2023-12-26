@@ -37,6 +37,8 @@ import {
 import { SCREEN } from '../../navigators/AppRoute';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useAddFavoriteMutation } from '../../store/favorite-post/favorite-post.api';
+import { AddFavoriteREQ } from '../../store/favorite-post/request/add-favorite.request';
 
 const SearchScreen = ({
   navigation,
@@ -49,6 +51,7 @@ const SearchScreen = ({
     useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
+  const [addFavorite] = useAddFavoriteMutation();
 
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -291,6 +294,19 @@ const SearchScreen = ({
     } else if (ageInMonths >= 12 && ageInMonths < 24) {
       return 4;
     } else return 5;
+  };
+
+  const onAddFavorite = async (postID) => {
+    try {
+      const body: AddFavoriteREQ = {
+        postID: postID,
+        userID: myPhoneNumber,
+      };
+
+      await addFavorite(body).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -554,6 +570,9 @@ const SearchScreen = ({
               gender={item.sex}
               onDetail={() => {
                 onDetail(item);
+              }}
+              onAddFavorite={() => {
+                onAddFavorite(item.postID);
               }}
             />
           ))}
