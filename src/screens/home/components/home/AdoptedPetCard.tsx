@@ -24,7 +24,6 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
   onDetail,
   own,
 }) => {
-  console.log(image);
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
       {!own && (

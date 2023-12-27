@@ -67,8 +67,6 @@ const ChatDetailScreen = () => {
     navigation.goBack();
   };
 
-  console.log('msg', messages);
-
   return (
     <SafeAreaView style={styles.container}>
       <ChatHeader displayName={otherName} onBack={onGoBack} />

@@ -36,6 +36,7 @@ import { firestoreDB } from '../../../firebaseConfig';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 import { useGetUserInformationQuery } from '../../store/users/users.api';
+import * as Location from 'expo-location';
 
 const HomeScreen = ({
   navigation,
@@ -47,8 +48,6 @@ const HomeScreen = ({
   const { data: allPosts, refetch } =
     useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: userData } = useGetUserInformationQuery(myPhoneNumber);
-
-  console.log('model', allPosts);
 
   const [chats, setChats] = useState([]);
   const [newMessage, setNewMessage] = useState(false);
@@ -163,6 +162,34 @@ const HomeScreen = ({
   //     userID: post.userID,
   //   }));
 
+  const [location, setLocation] = useState(null);
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Location permission not granted');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({});
+      setLocation(location);
+    })();
+  }, []);
+
+  const getNearbyVeterinaryClinics = async (latitude, longitude) => {
+    const apiKey = 'AIzaSyDEokOCthVrnmMPiI_fLEZKQtV1SjFvjxQ';
+    const radius = 5000; // in meters
+    const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=veterinary_care&key=${apiKey}`;
+
+    try {
+      const response = await fetch(apiUrl);
+      console.log('amennnn', response);
+    } catch (error) {
+      console.error('Error fetching nearby clinics', error);
+      return [];
+    }
+  };
+
   const clinicList = [
     {
       name: 'Petzone - 283 VVN',
@@ -227,7 +254,6 @@ const HomeScreen = ({
   };
 
   const onDetail = (item) => {
-    console.log(item);
     navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
   };
 
@@ -279,6 +305,17 @@ const HomeScreen = ({
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      <TouchableOpacity
+        onPress={() => {
+          // console.log(location.coords.latitude);
+          getNearbyVeterinaryClinics(
+            location.coords.latitude,
+            location.coords.longitude
+          );
+        }}
+      >
+        <Text>dcdimaaa</Text>
+      </TouchableOpacity>
       <View style={styles.header}>
         <View style={styles.logoWrapper}>
           <Image

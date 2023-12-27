@@ -40,7 +40,6 @@ const LoginScreen = ({
   } = useForm<AuthLoginREQ>();
 
   const conmem = useSelector((state: RootState) => state.shared.isLogined);
-  console.log(conmem);
 
   const [login, { isLoading }] = useLoginMutation();
   const [isPopupShow, setIsPopupShow] = useState<boolean>(false);

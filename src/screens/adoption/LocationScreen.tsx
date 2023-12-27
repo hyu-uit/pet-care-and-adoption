@@ -56,7 +56,6 @@ const LocationScreen = () => {
   };
 
   const handleChooseLocation = async () => {
-    console.log('Selected Location:', center);
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/geocode/json?latlng=${center.latitude},${center.longitude}&key=AIzaSyDEokOCthVrnmMPiI_fLEZKQtV1SjFvjxQ`
     );

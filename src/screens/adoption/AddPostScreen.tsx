@@ -201,7 +201,7 @@ const AddPostScreen = ({
         (snapshot) => {
           const progress =
             (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log('progress', progress);
+          // console.log('progress', progress);
         },
         (error) => {
           // Handle unsuccessful uploads

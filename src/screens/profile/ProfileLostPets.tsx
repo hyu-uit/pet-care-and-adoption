@@ -36,9 +36,7 @@ const ProfileLostPets = () => {
     }
 
     return allPosts.filter(
-      (item) =>
-        item.postAdoptModel.isAdopt === false &&
-        item.postAdoptModel.userID === myPhoneNumber
+      (item) => item.postAdoptModel.userID === myPhoneNumber
     );
   }, [allPosts, myPhoneNumber]);
 

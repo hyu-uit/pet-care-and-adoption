@@ -70,7 +70,6 @@ const VerifyScreen = ({
           //   otp: value,
           //   signUpModel: signupInfo,
           // }).unwrap();
-          console.log('signup', signupInfo);
 
           await setDoc(doc(firestoreDB, 'users', signupInfo.phoneNumber), {
             name: signupInfo.name,

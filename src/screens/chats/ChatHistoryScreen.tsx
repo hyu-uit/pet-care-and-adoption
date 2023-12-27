@@ -94,7 +94,6 @@ const ChatHistoryScreen = ({
       ) {
         if (Object.entries(chats).length >= avatars.length) {
           Object.entries(chats).forEach(async (chat, index) => {
-            console.log(chat[1].userInfo.displayName);
             const docRef = doc(firestoreDB, 'users', chat[1].userInfo.id);
             const docSnap = await getDoc(docRef);
             avatars = [...avatars, docSnap.data()?.avatar];
@@ -121,7 +120,6 @@ const ChatHistoryScreen = ({
       if (chatDocSnapshot.exists()) {
         // Access the chat data using the data() method
         const chatData = chatDocSnapshot.data();
-        console.log('chat', JSON.stringify(chatData));
       } else {
         //If do not exist will create empty chat in collection chats
         await setDoc(doc(firestoreDB, 'chats', combinedId), { messages: [] });

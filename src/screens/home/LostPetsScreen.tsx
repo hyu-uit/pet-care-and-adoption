@@ -78,7 +78,6 @@ const LostPetsScreen = ({
     setVisibleData(visible);
   }, [allPosts]);
 
-  console.log('aa', visibleData);
   // const lostPetList = [
   //   {
   //     image:
@@ -131,7 +130,6 @@ const LostPetsScreen = ({
   };
 
   const onDetail = (item) => {
-    console.log(item);
     navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
   };
 

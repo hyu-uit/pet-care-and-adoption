@@ -53,7 +53,6 @@ export const postApi = createApi({
         method: HTTP_METHOD.GET,
       }),
       transformResponse: (response: GetPostDetailRESP) => {
-        console.log('resne', response);
         return response;
       },
     }),
