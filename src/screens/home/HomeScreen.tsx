@@ -8,6 +8,7 @@ import {
   ScrollView,
   FlatList,
   RefreshControl,
+  Linking,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS } from '../../config';
@@ -52,6 +53,7 @@ const HomeScreen = ({
   const [chats, setChats] = useState([]);
   const [newMessage, setNewMessage] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [veterinaryList, setVeterinaryList] = useState([]);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -177,18 +179,34 @@ const HomeScreen = ({
   }, []);
 
   const getNearbyVeterinaryClinics = async (latitude, longitude) => {
-    const apiKey = 'AIzaSyDEokOCthVrnmMPiI_fLEZKQtV1SjFvjxQ';
-    const radius = 5000; // in meters
-    const apiUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${latitude},${longitude}&radius=${radius}&type=veterinary_care&key=${apiKey}`;
+    const apiUrl = `https://api.geoapify.com/v2/places?categories=pet.veterinary&filter=rect%3A${
+      longitude - 0.2
+    }%2C${latitude - 0.2}%2C${longitude + 0.2}%2C${
+      latitude + 0.2
+    }&limit=20&apiKey=ba79b1d022c24db7854a7fff87d9814d`;
 
     try {
       const response = await fetch(apiUrl);
-      console.log('amennnn', response);
+      return response.json();
     } catch (error) {
       console.error('Error fetching nearby clinics', error);
       return [];
     }
   };
+
+  useEffect(() => {
+    const getVeterinary = async () => {
+      if (location?.coords) {
+        const res = await getNearbyVeterinaryClinics(
+          location?.coords.latitude,
+          location?.coords.longitude
+        );
+        setVeterinaryList(res.features);
+      }
+    };
+
+    getVeterinary();
+  }, [location]);
 
   const clinicList = [
     {
@@ -272,14 +290,39 @@ const HomeScreen = ({
     );
   };
 
-  const renderItemClinic = ({ item }) => {
+  const renderItemClinic = ({ item, index }) => {
+    const random = Math.floor(Math.random() * 5);
+
+    const onNavigateToMaps = async () => {
+      const url = `https://www.google.com/maps/search/?api=1&query=${item.properties.lat},${item.properties.lon}&query_place_id=${item.properties.name}`;
+      Linking.openURL(url);
+      // const url = `https://www.google.com/maps/dir/?api=1&destination=${item.properties.lat},${item.properties.lon}`;
+      // Linking.openURL(url).catch((err) =>
+      //   console.error('An error occurred', err)
+      // );
+    };
+
     return (
       <NearByCard
-        name={item.name}
+        name={item.properties.name || 'No named'}
         star={item.star}
         rate={item.rate}
         kilometer={item.kilometer}
-        image={item.image}
+        address={item.properties.address_line2}
+        onNavigateToMap={onNavigateToMaps}
+        image={
+          random === 0
+            ? 'https://cdn2.vectorstock.com/i/1000x1000/06/11/veterinary-medicine-hospital-clinic-or-pet-shop-vector-15880611.jpg'
+            : random === 1
+            ? 'https://cdn1.vectorstock.com/i/1000x1000/13/20/vet-clinic-with-doctor-vector-21191320.jpg'
+            : random === 2
+            ? 'https://img.freepik.com/premium-vector/veterinary-clinic-doctor-examining-vaccination-health-care-pets-like-dogs-cats-flat-cartoon-background-vector-illustration-poster-banner_2175-3384.jpg'
+            : random === 3
+            ? 'https://cdn2.vectorstock.com/i/1000x1000/97/86/vet-and-cats-at-pet-hospital-vector-8479786.jpg'
+            : random === 4
+            ? 'https://previews.123rf.com/images/fivestarspro/fivestarspro1912/fivestarspro191200049/135504589-pets-caring-owners-walking-dogs-in-front-of-veterinary-clinic-or-hospital-modern-building-people-and.jpg'
+            : 'https://static.vecteezy.com/system/resources/previews/005/447/141/non_2x/veterinary-clinic-doctor-examining-vaccination-and-health-care-for-pets-like-dogs-and-cats-in-flat-cartoon-background-illustration-for-poster-or-banner-vector.jpg'
+        }
       />
     );
   };
@@ -307,11 +350,7 @@ const HomeScreen = ({
     <SafeAreaView style={styles.container} edges={['top']}>
       <TouchableOpacity
         onPress={() => {
-          // console.log(location.coords.latitude);
-          getNearbyVeterinaryClinics(
-            location.coords.latitude,
-            location.coords.longitude
-          );
+          console.log(veterinaryList[0].properties.name);
         }}
       >
         <Text>dcdimaaa</Text>
@@ -431,7 +470,7 @@ const HomeScreen = ({
         <Title title='Nearby veterinary clinic' onSeeAll={onNearlyClinic} />
 
         <FlatList
-          data={clinicList}
+          data={veterinaryList}
           keyExtractor={(item) => item.image}
           renderItem={renderItemClinic} //method to render the data in the way you want using styling u need
           horizontal={true}

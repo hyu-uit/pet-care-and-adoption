@@ -89,6 +89,13 @@ const MyPetDetailScreen = ({
         }}
       />
       <View style={{ zIndex: 10000 }}>
+        <TouchableOpacity style={styles.backIcon} onPress={onGoBack}>
+          <Ionicons
+            name='chevron-back-outline'
+            size={scaleSize(30)}
+            color={COLORS.whitePrimary}
+          />
+        </TouchableOpacity>
         <Carousel
           data={myPetInfo.images}
           renderItem={renderItem}

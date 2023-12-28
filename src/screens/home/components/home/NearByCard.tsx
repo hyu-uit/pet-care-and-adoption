@@ -10,6 +10,8 @@ type NearByCardProps = {
   rate: number;
   kilometer: number;
   image: string;
+  address;
+  onNavigateToMap: () => void;
 };
 
 const NearByCard: FC<NearByCardProps> = ({
@@ -18,11 +20,15 @@ const NearByCard: FC<NearByCardProps> = ({
   rate,
   kilometer,
   image,
+  address,
+  onNavigateToMap,
 }) => {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onNavigateToMap}>
       <Image source={{ uri: image }} style={styles.image} />
-      <View style={{ paddingHorizontal: scaleSize(5) }}>
+      <View
+        style={{ paddingHorizontal: scaleSize(5), marginTop: scaleSize(5) }}
+      >
         <Text style={styles.name}>{name}</Text>
         <View
           style={{
@@ -38,18 +44,18 @@ const NearByCard: FC<NearByCardProps> = ({
               display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
-              alignItems: 'center',
+              marginTop: scaleSize(5),
+              marginBottom: scaleSize(5),
             }}
           >
             <Ionicons
-              name='ios-star'
-              size={scaleSize(9)}
-              color={COLORS.yellowPrimay}
+              name='location-sharp'
+              size={scaleSize(15)}
+              color={COLORS.primary}
             />
-            <Text style={styles.rate}>{star}</Text>
-            <Text style={styles.rate}> ({rate})</Text>
+            <Text style={styles.rate}>{address}</Text>
           </View>
-          <Text style={styles.rate}>({kilometer}km)</Text>
+          {/* <Text style={styles.rate}>({kilometer}km)</Text> */}
         </View>
       </View>
     </TouchableOpacity>
@@ -61,7 +67,7 @@ export default NearByCard;
 const styles = StyleSheet.create({
   container: {
     width: scaleSize(148),
-    height: scaleSize(138),
+    minHeight: scaleSize(138),
     backgroundColor: COLORS.whitePrimary,
     borderRadius: scaleSize(8),
     marginRight: scaleSize(15),
@@ -75,8 +81,10 @@ const styles = StyleSheet.create({
   name: {
     ...FONTS.body7,
     color: COLORS.blackContent,
+    fontFamily: 'CercoDEMO-Bold',
   },
   rate: {
+    flex: 1,
     ...FONTS.body8,
     color: COLORS.blackContent,
   },

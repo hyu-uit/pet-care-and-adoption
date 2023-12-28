@@ -57,7 +57,23 @@ const ProfileMyLovedPets = () => {
   ];
 
   const onDetail = (item) => {
-    navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
+    const data = {
+      userID: item.postAdoptModel.userID,
+      postID: item.postAdoptModel.postID,
+      images: item.images,
+      petName: item.postAdoptModel.petName,
+      sex: item.postAdoptModel.sex,
+      age: item.postAdoptModel.age,
+      breed: item.postAdoptModel.breed,
+      district: item.postAdoptModel.district,
+      province: item.postAdoptModel.province,
+      isAdopt: item.postAdoptModel.isAdopt,
+      species: item.postAdoptModel.species,
+      weight: item.postAdoptModel.weight,
+      isVaccinated: item.postAdoptModel.isVaccinated,
+      description: item.postAdoptModel.description,
+    };
+    navigation.navigate(SCREEN.PET_DETAIL, { postData: data });
   };
 
   const renderItem = ({ item, index }) => {
@@ -65,18 +81,20 @@ const ProfileMyLovedPets = () => {
       <PetSearchCard
         key={index}
         image={item?.images}
-        name={item?.post.petName}
-        age={item?.post.age}
-        type={item?.post.breed}
-        district={item?.post.district}
-        province={item?.post.province}
-        gender={item?.post.sex}
+        name={item?.postAdoptModel?.petName}
+        age={item?.postAdoptModel?.age}
+        type={item?.postAdoptModel?.breed}
+        district={item?.postAdoptModel?.district}
+        province={item?.postAdoptModel?.province}
+        gender={item?.postAdoptModel?.sex}
+        isFav={true}
         onDetail={() => {
           onDetail(item);
         }}
       />
     );
   };
+  console.log(lovedPosts);
 
   return (
     <View style={styles.container}>

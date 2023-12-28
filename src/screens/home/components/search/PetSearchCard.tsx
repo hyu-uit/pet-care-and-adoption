@@ -14,6 +14,7 @@ type PetSearchCardProps = {
   district?: string;
   province?: string;
   myPet?: boolean;
+  isFav?: boolean;
   onDetail: () => void;
   onAddFavorite?: () => void;
 };
@@ -28,6 +29,7 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   gender,
   onDetail,
   onAddFavorite,
+  isFav,
 }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
@@ -37,7 +39,7 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
             <Ionicons
               name='heart'
               size={scaleSize(21)}
-              color={COLORS.whitePrimary}
+              color={isFav ? COLORS.pinkF672E1 : COLORS.whitePrimary}
             />
           </TouchableOpacity>
         </View>

@@ -66,7 +66,7 @@ const MainNavigator = () => {
           headerTintColor: COLORS.blackContent,
           headerStyle: { backgroundColor: COLORS.tertiary },
           headerShadowVisible: false,
-          headerShown: true,
+          headerShown: false,
           headerTitle: 'My pet',
         }}
       />
