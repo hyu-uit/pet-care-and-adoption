@@ -9,12 +9,14 @@ type VaccinatedItemProps = {
   note: string;
   detail?: boolean;
   onDelete?: () => void;
+  onEdit?: () => void;
 };
 const VaccinatedItem: FC<VaccinatedItemProps> = ({
   date,
   note,
   detail,
   onDelete,
+  onEdit,
 }) => {
   return (
     <View style={styles.container}>
@@ -37,7 +39,7 @@ const VaccinatedItem: FC<VaccinatedItemProps> = ({
             gap: scaleSize(10),
           }}
         >
-          <TouchableOpacity>
+          <TouchableOpacity onPress={onEdit}>
             <MaterialIcons
               name='mode-edit'
               size={scaleSize(15)}

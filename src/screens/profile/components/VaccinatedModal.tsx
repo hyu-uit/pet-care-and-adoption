@@ -6,7 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-import React, { FC, useState } from 'react';
+import React, { FC, useEffect, useState } from 'react';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { COLORS, SIZES, STYLES, FONTS } from '../../../config';
 import { Dropdown } from 'react-native-element-dropdown';
@@ -19,16 +19,36 @@ type VaccinatedModalProps = {
   open: boolean;
   onClose: () => void;
   update: ({ type, note, date }) => void;
+  typeEdit?: { value: number; label: string };
+  dateEdit?: Date;
+  noteEdit?: string;
 };
 
 const VaccinatedModal: FC<VaccinatedModalProps> = ({
   open,
   update,
   onClose,
+  typeEdit,
+  dateEdit,
+  noteEdit,
 }) => {
-  const [date, setDate] = useState<Date>(new Date());
-  const [note, setNote] = useState<string>('');
-  const [type, setType] = useState<{ value: number; label: string }>();
+  const [date, setDate] = useState<Date>(dateEdit || new Date());
+  const [note, setNote] = useState<string>(noteEdit || '');
+  const [type, setType] = useState<{ value: number; label: string } | null>(
+    typeEdit || null
+  );
+
+  useEffect(() => {
+    if (typeEdit && dateEdit && noteEdit) {
+      setType(typeEdit);
+      setNote(noteEdit);
+      setDate(dateEdit);
+    } else {
+      setType(null);
+      setNote('');
+      setDate(new Date());
+    }
+  }, [typeEdit, dateEdit, noteEdit]);
 
   const convertDate = (date) => {
     const day = date.getDate().toString().padStart(2, '0');
@@ -52,7 +72,7 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({
       visible={open}
       onRequestClose={() => {}}
     >
-      <DateTimePicker value={new Date()} />
+      <DateTimePicker value={date ? date : new Date()} />
       <View style={styles.container}>
         <View style={styles.wrapper}>
           <Dropdown

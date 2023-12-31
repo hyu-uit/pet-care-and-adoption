@@ -60,6 +60,14 @@ const AddMyPetScreen = ({
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
 
+  const [vaccineEditType, setVaccineEditType] = useState<{
+    value: number;
+    label: string;
+  } | null>();
+  const [vaccineEditDate, setVaccineEditDate] = useState();
+  const [vaccineEditNote, setVaccineEditNote] = useState();
+  const [editIndex, setEditIndex] = useState();
+
   const {
     control,
     handleSubmit,
@@ -306,6 +314,16 @@ const AddMyPetScreen = ({
         onDelete={() => {
           handleDeleteHistoryItem(index);
         }}
+        onEdit={() => {
+          const [day, month, year] = item.date.split('/');
+          setVaccineEditDate(
+            new Date(`${parseInt(year)}-${parseInt(month)}-${parseInt(day)}`)
+          );
+          setEditIndex(index);
+          setVaccineEditNote(item.note);
+          setVaccineEditType({ value: 0, label: 'Add to history' });
+          setIsModalShown(true);
+        }}
       />
     );
   };
@@ -317,6 +335,16 @@ const AddMyPetScreen = ({
         note={item.note}
         onDelete={() => {
           handleDeleteNextItem(index);
+        }}
+        onEdit={() => {
+          const [day, month, year] = item.date.split('/');
+          setVaccineEditDate(
+            new Date(`${parseInt(year)}-${parseInt(month)}-${parseInt(day)}`)
+          );
+          setEditIndex(index);
+          setVaccineEditNote(item.note);
+          setVaccineEditType({ value: 1, label: 'Next vaccination' });
+          setIsModalShown(true);
         }}
       />
     );
@@ -333,6 +361,10 @@ const AddMyPetScreen = ({
   };
 
   const onOpenModal = () => {
+    setVaccineEditDate(null);
+    setVaccineEditNote(null);
+    setVaccineEditType(null);
+    setEditIndex(null);
     setIsModalShown(true);
   };
 
@@ -345,15 +377,50 @@ const AddMyPetScreen = ({
   ) => {
     if (data) {
       if (data.type.value === 0) {
-        setVaccinatedList((prevList) => ({
-          ...prevList,
-          history: [...prevList.history, { date: data.date, note: data.note }],
-        }));
+        if (editIndex >= 0) {
+          const newArray = [
+            ...vaccinatedList?.history.slice(0, editIndex), // elements before the one to be replaced
+            {
+              date: data.date,
+              note: data.note,
+              type: data.type,
+            }, // new element
+            ...vaccinatedList?.history.slice(editIndex + 1), // elements after the one to be replaced
+          ];
+          setVaccinatedList((prevList) => ({
+            ...prevList,
+            history: newArray,
+          }));
+        } else {
+          setVaccinatedList((prevList) => ({
+            ...prevList,
+            history: [
+              ...prevList.history,
+              { date: data.date, note: data.note },
+            ],
+          }));
+        }
       } else {
-        setVaccinatedList((prevList) => ({
-          ...prevList,
-          next: [...prevList.next, { date: data.date, note: data.note }],
-        }));
+        if (editIndex >= 0) {
+          const newArray = [
+            ...vaccinatedList?.next.slice(0, editIndex), // elements before the one to be replaced
+            {
+              date: data.date,
+              note: data.note,
+              type: data.type,
+            }, // new element
+            ...vaccinatedList?.next.slice(editIndex + 1), // elements after the one to be replaced
+          ];
+          setVaccinatedList((prevList) => ({
+            ...prevList,
+            next: newArray,
+          }));
+        } else {
+          setVaccinatedList((prevList) => ({
+            ...prevList,
+            next: [...prevList.next, { date: data.date, note: data.note }],
+          }));
+        }
       }
     }
 
@@ -367,6 +434,9 @@ const AddMyPetScreen = ({
         open={isModalShown}
         onClose={onCloseModal}
         update={handleModalUpdate}
+        typeEdit={vaccineEditType}
+        dateEdit={vaccineEditDate}
+        noteEdit={vaccineEditNote}
       />
       <Popup
         title='Published your post'
