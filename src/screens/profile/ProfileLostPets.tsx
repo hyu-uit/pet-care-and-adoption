@@ -28,6 +28,13 @@ const ProfileLostPets = () => {
     (state: RootState) => state.shared.user.phoneNumber
   );
 
+  const myProvince = useSelector(
+    (state: RootState) => state.shared.user.province
+  );
+  const myDistrict = useSelector(
+    (state: RootState) => state.shared.user.district
+  );
+
   const { data: myPosts } = useGetPostsQuery();
 
   const myLostList = useMemo(() => {
@@ -39,6 +46,39 @@ const ProfileLostPets = () => {
       (item) => item.postAdoptModel.userID === myPhoneNumber
     );
   }, [allPosts, myPhoneNumber]);
+
+  const nearbyList = useMemo(() => {
+    if (!allPosts) {
+      return [];
+    }
+
+    console.log(allPosts);
+
+    return allPosts
+      .filter(
+        (item) =>
+          (item.postAdoptModel.province === myProvince ||
+            item.postAdoptModel.district === myDistrict) &&
+          !item.postAdoptModel.isAdopt
+      )
+      .map((post) => ({
+        images: post.images,
+        postID: post.postAdoptModel.postID,
+        petName: post.postAdoptModel.petName,
+        age: post.postAdoptModel.age,
+        sex: post.postAdoptModel.sex,
+        species: post.postAdoptModel.species,
+        breed: post.postAdoptModel.breed,
+        weight: post.postAdoptModel.weight,
+        district: post.postAdoptModel.district,
+        province: post.postAdoptModel.province,
+        description: post.postAdoptModel.description,
+        isVaccinated: post.postAdoptModel.isVaccinated,
+        isAdopt: post.postAdoptModel.isAdopt,
+        isDone: post.postAdoptModel.isDone,
+        userID: post.postAdoptModel.userID,
+      }));
+  }, [allPosts, myProvince, myDistrict]);
 
   const onDetail = (item) => {
     navigation.navigate(SCREEN.UPDATE_MY_POST, { postDetail: item });
@@ -53,6 +93,20 @@ const ProfileLostPets = () => {
         isAdopt={item.postAdoptModel.isAdopt}
         onDetail={() => {
           onDetail(item);
+        }}
+      />
+    );
+  };
+
+  const renderItemNearby = ({ item }) => {
+    return (
+      <MyPostCard
+        image={item.images}
+        name={item.petName}
+        gender={item.sex}
+        isAdopt={item.isAdopt}
+        onDetail={() => {
+          navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
         }}
       />
     );
@@ -81,14 +135,14 @@ const ProfileLostPets = () => {
         <Text style={styles.title}>Lost Pets Near me</Text>
       </View>
 
-      {/* <FlatList
-        data={adoptedList}
+      <FlatList
+        data={nearbyList}
         keyExtractor={(item) => item.image}
-        renderItem={renderItemLost} //method to render the data in the way you want using styling u need
+        renderItem={renderItemNearby} //method to render the data in the way you want using styling u need
         horizontal={true}
         showsHorizontalScrollIndicator={false}
         style={{ marginTop: scaleSize(20) }}
-      /> */}
+      />
     </View>
   );
 };
