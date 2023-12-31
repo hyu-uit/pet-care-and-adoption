@@ -60,8 +60,6 @@ const PetDetailScreen = ({
   const myName = useSelector((state: RootState) => state.shared.user.name);
   const dispatch = useDispatch();
 
-  console.log('aaaa', postDetail);
-
   const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
   const [requestAdoption, { isLoading }] = useRequestAdoptionMutation();
 

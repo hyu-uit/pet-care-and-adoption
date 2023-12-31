@@ -37,8 +37,12 @@ import {
 import { SCREEN } from '../../navigators/AppRoute';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
-import { useAddFavoriteMutation } from '../../store/favorite-post/favorite-post.api';
+import {
+  useAddFavoriteMutation,
+  useRemoveFavoriteMutation,
+} from '../../store/favorite-post/favorite-post.api';
 import { AddFavoriteREQ } from '../../store/favorite-post/request/add-favorite.request';
+import { RemoveFavoriteREQ } from '../../store/favorite-post/request/remove-favorite.request';
 
 const SearchScreen = ({
   navigation,
@@ -52,6 +56,7 @@ const SearchScreen = ({
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const [addFavorite] = useAddFavoriteMutation();
+  const [removeFavorite] = useRemoveFavoriteMutation();
 
   const [provinces, setProvinces] = useState([]);
   const [districts, setDistricts] = useState([]);
@@ -124,6 +129,7 @@ const SearchScreen = ({
         isAdopt: post.postAdoptModel.isAdopt,
         isDone: post.postAdoptModel.isDone,
         userID: post.postAdoptModel.userID,
+        isFav: post.isFav,
       }));
 
     setAllPostList(visible);
@@ -309,6 +315,19 @@ const SearchScreen = ({
     }
   };
 
+  const onRemoveFavorite = async (postID) => {
+    try {
+      const body: RemoveFavoriteREQ = {
+        postID: postID,
+        userID: myPhoneNumber,
+      };
+      await removeFavorite(body).unwrap();
+      await refetch();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle='dark-content' />
@@ -324,6 +343,9 @@ const SearchScreen = ({
       />
       <ScrollView
         showsVerticalScrollIndicator={false}
+        style={{
+          paddingTop: SIZES.bottomPadding,
+        }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
@@ -568,14 +590,19 @@ const SearchScreen = ({
               district={item.district}
               province={item.province}
               gender={item.sex}
+              isFav={item.isFav}
               onDetail={() => {
                 onDetail(item);
               }}
               onAddFavorite={() => {
                 onAddFavorite(item.postID);
               }}
+              onRemoveFavorite={() => {
+                onRemoveFavorite(item.postID);
+              }}
             />
           ))}
+        <View style={{ marginBottom: SIZES.bottomPadding * 2 }}></View>
       </ScrollView>
     </View>
   );

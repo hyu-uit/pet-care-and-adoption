@@ -3,11 +3,15 @@ import React from 'react';
 import PetSearchCard from '../../home/components/search/PetSearchCard';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { SIZES, FONTS, COLORS } from '../../../config';
-import { useGetFavoritePostsQuery } from '../../../store/favorite-post/favorite-post.api';
+import {
+  useGetFavoritePostsQuery,
+  useRemoveFavoriteMutation,
+} from '../../../store/favorite-post/favorite-post.api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '../../../navigators/AppRoute';
+import { RemoveFavoriteREQ } from '../../../store/favorite-post/request/remove-favorite.request';
 
 const ProfileMyLovedPets = () => {
   const myPhoneNumber = useSelector(
@@ -15,6 +19,8 @@ const ProfileMyLovedPets = () => {
   );
 
   const { data: lovedPosts } = useGetFavoritePostsQuery(myPhoneNumber);
+  const [removeFavorite] = useRemoveFavoriteMutation();
+
   const navigation = useNavigation();
 
   const data = [
@@ -76,6 +82,20 @@ const ProfileMyLovedPets = () => {
     navigation.navigate(SCREEN.PET_DETAIL, { postData: data });
   };
 
+  const onRemoveFavorite = async (postID) => {
+    try {
+      console.log(postID);
+      const body: RemoveFavoriteREQ = {
+        postID: postID,
+        userID: myPhoneNumber,
+      };
+
+      await removeFavorite(body).unwrap();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const renderItem = ({ item, index }) => {
     return (
       <PetSearchCard
@@ -91,10 +111,12 @@ const ProfileMyLovedPets = () => {
         onDetail={() => {
           onDetail(item);
         }}
+        onRemoveFavorite={() => {
+          onRemoveFavorite(item.postAdoptModel.postID);
+        }}
       />
     );
   };
-  console.log(lovedPosts);
 
   return (
     <View style={styles.container}>

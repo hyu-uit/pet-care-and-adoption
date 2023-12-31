@@ -83,7 +83,7 @@ const BottomTabs = () => {
         name='Adoption'
         component={AdoptionStack}
         options={{
-          headerShown: true,
+          headerShown: false,
           headerTitle: 'Pet Adoption',
           headerTintColor: COLORS.blackContent,
           headerStyle: { backgroundColor: COLORS.background },

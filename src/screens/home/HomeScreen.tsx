@@ -348,13 +348,6 @@ const HomeScreen = ({
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <TouchableOpacity
-        onPress={() => {
-          console.log(veterinaryList[0].properties.name);
-        }}
-      >
-        <Text>dcdimaaa</Text>
-      </TouchableOpacity>
       <View style={styles.header}>
         <View style={styles.logoWrapper}>
           <Image

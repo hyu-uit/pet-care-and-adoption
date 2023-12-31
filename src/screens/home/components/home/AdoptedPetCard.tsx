@@ -26,7 +26,7 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
 }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
-      {!own && (
+      {/* {!own && (
         <View style={styles.favouriteContainer}>
           <TouchableOpacity>
             <Ionicons
@@ -36,7 +36,7 @@ const AdoptedPetCard: FC<AdoptedCardProps> = ({
             />
           </TouchableOpacity>
         </View>
-      )}
+      )} */}
       <Image source={{ uri: image ? image[0] : '' }} style={styles.image} />
       <View style={styles.infoWrapper}>
         <View

@@ -79,6 +79,7 @@ export const postApi = createApi({
       transformResponse: (response: getAllPostsWithUserRESP[]) => {
         return response;
       },
+      keepUnusedDataFor: 0,
       providesTags: () => {
         return [
           { type: 'REQUEST', id: 'LIST' },

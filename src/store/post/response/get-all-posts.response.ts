@@ -18,6 +18,7 @@ export type getAllPostsWithUserRESP = {
     userID: string;
     receiverID: string;
   };
+  isFav: boolean;
   images: string[];
   request: string[];
 };

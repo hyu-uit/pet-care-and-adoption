@@ -17,6 +17,7 @@ type PetSearchCardProps = {
   isFav?: boolean;
   onDetail: () => void;
   onAddFavorite?: () => void;
+  onRemoveFavorite?: () => void;
 };
 const PetSearchCard: FC<PetSearchCardProps> = ({
   image,
@@ -30,12 +31,13 @@ const PetSearchCard: FC<PetSearchCardProps> = ({
   onDetail,
   onAddFavorite,
   isFav,
+  onRemoveFavorite,
 }) => {
   return (
     <TouchableOpacity style={styles.container} onPress={onDetail}>
       {!myPet && (
         <View style={styles.favouriteContainer}>
-          <TouchableOpacity onPress={onAddFavorite}>
+          <TouchableOpacity onPress={!isFav ? onAddFavorite : onRemoveFavorite}>
             <Ionicons
               name='heart'
               size={scaleSize(21)}
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     width: scaleSize(227),
-    height: scaleSize(89),
+    minHeight: scaleSize(89),
     padding: scaleSize(15),
     backgroundColor: COLORS.whitePrimary,
     borderRadius: scaleSize(15),
