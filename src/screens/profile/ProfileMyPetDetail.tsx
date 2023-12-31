@@ -9,6 +9,7 @@ import {
   Touchable,
   ScrollView,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useState } from 'react';
 import { COLORS, SIZES, FONTS, IMAGES, STYLES } from '../../config';
@@ -32,6 +33,7 @@ import { RootState } from '../../store';
 import ImageModal from '../../components/ImageModal';
 import VaccinatedItem from './components/VaccinatedItem';
 import { SEX } from '../../types/enum/sex.enum';
+import { useDeleteMyPetMutation } from '../../store/my-pet/my-pet.api';
 
 const MyPetDetailScreen = ({
   navigation,
@@ -45,6 +47,9 @@ const MyPetDetailScreen = ({
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+
+  const [deleteMyPet, { isLoading: isLoadingDelete }] =
+    useDeleteMyPetMutation();
 
   const myPetInfo = route.params?.myPetInfo;
 
@@ -265,10 +270,26 @@ const MyPetDetailScreen = ({
       >
         <TouchableOpacity
           style={[styles.button, { backgroundColor: COLORS.tertiary }]}
+          onPress={async () => {
+            try {
+              // console.log(myPetInfo.petInfoModel);
+              await deleteMyPet({
+                userID: myPetInfo.petInfoModel.userID,
+                petID: myPetInfo.petInfoModel.petID,
+              }).unwrap();
+              navigation.goBack();
+            } catch (error) {
+              console.log(error);
+            }
+          }}
         >
-          <Text style={[styles.buttonText, { color: COLORS.primary }]}>
-            Delete
-          </Text>
+          {isLoadingDelete ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={[styles.buttonText, { color: COLORS.primary }]}>
+              Delete
+            </Text>
+          )}
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.button}>

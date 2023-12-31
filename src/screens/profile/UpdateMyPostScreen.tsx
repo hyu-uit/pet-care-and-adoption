@@ -7,6 +7,7 @@ import {
   TextInput,
   ScrollView,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
@@ -28,7 +29,11 @@ import {
 import { Controller, useForm } from 'react-hook-form';
 import { AddPostType } from '../../types/add-post.type';
 import { SEX } from '../../types/enum/sex.enum';
-import { useAddPostMutation } from '../../store/post/post.api';
+import {
+  useAddPostMutation,
+  useDeletePostMutation,
+  useUpdatePostMutation,
+} from '../../store/post/post.api';
 import { AddPostREQ } from '../../store/post/request/add-post.request';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
@@ -42,7 +47,7 @@ import {
   uploadBytes,
   uploadBytesResumable,
 } from 'firebase/storage';
-import { useRoute } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 type ImageType = {
   uri: string;
@@ -53,9 +58,13 @@ const UpdateMyPostScreen = () => {
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
+  const [deletePost, { isLoading: isLoadingDelete }] = useDeletePostMutation();
+  const [updatePost, { isLoading: isLoadingUpdate }] = useUpdatePostMutation();
 
   const route = useRoute();
   const postDetail = route.params?.postDetail;
+
+  const navigation = useNavigation();
 
   const {
     control,
@@ -85,6 +94,7 @@ const UpdateMyPostScreen = () => {
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
 
   const uriImage = watch('images');
+  const watchedValues = watch(); // Get watched form values
 
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
@@ -881,7 +891,6 @@ const UpdateMyPostScreen = () => {
 
       <View
         style={{
-          paddingHorizontal: SIZES.padding,
           marginTop: scaleSize(20),
           flexDirection: 'row',
           justifyContent: 'space-between',
@@ -889,14 +898,39 @@ const UpdateMyPostScreen = () => {
       >
         <TouchableOpacity
           style={[styles.button, { backgroundColor: COLORS.tertiary }]}
+          onPress={async () => {
+            try {
+              await deletePost(postDetail.postAdoptModel.postID).unwrap();
+              navigation.goBack();
+            } catch (error) {
+              console.log(error);
+            }
+          }}
         >
-          <Text style={[styles.buttonText, { color: COLORS.primary }]}>
-            Delete
-          </Text>
+          {isLoadingDelete ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={[styles.buttonText, { color: COLORS.primary }]}>
+              Delete
+            </Text>
+          )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Save</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={async () => {
+            try {
+              await updatePost(postDetail.postAdoptModel.postID).unwrap();
+            } catch (error) {
+              console.log(error);
+            }
+          }}
+        >
+          {isLoadingUpdate ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.buttonText}>Save</Text>
+          )}
         </TouchableOpacity>
       </View>
     </ScrollView>

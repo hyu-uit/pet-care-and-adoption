@@ -143,6 +143,30 @@ export const postApi = createApi({
         return [{ type: 'REQUEST', id: 'LIST' }];
       },
     }),
+
+    deletePost: build.mutation<void, string>({
+      query: (body) => ({
+        url: `/${body}`,
+        method: HTTP_METHOD.DELETE,
+        body,
+        responseHandler: 'text',
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'POST', id: 'LIST' }];
+      },
+    }),
+
+    updatePost: build.mutation<void, AddPostREQ>({
+      query: (body) => ({
+        url: `/${body}`,
+        method: HTTP_METHOD.PUT,
+        body,
+        responseHandler: 'text',
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'POST', id: 'LIST' }];
+      },
+    }),
   }),
 });
 
@@ -157,4 +181,6 @@ export const {
   useGetPostsWithRequestQuery,
   useAcceptRequestMutation,
   useDeniedRequestMutation,
+  useDeletePostMutation,
+  useUpdatePostMutation,
 } = postApi;

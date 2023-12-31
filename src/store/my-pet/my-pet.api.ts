@@ -32,7 +32,23 @@ export const myPetApi = createApi({
         return [{ type: 'MY_PET', id: 'LIST' }];
       },
     }),
+
+    deleteMyPet: build.mutation<void, { userID: string; petID: string }>({
+      query: (body) => ({
+        url: `/RemovePet/${body.userID}/${body.petID}`,
+        method: HTTP_METHOD.DELETE,
+        body,
+        responseHandler: 'text',
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'MY_PET', id: 'LIST' }];
+      },
+    }),
   }),
 });
 
-export const { useAddMyPetMutation, useGetMyPetsQuery } = myPetApi;
+export const {
+  useAddMyPetMutation,
+  useGetMyPetsQuery,
+  useDeleteMyPetMutation,
+} = myPetApi;
