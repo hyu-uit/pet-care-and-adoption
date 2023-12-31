@@ -283,26 +283,32 @@ const UpdateMyPostScreen = () => {
     });
   };
 
-  const handleUpload = async (data) => {
+  const findProvinceLabelByValue = (value) => {
+    const item = provinces.find((item) => item.value === value);
+    return item ? item.label : null;
+  };
+
+  const findDistrictLabelByValue = (value) => {
+    const item = districts.find((item) => item.value === value);
+    return item ? item.label : null;
+  };
+
+  const findSpecieLabelByValue = (value) => {
+    const item = species.find((item) => item.value === value);
+    return item ? item.label : null;
+  };
+
+  const findBreedLabelByValue = (value) => {
+    const item = breeds.find((item) => item.value === value);
+    return item ? item.label : null;
+  };
+
+  const onUpdatePost = async (data) => {
     const urlArray = [];
     for (let i = 0; i < img.length; i++) {
       const res = await uploadToFirebaseStorage(img[i]);
       urlArray.push(res.downloadUrl);
     }
-
-    // const uploadPromises = img.map(async (uri) => {
-    //   try {
-    //     const result = await uploadToFirebaseStorage(uri);
-    //     console.log('kylantochau', result.downloadUrl);
-    //     // setUrl([...url, result.downloadUrl]);
-    //     //  return result.downloadUrl;c
-    //   } catch (error) {
-    //     console.error(`Error uploading ${uri}`, error);
-    //     return null; // or handle error as needed
-    //   }
-    // });
-
-    // const downloadUrls = await Promise.all(uploadPromises);
 
     try {
       const body: AddPostREQ = {
@@ -310,28 +316,33 @@ const UpdateMyPostScreen = () => {
           petName: data.name,
           sex: data.sex,
           age: data.age,
-          species: data.specie.label,
-          breed: data.breed.label,
+          species: data.specie.label
+            ? data.specie.label
+            : findSpecieLabelByValue(data.specie),
+          breed: data.breed.label
+            ? data.breed.label
+            : findBreedLabelByValue(data.breed),
           weight: data.weight,
-          district: data.district.label,
-          province: data.province.label,
+          district: data.district.label
+            ? data.district.label
+            : findDistrictLabelByValue(data.district),
+          province: data.province.label
+            ? data.province.label
+            : findProvinceLabelByValue(data.province),
           isVaccinated: data.isVaccinated,
           isAdopt: data.isAdopt,
-          userID: myPhoneNumber,
           description: data.description,
         },
-        // images: data.images.map((image) => ({ image })),
         images: Array.isArray(urlArray)
-          ? urlArray.map((image) => ({ image }))
+          ? urlArray.map((image) => ({ image: image }))
           : [],
       };
-      await publishPost(body).unwrap();
+      await updatePost({
+        postID: postDetail.postAdoptModel.postID,
+        data: body,
+      }).unwrap();
 
-      setIsSuccessPopup(true);
-      setBreeds([]);
-      reset();
-      setDistricts([]);
-      setImg([]);
+      // setIsSuccessPopup(true);
     } catch (error) {
       console.log(error);
     }
@@ -918,13 +929,7 @@ const UpdateMyPostScreen = () => {
 
         <TouchableOpacity
           style={styles.button}
-          onPress={async () => {
-            try {
-              await updatePost(postDetail.postAdoptModel.postID).unwrap();
-            } catch (error) {
-              console.log(error);
-            }
-          }}
+          onPress={handleSubmit(onUpdatePost.bind(null))}
         >
           {isLoadingUpdate ? (
             <ActivityIndicator />

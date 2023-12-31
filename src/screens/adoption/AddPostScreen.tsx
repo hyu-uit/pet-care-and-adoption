@@ -54,7 +54,8 @@ const AddPostScreen = ({
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
-  const [publishPost, { isLoading }] = useAddPostMutation();
+  const [publishPost] = useAddPostMutation();
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     control,
@@ -220,6 +221,7 @@ const AddPostScreen = ({
   };
 
   const handleUpload = async (data) => {
+    setIsLoading(true);
     const urlArray = [];
     for (let i = 0; i < img.length; i++) {
       const res = await uploadToFirebaseStorage(img[i]);
@@ -268,8 +270,10 @@ const AddPostScreen = ({
       reset();
       setDistricts([]);
       setImg([]);
+      setIsLoading(false);
     } catch (error) {
       console.log(error);
+      setIsLoading(false);
     }
   };
 

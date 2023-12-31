@@ -156,11 +156,11 @@ export const postApi = createApi({
       },
     }),
 
-    updatePost: build.mutation<void, AddPostREQ>({
+    updatePost: build.mutation<void, { postID: string; data: AddPostREQ }>({
       query: (body) => ({
-        url: `/${body}`,
+        url: `/${body.postID}`,
         method: HTTP_METHOD.PUT,
-        body,
+        body: body.data,
         responseHandler: 'text',
       }),
       invalidatesTags: () => {

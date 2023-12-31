@@ -4,6 +4,7 @@ import {
   StyleSheet,
   FlatList,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { scaleSize } from '../../utils/DeviceUtils';
@@ -113,7 +114,10 @@ const ProfileLostPets = () => {
   };
 
   return (
-    <View style={{ paddingHorizontal: SIZES.padding }}>
+    <ScrollView
+      style={{ paddingHorizontal: SIZES.padding }}
+      showsVerticalScrollIndicator={false}
+    >
       {myPosts && (
         <>
           <View style={styles.container}>
@@ -143,7 +147,8 @@ const ProfileLostPets = () => {
         showsHorizontalScrollIndicator={false}
         style={{ marginTop: scaleSize(20) }}
       />
-    </View>
+      <View style={{ paddingBottom: SIZES.bottomPadding }}></View>
+    </ScrollView>
   );
 };
 
