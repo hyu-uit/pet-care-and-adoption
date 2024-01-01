@@ -59,7 +59,8 @@ const UpdateMyPostScreen = () => {
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
   const [deletePost, { isLoading: isLoadingDelete }] = useDeletePostMutation();
-  const [updatePost, { isLoading: isLoadingUpdate }] = useUpdatePostMutation();
+  const [updatePost] = useUpdatePostMutation();
+  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
 
   const route = useRoute();
   const postDetail = route.params?.postDetail;
@@ -92,6 +93,7 @@ const UpdateMyPostScreen = () => {
   const [species, setSpecies] = useState([]);
   const [breeds, setBreeds] = useState([]);
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
+  const [isDeletePopup, setIsDeletePopup] = useState<boolean>(false);
 
   const uriImage = watch('images');
   const watchedValues = watch(); // Get watched form values
@@ -304,6 +306,7 @@ const UpdateMyPostScreen = () => {
   };
 
   const onUpdatePost = async (data) => {
+    setIsLoadingUpdate(true);
     const urlArray = [];
     for (let i = 0; i < img.length; i++) {
       const res = await uploadToFirebaseStorage(img[i]);
@@ -342,9 +345,12 @@ const UpdateMyPostScreen = () => {
         data: body,
       }).unwrap();
 
-      // setIsSuccessPopup(true);
+      setIsSuccessPopup(true);
+      setIsLoadingUpdate(false);
+      navigation.goBack();
     } catch (error) {
       console.log(error);
+      setIsLoadingUpdate(false);
     }
   };
 
@@ -354,16 +360,32 @@ const UpdateMyPostScreen = () => {
     } else return true;
   };
 
+  const onDeletePost = async () => {
+    await deletePost(postDetail.postAdoptModel.postID).unwrap();
+    navigation.goBack();
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Popup
-        title='Published your post'
-        content='Everyone can see your pet now'
+        title='Published sucessfully'
+        content='Your post is published, everyone can see it now!'
         onCancel={() => {
           setIsSuccessPopup(false);
         }}
         type={POPUP_TYPE.SUCCESS}
         open={isSuccessPopup}
+      />
+      <Popup
+        title='Delete post'
+        content='Do you really want to delete this post?'
+        onCancel={() => {
+          setIsDeletePopup(false);
+        }}
+        isLoading={isLoadingDelete}
+        onSubmit={onDeletePost}
+        type={POPUP_TYPE.ERROR}
+        open={isDeletePopup}
       />
       <Text style={styles.title}>Images</Text>
       <Controller
@@ -909,13 +931,8 @@ const UpdateMyPostScreen = () => {
       >
         <TouchableOpacity
           style={[styles.button, { backgroundColor: COLORS.tertiary }]}
-          onPress={async () => {
-            try {
-              await deletePost(postDetail.postAdoptModel.postID).unwrap();
-              navigation.goBack();
-            } catch (error) {
-              console.log(error);
-            }
+          onPress={() => {
+            setIsDeletePopup(true);
           }}
         >
           {isLoadingDelete ? (

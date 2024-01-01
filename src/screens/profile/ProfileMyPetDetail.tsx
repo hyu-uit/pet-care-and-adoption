@@ -34,6 +34,8 @@ import ImageModal from '../../components/ImageModal';
 import VaccinatedItem from './components/VaccinatedItem';
 import { SEX } from '../../types/enum/sex.enum';
 import { useDeleteMyPetMutation } from '../../store/my-pet/my-pet.api';
+import Popup from '../../components/Popup';
+import { POPUP_TYPE } from '../../types/enum/popup.enum';
 
 const MyPetDetailScreen = ({
   navigation,
@@ -43,6 +45,7 @@ const MyPetDetailScreen = ({
   const [activeIndex, setActiveIndex] = useState(0);
   const [showModal, setShowModal] = useState(false);
   const [modalUri, setModalUri] = useState('');
+  const [isDeletePopup, setIsDeletePopup] = useState<boolean>(false);
 
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
@@ -52,6 +55,7 @@ const MyPetDetailScreen = ({
     useDeleteMyPetMutation();
 
   const myPetInfo = route.params?.myPetInfo;
+  console.log(myPetInfo.petInfoModel);
 
   const vaccinatedHistory = myPetInfo.history;
 
@@ -83,9 +87,33 @@ const MyPetDetailScreen = ({
     </TouchableOpacity>
   );
 
+  const onDeletePost = async () => {
+    try {
+      // console.log(myPetInfo.petInfoModel);
+      await deleteMyPet({
+        userID: myPetInfo.petInfoModel.userID,
+        petID: myPetInfo.petInfoModel.petID,
+      }).unwrap();
+      navigation.goBack();
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <StatusBar barStyle='dark-content' />
+      <Popup
+        title='Delete post'
+        content='Do you really want to delete this post?'
+        onCancel={() => {
+          setIsDeletePopup(false);
+        }}
+        isLoading={isLoadingDelete}
+        onSubmit={onDeletePost}
+        type={POPUP_TYPE.ERROR}
+        open={isDeletePopup}
+      />
       <ImageModal
         uri={modalUri}
         open={showModal}
@@ -270,17 +298,8 @@ const MyPetDetailScreen = ({
       >
         <TouchableOpacity
           style={[styles.button, { backgroundColor: COLORS.tertiary }]}
-          onPress={async () => {
-            try {
-              // console.log(myPetInfo.petInfoModel);
-              await deleteMyPet({
-                userID: myPetInfo.petInfoModel.userID,
-                petID: myPetInfo.petInfoModel.petID,
-              }).unwrap();
-              navigation.goBack();
-            } catch (error) {
-              console.log(error);
-            }
+          onPress={() => {
+            setIsDeletePopup(true);
           }}
         >
           {isLoadingDelete ? (
@@ -292,7 +311,12 @@ const MyPetDetailScreen = ({
           )}
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.button}>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            navigation.navigate(SCREEN.ADD_MY_PET, { myPetInfo: myPetInfo });
+          }}
+        >
           <Text style={styles.buttonText}>Edit</Text>
         </TouchableOpacity>
       </View>

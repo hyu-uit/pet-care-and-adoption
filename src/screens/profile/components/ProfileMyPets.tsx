@@ -20,6 +20,8 @@ type ProfileMyPetProps = {
 const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
   const { data: myPets } = useGetMyPetsQuery();
 
+  console.log('my', myPets);
+
   const renderItem = ({ item }) => {
     return (
       <PetSearchCard

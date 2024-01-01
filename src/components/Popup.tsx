@@ -12,6 +12,7 @@ type PopupProps = {
   type?: POPUP_TYPE;
   onCancel: () => void;
   onSubmit?: () => void;
+  isLoading?: boolean;
 };
 
 const Popup: FC<PopupProps> = ({
@@ -21,6 +22,7 @@ const Popup: FC<PopupProps> = ({
   title,
   content,
   type,
+  isLoading,
 }) => {
   return (
     <Modal
@@ -66,7 +68,7 @@ const Popup: FC<PopupProps> = ({
               <Button
                 title='OK'
                 onPress={onSubmit}
-                isLoading={false}
+                isLoading={isLoading}
                 style={{
                   marginTop: scaleSize(40),
                   marginBottom: scaleSize(23),

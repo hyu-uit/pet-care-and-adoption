@@ -44,6 +44,18 @@ export const myPetApi = createApi({
         return [{ type: 'MY_PET', id: 'LIST' }];
       },
     }),
+
+    updateMyPet: build.mutation<void, { petID: string; data: AddMyPetREQ }>({
+      query: (body) => ({
+        url: `/UpdatePet${body.petID}`,
+        method: HTTP_METHOD.PUT,
+        body: body.data,
+        responseHandler: 'text',
+      }),
+      invalidatesTags: () => {
+        return [{ type: 'MY_PET', id: 'LIST' }];
+      },
+    }),
   }),
 });
 
@@ -51,4 +63,5 @@ export const {
   useAddMyPetMutation,
   useGetMyPetsQuery,
   useDeleteMyPetMutation,
+  useUpdateMyPetMutation,
 } = myPetApi;

@@ -46,7 +46,11 @@ import VaccinatedModal from './components/VaccinatedModal';
 import VaccinatedItem from './components/VaccinatedItem';
 import { VaccinatedListType } from '../../types/vaccinated-list.type';
 import { AddMyPetREQ } from '../../store/my-pet/request/add-my-pet.request';
-import { useAddMyPetMutation } from '../../store/my-pet/my-pet.api';
+import {
+  useAddMyPetMutation,
+  useUpdateMyPetMutation,
+} from '../../store/my-pet/my-pet.api';
+import { useRoute } from '@react-navigation/native';
 
 type ImageType = {
   uri: string;
@@ -59,6 +63,7 @@ const AddMyPetScreen = ({
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const { data: dataSpecices } = useGetSpeciesQuery();
   const [getBreeds, { data: dataBreeds }] = useLazyGetBreedsQuery();
+  const [updateMyPet] = useUpdateMyPetMutation();
 
   const [vaccineEditType, setVaccineEditType] = useState<{
     value: number;
@@ -66,7 +71,9 @@ const AddMyPetScreen = ({
   } | null>();
   const [vaccineEditDate, setVaccineEditDate] = useState();
   const [vaccineEditNote, setVaccineEditNote] = useState();
-  const [editIndex, setEditIndex] = useState();
+  const [editIndex, setEditIndex] = useState(null);
+  const route = useRoute();
+  const myPetInfo = route.params?.myPetInfo;
 
   const {
     control,
@@ -77,17 +84,18 @@ const AddMyPetScreen = ({
     formState: { errors },
   } = useForm<AddPostType>({
     defaultValues: {
-      sex: SEX.MALE,
-      isAdopt: true,
-      isVaccinated: false,
-      description: '',
+      name: myPetInfo ? myPetInfo?.petInfoModel.petName : null,
+      sex: myPetInfo ? myPetInfo?.petInfoModel.sex : SEX.MALE,
+      age: myPetInfo ? myPetInfo?.petInfoModel.age.toString() : null,
+      weight: myPetInfo ? myPetInfo?.petInfoModel.weight : null,
+      isAdopt: myPetInfo ? myPetInfo?.petInfoModel.isAdopt : true,
+      isVaccinated: myPetInfo ? myPetInfo?.petInfoModel.isVaccinated : false,
+      description: myPetInfo ? myPetInfo?.petInfoModel.description : '',
     },
   });
 
-  const [img, setImg] = useState([]);
+  const [img, setImg] = useState(myPetInfo ? myPetInfo?.images : []);
   const [url, setUrl] = useState([]);
-  const [provinces, setProvinces] = useState([]);
-  const [districts, setDistricts] = useState([]);
   const [species, setSpecies] = useState([]);
   const [breeds, setBreeds] = useState([]);
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
@@ -97,8 +105,8 @@ const AddMyPetScreen = ({
   const [addMyPet] = useAddMyPetMutation();
 
   const [vaccinatedList, setVaccinatedList] = useState<VaccinatedListType>({
-    history: [],
-    next: [],
+    history: myPetInfo ? myPetInfo.history : [],
+    next: myPetInfo ? myPetInfo.next : [],
   });
 
   const uriImage = watch('images');
@@ -108,22 +116,31 @@ const AddMyPetScreen = ({
   );
 
   useEffect(() => {
-    if (!dataProvinces) return;
-    const provincesUpdate = dataProvinces.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setProvinces(provincesUpdate);
-  }, [dataProvinces]);
+    const fetchSpecies = async () => {
+      if (myPetInfo.petInfoModel.species) {
+        const speciesOrder = dataSpecices?.find(
+          (item) => item.speciesName === myPetInfo.petInfoModel.species
+        )?.speciesID;
+        setValue('specie', speciesOrder);
+        if (myPetInfo?.petInfoModel.breed) {
+          try {
+            const breedList = await getBreeds(speciesOrder).unwrap();
+            setValue(
+              'breed',
+              breedList?.find(
+                (item) => item.breedName === myPetInfo?.petInfoModel.breed
+              ).breedID
+            );
+          } catch (error) {
+            console.log(error);
+          }
+        }
+      }
+    };
+    // };
 
-  useEffect(() => {
-    if (!dataDistricts) return;
-    const districtsUpdate = dataDistricts.districts.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setDistricts(districtsUpdate);
-  }, [dataDistricts]);
+    fetchSpecies();
+  }, [dataSpecices]);
 
   useEffect(() => {
     if (!dataSpecices) return;
@@ -238,6 +255,59 @@ const AddMyPetScreen = ({
         }
       );
     });
+  };
+
+  const findSpecieLabelByValue = (value) => {
+    const item = species.find((item) => item.value === value);
+    return item ? item.label : null;
+  };
+
+  const findBreedLabelByValue = (value) => {
+    const item = breeds.find((item) => item.value === value);
+    return item ? item.label : null;
+  };
+
+  const handleUpdate = async (data) => {
+    try {
+      setIsLoading(true);
+      const urlArray = [];
+      for (let i = 0; i < img.length; i++) {
+        const res = await uploadToFirebaseStorage(img[i]);
+        urlArray.push(res.downloadUrl);
+      }
+
+      const body: AddMyPetREQ = {
+        petModel: {
+          petName: data.name,
+          sex: data.sex,
+          age: data.age,
+          species: data.specie.label
+            ? data.specie.label
+            : findSpecieLabelByValue(data.specie),
+          breed: data.breed.label
+            ? data.breed.label
+            : findBreedLabelByValue(data.breed),
+          weight: data.weight,
+          description: data.description,
+          userID: myPhoneNumber,
+        },
+        images: Array.isArray(urlArray)
+          ? urlArray.map((image) => ({ image }))
+          : [],
+        history: vaccinatedList.history,
+        next: vaccinatedList.next,
+      };
+
+      await updateMyPet({
+        petID: myPetInfo.petInfoModel.petID,
+        data: body,
+      }).unwrap();
+      setIsSuccessPopup(true);
+      setIsLoading(false);
+    } catch (error) {
+      console.log(error);
+      setIsLoading(false);
+    }
   };
 
   const handleUpload = async (data) => {
@@ -357,9 +427,12 @@ const AddMyPetScreen = ({
   };
 
   const onCloseModal = () => {
+    setVaccineEditDate(null);
+    setVaccineEditNote(null);
+    setVaccineEditType(null);
+    setEditIndex(null);
     setIsModalShown(false);
   };
-
   const onOpenModal = () => {
     setVaccineEditDate(null);
     setVaccineEditNote(null);
@@ -376,8 +449,9 @@ const AddMyPetScreen = ({
     } | null
   ) => {
     if (data) {
+      console.log('edittt', editIndex);
       if (data.type.value === 0) {
-        if (editIndex >= 0) {
+        if (editIndex !== null && editIndex >= 0) {
           const newArray = [
             ...vaccinatedList?.history.slice(0, editIndex), // elements before the one to be replaced
             {
@@ -401,7 +475,7 @@ const AddMyPetScreen = ({
           }));
         }
       } else {
-        if (editIndex >= 0) {
+        if (editIndex !== null && editIndex >= 0) {
           const newArray = [
             ...vaccinatedList?.next.slice(0, editIndex), // elements before the one to be replaced
             {
@@ -423,6 +497,10 @@ const AddMyPetScreen = ({
         }
       }
     }
+    setVaccineEditDate(null);
+    setVaccineEditNote(null);
+    setVaccineEditType(null);
+    setEditIndex(null);
 
     // Close the modal
     setIsModalShown(false);
@@ -592,6 +670,7 @@ const AddMyPetScreen = ({
               styles.input,
               { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
             ]}
+            value={value}
             onChange={onChange}
             containerStyle={{
               minHeight: scaleSize(100),
@@ -756,7 +835,7 @@ const AddMyPetScreen = ({
       </View>
 
       <View style={styles.vaccinatedWrapper}>
-        <Text style={styles.vaccinatedTitle}>Hisotry</Text>
+        <Text style={styles.vaccinatedTitle}>History</Text>
         <FlatList
           data={vaccinatedList.history}
           keyExtractor={(item) => item.title}
@@ -803,8 +882,10 @@ const AddMyPetScreen = ({
       />
 
       <Button
-        onPress={handleSubmit(handleUpload.bind(null))}
-        title='Publish'
+        onPress={handleSubmit(
+          myPetInfo ? handleUpdate.bind(null) : handleUpload.bind(null)
+        )}
+        title={myPetInfo ? 'Update' : 'Publish'}
         style={{ marginTop: scaleSize(19), marginBottom: SIZES.bottomPadding }}
         isLoading={isLoading}
       />

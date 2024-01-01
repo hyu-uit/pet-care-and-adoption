@@ -126,6 +126,8 @@ const VaccinatedModal: FC<VaccinatedModalProps> = ({
             value={date}
             mode='date'
             is24Hour={true}
+            minimumDate={type?.value === 1 ? new Date() : undefined}
+            maximumDate={type?.value === 0 ? new Date() : undefined}
             display='calendar' // Set display to 'calendar' to show only the date picker
             onChange={(value) => {
               setDate(new Date(value.nativeEvent.timestamp));
