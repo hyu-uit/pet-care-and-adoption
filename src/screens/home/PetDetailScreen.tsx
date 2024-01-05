@@ -63,6 +63,26 @@ const PetDetailScreen = ({
   const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
   const [requestAdoption, { isLoading }] = useRequestAdoptionMutation();
 
+  const onSendNotification = async () => {
+    const message = {
+      to: 'ExponentPushToken[ujtwtSJdFTEaRi4lOnsNLB]',
+      title: 'My notification',
+      sound: 'default',
+      body: 'Body notification ne',
+    };
+
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        host: 'exp.host',
+        accept: 'application/json',
+        'accept-encoding': 'gzip, deflate',
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+  };
+
   const onGoBack = () => {
     navigation.goBack();
   };
@@ -121,7 +141,7 @@ const PetDetailScreen = ({
           },
           [combinedId + '.date']: serverTimestamp(),
         });
-        pet;
+
         //Update for other user who you chat with as well
         await updateDoc(doc(firestoreDB, 'userChats', id2), {
           [combinedId + '.userInfo']: {
@@ -152,7 +172,8 @@ const PetDetailScreen = ({
         postID: postDetail.postID,
         userRequest: myPhoneNumber,
       };
-      await requestAdoption(body).unwrap();
+      await onSendNotification();
+      // await requestAdoption(body).unwrap();
       setIsSuccessPopup(true);
     } catch (error) {
       console.log('error at request', error);

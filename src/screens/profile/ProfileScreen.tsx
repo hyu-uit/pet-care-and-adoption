@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES, FONTS } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -12,11 +12,21 @@ import { SCREEN } from '../../navigators/AppRoute';
 import ProfileRequest from './components/ProfileRequest';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useRoute } from '@react-navigation/native';
 
 const ProfileScreen = ({
   navigation,
 }: NativeStackScreenProps<ProfileStackParamList, SCREEN.PROFILE>) => {
   const [tab, setTab] = useState<number>(0);
+  const route = useRoute();
+
+  const isRequest = route.params?.isRequest;
+
+  useEffect(() => {
+    if (isRequest) {
+      setTab(3);
+    }
+  }, [isRequest]);
 
   const myName = useSelector((state: RootState) => state.shared.user.name);
   const myAvatar = useSelector((state: RootState) => state.shared.user.avatar);

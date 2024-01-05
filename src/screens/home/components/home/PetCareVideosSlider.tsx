@@ -51,7 +51,7 @@ const PetCareVideosSlider = () => {
     return (
       <YoutubePlayer
         height={'80%'}
-        width={'100%'}
+        width={'90%'}
         play={true}
         mute={true}
         videoId={videoId}

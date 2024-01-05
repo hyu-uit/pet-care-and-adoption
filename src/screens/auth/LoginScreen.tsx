@@ -5,8 +5,9 @@ import {
   TextInput,
   Image,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS, ICONS, SIZES, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import Button from '../../components/Button';
@@ -29,6 +30,17 @@ import Popup from '../../components/Popup';
 import { RootState } from '../../store';
 import { doc, setDoc } from 'firebase/firestore';
 import { firestoreDB } from '../../../firebaseConfig';
+import * as Device from 'expo-device';
+import * as Notifications from 'expo-notifications';
+import { useAddDeviceTokenMutation } from '../../store/notification/notification.api';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+  }),
+});
 
 const LoginScreen = ({
   navigation,
@@ -39,11 +51,61 @@ const LoginScreen = ({
     formState: { errors },
   } = useForm<AuthLoginREQ>();
 
-  const conmem = useSelector((state: RootState) => state.shared.isLogined);
-
   const [login, { isLoading }] = useLoginMutation();
+  const [addDeviceToken] = useAddDeviceTokenMutation();
   const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
   const dispatch = useDispatch();
+
+  //Notification
+  const [expoPushToken, setExpoPushToken] = useState('');
+
+  useEffect(() => {
+    registerForPushNotificationsAsync()
+      .then((token) => {
+        console.log(token);
+        setExpoPushToken(token);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  async function registerForPushNotificationsAsync() {
+    let token;
+
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+
+    if (Device.isDevice) {
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
+      let finalStatus = existingStatus;
+      if (existingStatus !== 'granted') {
+        const { status } = await Notifications.requestPermissionsAsync();
+        finalStatus = status;
+      }
+      if (finalStatus !== 'granted') {
+        alert('Failed to get push token for push notification!');
+        return;
+      }
+      // Learn more about projectId:
+      // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
+      token = (
+        await Notifications.getExpoPushTokenAsync({
+          projectId: '29b02a60-b7a1-4dae-a67c-493fdf74d1d4',
+        })
+      ).data;
+      console.log(token);
+    } else {
+      alert('Must use physical device for Push Notifications');
+    }
+
+    return token;
+  }
 
   const onSignup = () => {
     navigation.navigate(SCREEN.SIGN_UP);
@@ -60,7 +122,11 @@ const LoginScreen = ({
         setIsPopupShow(true);
         return;
       }
-      dispatch(setLoginToken({ user: res.user, token: res.token }));
+      // await addDeviceToken({
+      //   userID: data.phoneNumber,
+      //   token: expoPushToken,
+      // }).unwrap();
+      await dispatch(setLoginToken({ user: res.user, token: res.token }));
     } catch (error) {
       console.log('Login error', error);
       if (
