@@ -9,6 +9,7 @@ import {
   StatusBar,
   FlatList,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { COLORS, STYLES, FONTS, SIZES, IMAGES } from '../../config';
@@ -348,7 +349,7 @@ const SearchScreen = ({
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{
-          paddingTop: SIZES.bottomPadding,
+          paddingTop: Platform.OS === 'ios' && scaleSize(20),
         }}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />

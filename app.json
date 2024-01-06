@@ -2,13 +2,13 @@
   "expo": {
     "name": "Pet Care and Adoption",
     "slug": "pet-care-and-adoption",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/pet-logo.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
+      "resizeMode": "cover",
       "backgroundColor": "#ffffff"
     },
     "assetBundlePatterns": ["**/*"],
@@ -28,7 +28,8 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/pet-logo.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "versionCode": "2"
     },
     "web": {
       "favicon": "./assets/pet-logo.png"

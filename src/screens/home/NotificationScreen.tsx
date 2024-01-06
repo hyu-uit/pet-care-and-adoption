@@ -5,6 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES, FONTS, STYLES } from '../../config';
@@ -14,17 +15,54 @@ import NotificationItem from './components/notification/NotificationItem';
 import {
   useGetNotificationQuery,
   useLazyGetNotificationQuery,
+  useMarkAsReadMutation,
 } from '../../store/notification/notification.api';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
 
 const NotificationScreen = () => {
-  const [isChecked, setChecked] = useState<boolean>(false);
+  const [isSelectAll, setIsSelectAll] = useState(false);
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
 
   const { data: notificationData } = useGetNotificationQuery(myPhoneNumber);
+  const [markAsRead, { isLoading }] = useMarkAsReadMutation();
+
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    notificationData &&
+      setData(
+        notificationData.map((item, index) => ({
+          index: index,
+          selected: false,
+          id: item.notiID,
+        }))
+      );
+  }, notificationData);
+
+  const handleCheckboxChange = (itemId) => {
+    const updatedData = data.map((item) => {
+      if (item.index === itemId) {
+        return { ...item, selected: !item?.selected };
+      }
+      return item;
+    });
+
+    setData(updatedData);
+    setIsSelectAll(updatedData.every((item) => item?.selected));
+  };
+
+  const handleSelectAllChange = () => {
+    const updatedData = data.map((item) => ({
+      ...item,
+      selected: !isSelectAll,
+    }));
+
+    setData(updatedData);
+    setIsSelectAll(!isSelectAll);
+  };
   // const [notifications, setNotifications] = useState([]);
   // const [getNotifications] = useLazyGetNotificationQuery(myPhoneNumber);
   // useEffect(() => {
@@ -38,45 +76,43 @@ const NotificationScreen = () => {
   //   };
   // }, [myPhoneNumber]);
 
-  const notificationList = [
-    {
-      title: 'The Vi just expressed his feelings about your post.',
-      read: false,
-    },
-    {
-      title: 'The Vi just expressed his feelings about your post.',
-      read: false,
-    },
-    {
-      title: 'The Vi just expressed his feelings about your post.',
-      read: false,
-    },
-    {
-      title: 'The Vi just expressed his feelings about your post.',
-      read: false,
-    },
-  ];
+  const renderItem = ({ item, index }) => {
+    return (
+      <NotificationItem
+        title={item.title}
+        content={item.content}
+        read={item.isRead}
+        selected={data.find((item) => item.index === index)?.selected}
+        onSelect={() => {
+          handleCheckboxChange(index);
+        }}
+      />
+    );
+  };
 
-  const renderItem = ({ item }) => {
-    return <NotificationItem title={item.title} read={item.read} />;
+  const onMarkAsRead = async () => {
+    try {
+      for (let i = 0; i < data.length; i++) {
+        console.log(data[i].selected);
+        if (data[i].selected) {
+          console.log(data[i].id);
+          await markAsRead(data[i].id).unwrap();
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        onPress={() => {
-          console.log(myPhoneNumber);
-        }}
-      >
-        <Text>abcd</Text>
-      </TouchableOpacity>
       <View style={styles.horizontal}>
         <View style={styles.horizontal}>
           <Checkbox
             style={styles.checkbox}
-            value={isChecked}
-            onValueChange={setChecked}
-            color={isChecked ? COLORS.primary : undefined}
+            value={isSelectAll}
+            onValueChange={handleSelectAllChange}
+            color={isSelectAll ? COLORS.primary : undefined}
           />
           <Text style={styles.selectAll}>Select all</Text>
         </View>
@@ -94,12 +130,16 @@ const NotificationScreen = () => {
             Delete all
           </Text>
         </TouchableOpacity> */}
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>Mark as read</Text>
+        <TouchableOpacity onPress={onMarkAsRead} style={styles.button}>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <Text style={styles.buttonText}>Mark as read</Text>
+          )}
         </TouchableOpacity>
       </View>
 
-      <Text style={styles.date}>June 3 2023</Text>
+      {/* <Text style={styles.date}>June 3 2023</Text> */}
       <FlatList
         data={notificationData}
         keyExtractor={(item) => item.title}

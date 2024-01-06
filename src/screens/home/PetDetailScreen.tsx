@@ -10,7 +10,7 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { COLORS, SIZES, FONTS, IMAGES, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import {
@@ -43,6 +43,12 @@ import { useRequestAdoptionMutation } from '../../store/post/post.api';
 import { RequestAdoptionREQ } from '../../store/post/request/request-adoption.request';
 import Popup from '../../components/Popup';
 import { POPUP_TYPE } from '../../types/enum/popup.enum';
+import {
+  useCreateNotificationMutation,
+  useGetDeviceTokensByUserIdQuery,
+  useLazyGetDeviceTokensByUserIdQuery,
+} from '../../store/notification/notification.api';
+import { CreateNotificationREQ } from '../../store/notification/request/create-notification.request';
 
 const PetDetailScreen = ({
   navigation,
@@ -61,26 +67,51 @@ const PetDetailScreen = ({
   const dispatch = useDispatch();
 
   const { data: postedBy } = useGetUserInformationQuery(postDetail?.userID);
+  const [createNotification] = useCreateNotificationMutation();
   const [requestAdoption, { isLoading }] = useRequestAdoptionMutation();
+  const { data: deviceTokens, refetch } = useGetDeviceTokensByUserIdQuery(
+    postDetail?.userID
+  );
+
+  useEffect(() => {
+    refetch();
+  }, [postDetail]);
 
   const onSendNotification = async () => {
-    const message = {
-      to: 'ExponentPushToken[ujtwtSJdFTEaRi4lOnsNLB]',
-      title: 'My notification',
-      sound: 'default',
-      body: 'Body notification ne',
-    };
+    try {
+      if (deviceTokens?.length > 0) {
+        for (let i = 0; i < deviceTokens.length; i++) {
+          const message = {
+            to: deviceTokens[i],
+            title: 'New Adopted Request',
+            sound: 'default',
+            body: `${postedBy && postedBy?.name} sent you a adopted request`,
+          };
 
-    await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: {
-        host: 'exp.host',
-        accept: 'application/json',
-        'accept-encoding': 'gzip, deflate',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(message),
-    });
+          const body: CreateNotificationREQ = {
+            title: 'New Adopted Request',
+            content: `${postedBy && postedBy?.name} sent you a adopted request`,
+            senderID: myPhoneNumber,
+            receiverID: postDetail?.userID,
+          };
+
+          await createNotification(body).unwrap();
+
+          await fetch('https://exp.host/--/api/v2/push/send', {
+            method: 'POST',
+            headers: {
+              host: 'exp.host',
+              accept: 'application/json',
+              'accept-encoding': 'gzip, deflate',
+              'content-type': 'application/json',
+            },
+            body: JSON.stringify(message),
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const onGoBack = () => {
@@ -173,8 +204,7 @@ const PetDetailScreen = ({
         userRequest: myPhoneNumber,
       };
       await onSendNotification();
-      const res = await requestAdoption(body).unwrap();
-      console.log('resres', res);
+      await requestAdoption(body).unwrap();
       setIsSuccessPopup(true);
     } catch (error) {
       console.log('error at request', error);

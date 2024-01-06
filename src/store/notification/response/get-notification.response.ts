@@ -4,4 +4,5 @@ export type NotificationRESP = {
   content: string;
   senderID: string;
   receiverID: string;
+  isRead: boolean;
 }[];

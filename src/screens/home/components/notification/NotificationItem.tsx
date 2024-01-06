@@ -3,33 +3,50 @@ import React, { FC, useState } from 'react';
 import { scaleSize } from '../../../../utils/DeviceUtils';
 import Checkbox from 'expo-checkbox';
 import { COLORS, FONTS } from '../../../../config';
-import { FontAwesome5, Ionicons } from '@expo/vector-icons';
+import { FontAwesome5, Ionicons, MaterialIcons } from '@expo/vector-icons';
 
 type NotificationProps = {
   title: string;
+  content: string;
   read: boolean;
+  selected: boolean;
+  onSelect: () => void;
 };
-const NotificationItem: FC<NotificationProps> = ({ title, read }) => {
-  const [isChecked, setChecked] = useState<boolean>(false);
-
+const NotificationItem: FC<NotificationProps> = ({
+  title,
+  content,
+  read,
+  selected,
+  onSelect,
+}) => {
   return (
     <View style={styles.container}>
       <Checkbox
         style={styles.checkbox}
-        value={isChecked}
-        onValueChange={setChecked}
-        color={isChecked ? COLORS.primary : undefined}
+        value={selected}
+        onValueChange={onSelect}
+        color={selected ? COLORS.primary : undefined}
       />
-      <View style={styles.notificationWrapper}>
+      <View
+        style={[
+          styles.notificationWrapper,
+          { backgroundColor: read ? COLORS.tertiary : COLORS.secondary },
+        ]}
+      >
         <View style={styles.iconWrapper}>
-          <FontAwesome5
-            name='heart'
-            size={scaleSize(25)}
-            color={COLORS.primary}
-          />
+          <MaterialIcons name='pets' size={24} color={COLORS.primary} />
         </View>
-        <Text style={styles.title}>{title}</Text>
-        <View style={styles.dot} />
+        <View
+          style={{
+            gap: scaleSize(10),
+          }}
+        >
+          <Text style={[styles.title, { fontFamily: 'CercoDEMO-Bold' }]}>
+            {title}
+          </Text>
+          <Text style={styles.title}>{content}</Text>
+        </View>
+        {!read && <View style={styles.dot} />}
       </View>
     </View>
   );
@@ -58,7 +75,7 @@ const styles = StyleSheet.create({
     borderRadius: scaleSize(10),
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    // justifyContent: 'space-between',
     alignItems: 'center',
     gap: scaleSize(10),
     paddingHorizontal: scaleSize(18),
@@ -73,8 +90,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...FONTS.body4,
-    flex: 1,
     color: COLORS.black2A3738,
+    width: '80%',
   },
   dot: {
     width: scaleSize(9),

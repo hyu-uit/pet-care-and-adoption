@@ -122,10 +122,10 @@ const LoginScreen = ({
         setIsPopupShow(true);
         return;
       }
-      // await addDeviceToken({
-      //   userID: data.phoneNumber,
-      //   token: expoPushToken,
-      // }).unwrap();
+      await addDeviceToken({
+        userID: data.phoneNumber,
+        token: expoPushToken,
+      }).unwrap();
       await dispatch(setLoginToken({ user: res.user, token: res.token }));
     } catch (error) {
       console.log('Login error', error);
@@ -148,7 +148,9 @@ const LoginScreen = ({
       <Popup
         open={isPopupShow}
         onCancel={onClosePopup}
-        onSubmit={() => {}}
+        onSubmit={() => {
+          onClosePopup();
+        }}
         title='Login failed'
         content='Please check your information and try it again!'
       />

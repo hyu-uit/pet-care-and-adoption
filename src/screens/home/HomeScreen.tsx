@@ -360,7 +360,7 @@ const HomeScreen = ({
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
+    <SafeAreaView style={styles.container}>
       {/* <TouchableOpacity onPress={onSendNotification}>
         <Text>Send</Text>
       </TouchableOpacity> */}
@@ -490,11 +490,11 @@ const HomeScreen = ({
           />
         )}
 
-        <Title title='Pet care videos' onSeeAll={onPetCareVideos} />
+        <Title title='Pet care videos' />
 
         <PetCareVideosSlider />
 
-        <Title title='Nearby veterinary clinic' onSeeAll={onNearlyClinic} />
+        <Title title='Nearby veterinary clinic' />
 
         {isFetchingVeterinary ? (
           <FlatList
@@ -517,7 +517,7 @@ const HomeScreen = ({
           />
         )}
 
-        <Title title='Lost pets' onSeeAll={onLostPets} />
+        <Title title='Lost pets' />
 
         {isFetchingPosts ? (
           <FlatList

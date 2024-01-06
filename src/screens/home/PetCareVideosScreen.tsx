@@ -68,14 +68,14 @@ const PetCareVideosScreen = () => {
         </TouchableOpacity>
       </View> */}
 
-      <FlatList
+      {/* <FlatList
         data={data}
         keyExtractor={(item) => item.title}
         renderItem={renderItem} //method to render the data in the way you want using styling u need
         horizontal={false}
         numColumns={2}
         showsVerticalScrollIndicator={false}
-      />
+      /> */}
     </View>
   );
 };

@@ -79,7 +79,7 @@ export const postApi = createApi({
       transformResponse: (response: getAllPostsWithUserRESP[]) => {
         return response;
       },
-      keepUnusedDataFor: 0,
+      // keepUnusedDataFor: 0,
       providesTags: () => {
         return [
           { type: 'REQUEST', id: 'LIST' },
@@ -105,6 +105,7 @@ export const postApi = createApi({
       query: (body) => ({
         url: `/CancelRequest?postID=${body.postID}&userID=${body.userID}`,
         method: HTTP_METHOD.POST,
+        responseHandler: 'text',
       }),
       invalidatesTags: () => {
         return [{ type: 'REQUEST', id: 'LIST' }];

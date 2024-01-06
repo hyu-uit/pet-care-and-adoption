@@ -5,16 +5,18 @@ import { COLORS, FONTS } from '../../../../config';
 
 type TitleProps = {
   title: string;
-  onSeeAll: () => void;
+  onSeeAll?: () => void;
 };
 
 const Title: FC<TitleProps> = ({ title, onSeeAll }) => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{title}</Text>
-      <TouchableOpacity onPress={onSeeAll}>
-        <Text style={styles.allButtonText}>See all</Text>
-      </TouchableOpacity>
+      {onSeeAll && (
+        <TouchableOpacity onPress={onSeeAll}>
+          <Text style={styles.allButtonText}>See all</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 };
@@ -36,9 +38,8 @@ const styles = StyleSheet.create({
   },
   title: {
     ...FONTS.body4,
-    fontWeight: 'bold',
     color: COLORS.blackPrimary,
-    fontFamily: 'CercoDEMO-Bold',
+    fontFamily: 'CercoDEMO-Medium',
   },
   allButtonText: {
     ...FONTS.body4,

@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS } from '../config';
@@ -27,7 +27,7 @@ const CustomPostButton = ({ props }) => (
       alignItems: 'center',
       backgroundColor: COLORS.primary,
       width: scaleSize(45),
-      borderRadius: 45 / 2,
+      borderRadius: scaleSize(45 / 2),
     }}
     onPress={props.onPress}
   >
@@ -54,7 +54,7 @@ const BottomTabs = () => {
           backgroundColor: COLORS.purpleF1EFFF,
           borderTopRightRadius: scaleSize(22.52),
           borderTopLeftRadius: scaleSize(22.52),
-          height: scaleSize(75),
+          height: Platform.OS === 'ios' ? scaleSize(75) : scaleSize(45),
         },
         headerTintColor: COLORS.blackContent,
         headerStyle: { backgroundColor: COLORS.background },
