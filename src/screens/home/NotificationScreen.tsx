@@ -6,14 +6,37 @@ import {
   TouchableOpacity,
   FlatList,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES, FONTS, STYLES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import Checkbox from 'expo-checkbox';
 import NotificationItem from './components/notification/NotificationItem';
+import {
+  useGetNotificationQuery,
+  useLazyGetNotificationQuery,
+} from '../../store/notification/notification.api';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const NotificationScreen = () => {
   const [isChecked, setChecked] = useState<boolean>(false);
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
+
+  const { data: notificationData } = useGetNotificationQuery(myPhoneNumber);
+  // const [notifications, setNotifications] = useState([]);
+  // const [getNotifications] = useLazyGetNotificationQuery(myPhoneNumber);
+  // useEffect(() => {
+  //   const getNoti = async () => {
+  //     try {
+  //       const res = await getNotifications(myPhoneNumber).unwrap();
+  //       setNotifications(res);
+  //     } catch (error) {
+  //       console.log(error);
+  //     }
+  //   };
+  // }, [myPhoneNumber]);
 
   const notificationList = [
     {
@@ -40,6 +63,13 @@ const NotificationScreen = () => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => {
+          console.log(myPhoneNumber);
+        }}
+      >
+        <Text>abcd</Text>
+      </TouchableOpacity>
       <View style={styles.horizontal}>
         <View style={styles.horizontal}>
           <Checkbox
@@ -50,7 +80,7 @@ const NotificationScreen = () => {
           />
           <Text style={styles.selectAll}>Select all</Text>
         </View>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={[
             styles.button,
             {
@@ -63,7 +93,7 @@ const NotificationScreen = () => {
           <Text style={[styles.buttonText, { color: COLORS.primary }]}>
             Delete all
           </Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.button}>
           <Text style={styles.buttonText}>Mark as read</Text>
         </TouchableOpacity>
@@ -71,7 +101,7 @@ const NotificationScreen = () => {
 
       <Text style={styles.date}>June 3 2023</Text>
       <FlatList
-        data={notificationList}
+        data={notificationData}
         keyExtractor={(item) => item.title}
         renderItem={renderItem} //method to render the data in the way you want using styling u need
         horizontal={false}

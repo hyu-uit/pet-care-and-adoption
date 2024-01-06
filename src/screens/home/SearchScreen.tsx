@@ -43,6 +43,7 @@ import {
 } from '../../store/favorite-post/favorite-post.api';
 import { AddFavoriteREQ } from '../../store/favorite-post/request/add-favorite.request';
 import { RemoveFavoriteREQ } from '../../store/favorite-post/request/remove-favorite.request';
+import SkeletonSearch from '../../components/SkeletonSearch';
 
 const SearchScreen = ({
   navigation,
@@ -51,8 +52,11 @@ const SearchScreen = ({
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: allPosts, refetch } =
-    useGetAllPostsWithUserQuery(myPhoneNumber);
+  const {
+    data: allPosts,
+    refetch,
+    isFetching: isFetchingPosts,
+  } = useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: dataProvinces } = useGetProvincesQuery();
   const [getDistricts, { data: dataDistricts }] = useLazyGetDistrictQuery();
   const [addFavorite] = useAddFavoriteMutation();
@@ -545,63 +549,74 @@ const SearchScreen = ({
         /> */}
         {/* post.name.toLowerCase().includes(text.toLowerCase()) */}
 
-        {visibleData
-          ?.filter((item) => {
-            if (
-              searchText !== '' &&
-              !item.petName.toLowerCase().includes(searchText.toLowerCase())
-            ) {
-              return false;
-            }
-            if (
-              filteredDistricts &&
-              !item.district
-                .toLowerCase()
-                .includes(filteredDistricts.label.toLowerCase())
-            ) {
-              return false;
-            }
-            if (
-              filteredProvinces &&
-              !item.province
-                .toLowerCase()
-                .includes(filteredProvinces.label.toLowerCase())
-            ) {
-              return false;
-            }
-            if (filteredSex && item.sex !== filteredSex) {
-              return false;
-            }
-            if (filteredVaccinated !== null) {
-              return filteredVaccinated === item.isVaccinated;
-            }
-            if (filteredAge.length > 0) {
-              return filteredAge.includes(getAgeRangeIndex(item.age));
-            }
-            return true;
-          })
-          .map((item, index) => (
-            <PetSearchCard
-              key={index}
-              image={item.images}
-              name={item.petName}
-              age={item.age}
-              type={item.breed}
-              district={item.district}
-              province={item.province}
-              gender={item.sex}
-              isFav={item.isFav}
-              onDetail={() => {
-                onDetail(item);
-              }}
-              onAddFavorite={() => {
-                onAddFavorite(item.postID);
-              }}
-              onRemoveFavorite={() => {
-                onRemoveFavorite(item.postID);
-              }}
-            />
-          ))}
+        {isFetchingPosts ? (
+          <>
+            <SkeletonSearch />
+            <SkeletonSearch />
+            <SkeletonSearch />
+            <SkeletonSearch />
+          </>
+        ) : (
+          <>
+            {visibleData
+              ?.filter((item) => {
+                if (
+                  searchText !== '' &&
+                  !item.petName.toLowerCase().includes(searchText.toLowerCase())
+                ) {
+                  return false;
+                }
+                if (
+                  filteredDistricts &&
+                  !item.district
+                    .toLowerCase()
+                    .includes(filteredDistricts.label.toLowerCase())
+                ) {
+                  return false;
+                }
+                if (
+                  filteredProvinces &&
+                  !item.province
+                    .toLowerCase()
+                    .includes(filteredProvinces.label.toLowerCase())
+                ) {
+                  return false;
+                }
+                if (filteredSex && item.sex !== filteredSex) {
+                  return false;
+                }
+                if (filteredVaccinated !== null) {
+                  return filteredVaccinated === item.isVaccinated;
+                }
+                if (filteredAge.length > 0) {
+                  return filteredAge.includes(getAgeRangeIndex(item.age));
+                }
+                return true;
+              })
+              .map((item, index) => (
+                <PetSearchCard
+                  key={index}
+                  image={item.images}
+                  name={item.petName}
+                  age={item.age}
+                  type={item.breed}
+                  district={item.district}
+                  province={item.province}
+                  gender={item.sex}
+                  isFav={item.isFav}
+                  onDetail={() => {
+                    onDetail(item);
+                  }}
+                  onAddFavorite={() => {
+                    onAddFavorite(item.postID);
+                  }}
+                  onRemoveFavorite={() => {
+                    onRemoveFavorite(item.postID);
+                  }}
+                />
+              ))}
+          </>
+        )}
         <View style={{ marginBottom: SIZES.bottomPadding * 2 }}></View>
       </ScrollView>
     </View>

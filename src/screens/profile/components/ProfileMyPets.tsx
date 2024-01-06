@@ -12,13 +12,14 @@ import { SIZES, FONTS, COLORS } from '../../../config';
 import { Foundation } from '@expo/vector-icons';
 import { SCREEN } from '../../../navigators/AppRoute';
 import { useGetMyPetsQuery } from '../../../store/my-pet/my-pet.api';
+import SkeletonSearch from '../../../components/SkeletonSearch';
 
 type ProfileMyPetProps = {
   navigation: any;
 };
 
 const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
-  const { data: myPets } = useGetMyPetsQuery();
+  const { data: myPets, isFetching } = useGetMyPetsQuery();
 
   console.log('my', myPets);
 
@@ -44,25 +45,46 @@ const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={myPets}
-        keyExtractor={(item) => item.title}
-        renderItem={renderItem} //method to render the data in the way you want using styling u need
-        horizontal={false}
-        numColumns={1}
-        style={{ marginTop: scaleSize(20) }}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponent={
-          <TouchableOpacity style={styles.addButton} onPress={onAddMyPet}>
-            <Foundation
-              name='plus'
-              size={scaleSize(24)}
-              color={COLORS.primary}
-            />
-            <Text style={styles.addText}>My pet</Text>
-          </TouchableOpacity>
-        }
-      />
+      {isFetching ? (
+        <FlatList
+          data={[1, 2, 3, 4]}
+          renderItem={() => <SkeletonSearch />} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={1}
+          style={{ marginTop: scaleSize(20) }}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <TouchableOpacity style={styles.addButton} onPress={onAddMyPet}>
+              <Foundation
+                name='plus'
+                size={scaleSize(24)}
+                color={COLORS.primary}
+              />
+              <Text style={styles.addText}>My pet</Text>
+            </TouchableOpacity>
+          }
+        />
+      ) : (
+        <FlatList
+          data={myPets}
+          keyExtractor={(item) => item.title}
+          renderItem={renderItem} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={1}
+          style={{ marginTop: scaleSize(20) }}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <TouchableOpacity style={styles.addButton} onPress={onAddMyPet}>
+              <Foundation
+                name='plus'
+                size={scaleSize(24)}
+                color={COLORS.primary}
+              />
+              <Text style={styles.addText}>My pet</Text>
+            </TouchableOpacity>
+          }
+        />
+      )}
     </View>
   );
 };

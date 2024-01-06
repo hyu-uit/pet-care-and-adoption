@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/dist/query/react';
 import { HTTP_METHOD } from '../../utils/constants/http.constants';
 import { NotificationREQ } from './request/notification.request';
 import { CreateNotificationREQ } from './request/create-notification.request';
+import { NotificationRESP } from './response/get-notification.request';
 
 export const notificationApi = createApi({
   reducerPath: 'notificationApi',
@@ -26,7 +27,21 @@ export const notificationApi = createApi({
         responseHandler: 'text',
       }),
     }),
+
+    getNotification: build.query<NotificationRESP, string>({
+      query: (id) => ({
+        url: `GetNotifications/${id}`,
+        method: HTTP_METHOD.GET,
+      }),
+      transformResponse: (response: NotificationRESP) => {
+        return response;
+      },
+    }),
   }),
 });
 
-export const { useAddDeviceTokenMutation } = notificationApi;
+export const {
+  useAddDeviceTokenMutation,
+  useGetNotificationQuery,
+  useLazyGetNotificationQuery,
+} = notificationApi;

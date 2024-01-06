@@ -342,7 +342,6 @@ const AddMyPetScreen = ({
       setIsSuccessPopup(true);
       setBreeds([]);
       reset();
-      setDistricts([]);
       setImg([]);
       setVaccinatedList({ history: [], next: [] });
       setIsLoading(false);

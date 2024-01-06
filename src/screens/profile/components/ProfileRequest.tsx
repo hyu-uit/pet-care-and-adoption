@@ -26,6 +26,7 @@ import { useGetUserInformationQuery } from '../../../store/users/users.api';
 import { cancelRequestREQ } from '../../../store/post/request/cancel-request.request';
 import Popup from '../../../components/Popup';
 import { POPUP_TYPE } from '../../../types/enum/popup.enum';
+import SkeletonSearch from '../../../components/SkeletonSearch';
 
 const ProfileRequest = () => {
   const [tab, setTab] = useState<number>(0);
@@ -34,15 +35,21 @@ const ProfileRequest = () => {
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: requestedPosts, refetch: refetchRequested } =
-    useGetRequestedPostsQuery(myPhoneNumber);
+  const {
+    data: requestedPosts,
+    refetch: refetchRequested,
+    isFetching,
+  } = useGetRequestedPostsQuery(myPhoneNumber);
   const { data: postsRequestedFromOthers, refetch: refetchFromOthers } =
     useGetPostsWithRequestQuery(myPhoneNumber);
   const [cancelRequest, { isLoading }] = useCancelRequestMutation();
   const [acceptRequest] = useAcceptRequestMutation();
-  const [denyRequest] = useDeniedRequestMutation();
+  const [denyRequest, { isLoading: isLoadingDeny }] =
+    useDeniedRequestMutation();
 
   const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
+  const [isDeniedPopupShow, setIsDeniedPopupShow] = useState<boolean>(false);
+  const [waitingId, setWaitingId] = useState();
   const [isSuccessPopup, setIsSuccessPopup] = useState<boolean>(false);
   const [isFailedPopup, setIsFailedPopup] = useState<boolean>(false);
   const [cancelPostID, setCancelPostID] = useState<string>('');
@@ -56,39 +63,6 @@ const ProfileRequest = () => {
     await refetchRequested();
     setRefreshing(false);
   };
-
-  console.log(requestedPosts);
-
-  const data = [
-    {
-      imagePet:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      imageUser:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Vincent',
-    },
-    {
-      imagePet:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      imageUser:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Vincent',
-    },
-    {
-      imagePet:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      imageUser:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Vincent',
-    },
-    {
-      imagePet:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      imageUser:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Vincent',
-    },
-  ];
 
   const onCancelRequest = async (postID, userID) => {
     setCancelPostID(postID);
@@ -107,15 +81,6 @@ const ProfileRequest = () => {
     }
   };
 
-  const onDenied = async (postID, userID) => {
-    try {
-      await denyRequest({ postID: postID.postID, userID: userID }).unwrap();
-      setIsPopupShow(true);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const onConfirmCancel = async () => {
     try {
       await cancelRequest({
@@ -126,6 +91,18 @@ const ProfileRequest = () => {
     } catch (error) {
       setIsPopupShow(false);
       console.log(error);
+    }
+  };
+
+  const onConfirmDenied = async () => {
+    try {
+      await denyRequest({
+        postID: cancelPostID,
+        userID: cancelUserID,
+      }).unwrap();
+      setIsDeniedPopupShow(false);
+    } catch (error) {
+      setIsDeniedPopupShow(false);
     }
   };
 
@@ -182,6 +159,17 @@ const ProfileRequest = () => {
 
   return (
     <View style={styles.container}>
+      <Popup
+        title='Deny request'
+        content='Do you really want to deny this request?'
+        onCancel={() => {
+          setIsDeniedPopupShow(false);
+        }}
+        type={POPUP_TYPE.ERROR}
+        open={isDeniedPopupShow}
+        onSubmit={onConfirmDenied}
+        isLoading={isLoadingDeny}
+      />
       <Popup
         title='Cancel request'
         content='Do you really want to cancel your request?'
@@ -240,48 +228,53 @@ const ProfileRequest = () => {
         </TouchableOpacity>
       </View>
 
-      {tab === 0 && (
-        // <FlatList
-        //   data={postsRequestedFromOthers}
-        //   keyExtractor={(item) => item.title}
-        //   renderItem={renderItem}
-        //   horizontal={false}
-        //   numColumns={1}
-        //   style={{ marginTop: scaleSize(20) }}
-        //   showsVerticalScrollIndicator={false}
-        // />
-        <FlatList
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          showsVerticalScrollIndicator={false}
-          data={postsRequestedFromOthers}
-          keyExtractor={(item) => item.postID.postID}
-          renderItem={({ item }) => (
-            <View>
-              <FlatList
-                style={{ paddingTop: SIZES.bottomPadding }}
-                data={item.request}
-                keyExtractor={(requestItem) => requestItem.userID}
-                renderItem={({ item: requestItem }) => (
-                  <ProfileRequestItem
-                    imagePet={item.images[0]}
-                    imageUser={requestItem.avatar}
-                    name={requestItem.name}
-                    userID={requestItem.userID}
-                    onAccept={() => {
-                      onAccept(item.postID, requestItem.userID);
-                    }}
-                    onDenied={() => {
-                      onDenied(item.postID, requestItem.userID);
-                    }}
-                  />
-                )}
-              />
-            </View>
-          )}
-        />
-      )}
+      {tab === 0 &&
+        (isFetching ? (
+          <FlatList
+            data={[1, 2, 3, 4]}
+            renderItem={() => <SkeletonSearch />} //method to render the data in the way you want using styling u need
+            horizontal={false}
+            style={{ marginTop: scaleSize(20) }}
+            showsVerticalScrollIndicator={false}
+          />
+        ) : (
+          <FlatList
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
+            showsVerticalScrollIndicator={false}
+            data={postsRequestedFromOthers}
+            keyExtractor={(item) => item.postID.postID}
+            renderItem={({ item }) => (
+              <View>
+                <FlatList
+                  style={{ paddingTop: SIZES.bottomPadding }}
+                  data={item.request}
+                  keyExtractor={(requestItem) => requestItem.userID}
+                  renderItem={({ item: requestItem }) => (
+                    <ProfileRequestItem
+                      imagePet={item.images[0]}
+                      imageUser={requestItem.avatar}
+                      name={requestItem.name}
+                      userID={requestItem.userID}
+                      onAccept={() => {
+                        onAccept(item.postID, requestItem.userID);
+                        setIsSuccessPopup(true);
+                      }}
+                      onDenied={() => {
+                        setCancelPostID(item.postID.postID);
+                        setCancelUserID(requestItem.userID);
+                        setIsDeniedPopupShow(true);
+
+                        // onDenied(item.postID, requestItem.userID);
+                      }}
+                    />
+                  )}
+                />
+              </View>
+            )}
+          />
+        ))}
 
       {tab === 1 && (
         <FlatList

@@ -2,7 +2,7 @@ import { View, Text, Image, StyleSheet } from 'react-native';
 import React, { useState } from 'react';
 import Carousel, { Pagination } from 'react-native-snap-carousel';
 import { scaleSize } from '../../../../utils/DeviceUtils';
-import { COLORS, FONTS } from '../../../../config';
+import { COLORS, FONTS, SIZES } from '../../../../config';
 import YoutubePlayer from 'react-native-youtube-iframe';
 
 const PetCareVideosSlider = () => {
@@ -50,8 +50,8 @@ const PetCareVideosSlider = () => {
   const YoutubeVideo = ({ videoId }) => {
     return (
       <YoutubePlayer
-        height={'80%'}
-        width={'90%'}
+        height={scaleSize(200)}
+        width={SIZES.WindowWidth - scaleSize(48)}
         play={true}
         mute={true}
         videoId={videoId}
@@ -61,44 +61,12 @@ const PetCareVideosSlider = () => {
 
   const renderCarouselItem = ({ item, index }) => {
     return (
-      <>
+      <View>
         <YoutubeVideo videoId={item.videoId} />
         <Text style={styles.title}>{item.title}</Text>
-      </>
+      </View>
     );
   };
-
-  // const renderCarouselItem = ({ item, index }) => {
-  //   return (
-  //     <>
-  //       <YoutubePlayer
-  //         key={index}
-  //         height={'80%'}
-  //         width={'100%'}
-  //         play={true}
-  //         videoId={item.videoId}
-  //       />
-  //       <Text style={styles.title}>{item.title}</Text>
-  //     </>
-  //   );
-  // };
-  // const renderCarouselItem = ({ item, index }) => {
-  //   const isMainImage = index === activeSlide;
-
-  //   return (
-  //     <View
-  //       style={[
-  //         styles.slide,
-  //         {
-  //           height: isMainImage ? scaleSize(165) : scaleSize(140),
-  //           width: isMainImage ? scaleSize(130) : scaleSize(103),
-  //         },
-  //       ]}
-  //     >
-  //       <Image source={{ uri: item.image }} style={styles.image} />
-  //     </View>
-  //   );
-  // };
 
   const carouselRef = React.useRef(null);
 
@@ -108,8 +76,8 @@ const PetCareVideosSlider = () => {
         ref={carouselRef}
         data={videoData}
         renderItem={renderCarouselItem}
-        sliderWidth={390}
-        itemWidth={390}
+        sliderWidth={SIZES.WindowWidth - scaleSize(48)}
+        itemWidth={SIZES.WindowWidth - scaleSize(48)}
         autoplay={false}
         onSnapToItem={(index) => setActiveSlide(index)}
       />
@@ -122,10 +90,9 @@ export default PetCareVideosSlider;
 const styles = StyleSheet.create({
   container: {
     justifyContent: 'center',
-
     marginTop: scaleSize(25),
     width: '100%',
-    height: scaleSize(300),
+    height: scaleSize(310),
   },
   slide: {
     height: scaleSize(140),
@@ -144,6 +111,5 @@ const styles = StyleSheet.create({
   title: {
     ...FONTS.h5,
     textAlign: 'left',
-    marginTop: scaleSize(10),
   },
 });

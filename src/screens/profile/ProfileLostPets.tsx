@@ -20,9 +20,10 @@ import { getAllPostsWithUserRESP } from '../../store/post/response/get-all-posts
 import MyPostCard from './components/MyPostCard';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '../../navigators/AppRoute';
+import SkeletonHome from '../../components/SkeletonHome';
 
 const ProfileLostPets = () => {
-  const { data: allPosts } = useGetPostsQuery();
+  const { data: allPosts, isFetching } = useGetPostsQuery();
   const navigation = useNavigation();
 
   const myPhoneNumber = useSelector(
@@ -118,35 +119,56 @@ const ProfileLostPets = () => {
       style={{ paddingHorizontal: SIZES.padding }}
       showsVerticalScrollIndicator={false}
     >
+      <View style={[styles.container, { marginBottom: scaleSize(5) }]}>
+        <Text style={styles.title}>My posts</Text>
+      </View>
+      {isFetching ? (
+        <FlatList
+          data={[1, 2, 3, 4]}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+          renderItem={() => <SkeletonHome />} //method to render the data in the way you want using styling u need
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: scaleSize(20) }}
+        />
+      ) : (
+        <></>
+      )}
       {myPosts && (
-        <>
-          <View style={styles.container}>
-            <Text style={styles.title}>My posts</Text>
-          </View>
-
-          <FlatList
-            data={myLostList}
-            keyExtractor={(item) => item.image}
-            renderItem={renderItemLost} //method to render the data in the way you want using styling u need
-            horizontal={true}
-            showsHorizontalScrollIndicator={false}
-            style={{ marginTop: scaleSize(20) }}
-          />
-        </>
+        <FlatList
+          data={myLostList}
+          keyExtractor={(item) => item.image}
+          renderItem={renderItemLost} //method to render the data in the way you want using styling u need
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: scaleSize(20) }}
+        />
       )}
 
       <View style={styles.container}>
         <Text style={styles.title}>Lost Pets Near me</Text>
       </View>
 
-      <FlatList
-        data={nearbyList}
-        keyExtractor={(item) => item.image}
-        renderItem={renderItemNearby} //method to render the data in the way you want using styling u need
-        horizontal={true}
-        showsHorizontalScrollIndicator={false}
-        style={{ marginTop: scaleSize(20) }}
-      />
+      {isFetching ? (
+        <FlatList
+          data={[1, 2, 3, 4]}
+          ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+          renderItem={() => <SkeletonHome />} //method to render the data in the way you want using styling u need
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: scaleSize(20) }}
+        />
+      ) : (
+        <FlatList
+          data={nearbyList}
+          keyExtractor={(item) => item.image}
+          renderItem={renderItemNearby} //method to render the data in the way you want using styling u need
+          horizontal={true}
+          showsHorizontalScrollIndicator={false}
+          style={{ marginTop: scaleSize(20) }}
+        />
+      )}
+
       <View style={{ paddingBottom: SIZES.bottomPadding }}></View>
     </ScrollView>
   );

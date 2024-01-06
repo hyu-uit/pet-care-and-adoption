@@ -173,7 +173,8 @@ const PetDetailScreen = ({
         userRequest: myPhoneNumber,
       };
       await onSendNotification();
-      // await requestAdoption(body).unwrap();
+      const res = await requestAdoption(body).unwrap();
+      console.log('resres', res);
       setIsSuccessPopup(true);
     } catch (error) {
       console.log('error at request', error);

@@ -12,55 +12,18 @@ import { RootState } from '../../../store';
 import { useNavigation } from '@react-navigation/native';
 import { SCREEN } from '../../../navigators/AppRoute';
 import { RemoveFavoriteREQ } from '../../../store/favorite-post/request/remove-favorite.request';
+import SkeletonSearch from '../../../components/SkeletonSearch';
 
 const ProfileMyLovedPets = () => {
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: lovedPosts } = useGetFavoritePostsQuery(myPhoneNumber);
+  const { data: lovedPosts, isFetching } =
+    useGetFavoritePostsQuery(myPhoneNumber);
   const [removeFavorite] = useRemoveFavoriteMutation();
 
   const navigation = useNavigation();
-
-  const data = [
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-    {
-      image:
-        'https://images.pexels.com/photos/2607544/pexels-photo-2607544.jpeg?cs=srgb&dl=pexels-simona-kidri%C4%8D-2607544.jpg&fm=jpg',
-      name: 'Bobo',
-      age: 4,
-      type: 'Labrador Retriever',
-      location: 'Thu Duc City, Vietnam',
-      kilometer: 2.5,
-    },
-  ];
 
   const onDetail = (item) => {
     const data = {
@@ -120,15 +83,26 @@ const ProfileMyLovedPets = () => {
 
   return (
     <View style={styles.container}>
-      <FlatList
-        data={lovedPosts}
-        keyExtractor={(item) => item.favID}
-        renderItem={renderItem} //method to render the data in the way you want using styling u need
-        horizontal={false}
-        numColumns={1}
-        style={{ marginTop: scaleSize(20) }}
-        showsVerticalScrollIndicator={false}
-      />
+      {isFetching ? (
+        <FlatList
+          data={[1, 2, 3, 4]}
+          renderItem={() => <SkeletonSearch />} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={1}
+          style={{ marginTop: scaleSize(20) }}
+          showsVerticalScrollIndicator={false}
+        />
+      ) : (
+        <FlatList
+          data={lovedPosts}
+          keyExtractor={(item) => item.favID}
+          renderItem={renderItem} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={1}
+          style={{ marginTop: scaleSize(20) }}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
     </View>
   );
 };

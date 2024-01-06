@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
     ...FONTS.body4,
     fontWeight: 'bold',
     color: COLORS.blackPrimary,
+    fontFamily: 'CercoDEMO-Bold',
   },
   allButtonText: {
     ...FONTS.body4,

@@ -16,7 +16,7 @@ import { COLORS, IMAGES, SIZES, FONTS } from '../../config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scaleSize } from '../../utils/DeviceUtils';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Entypo } from '@expo/vector-icons';
+import { Entypo, MaterialIcons } from '@expo/vector-icons';
 import Banner from './components/home/Banner';
 import Title from './components/home/Title';
 import AdoptedPetCard from './components/home/AdoptedPetCard';
@@ -41,6 +41,7 @@ import { useGetUserInformationQuery } from '../../store/users/users.api';
 import * as Location from 'expo-location';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
+import SkeletonHome from '../../components/SkeletonHome';
 
 const HomeScreen = ({
   navigation,
@@ -49,14 +50,18 @@ const HomeScreen = ({
     (state: RootState) => state.shared.user.phoneNumber
   );
 
-  const { data: allPosts, refetch } =
-    useGetAllPostsWithUserQuery(myPhoneNumber);
+  const {
+    data: allPosts,
+    refetch,
+    isFetching: isFetchingPosts,
+  } = useGetAllPostsWithUserQuery(myPhoneNumber);
   const { data: userData } = useGetUserInformationQuery(myPhoneNumber);
 
   const [chats, setChats] = useState([]);
   const [newMessage, setNewMessage] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [veterinaryList, setVeterinaryList] = useState([]);
+  const [isFetchingVeterinary, setIsFetchingVeterinary] = useState(false);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -232,51 +237,23 @@ const HomeScreen = ({
   useEffect(() => {
     const getVeterinary = async () => {
       if (location?.coords) {
-        const res = await getNearbyVeterinaryClinics(
-          location?.coords.latitude,
-          location?.coords.longitude
-        );
-        setVeterinaryList(res.features);
+        try {
+          setIsFetchingVeterinary(true);
+          const res = await getNearbyVeterinaryClinics(
+            location?.coords.latitude,
+            location?.coords.longitude
+          );
+          setVeterinaryList(res.features);
+          setIsFetchingVeterinary(false);
+        } catch (error) {
+          setIsFetchingVeterinary(false);
+          console.log(error);
+        }
       }
     };
 
     getVeterinary();
   }, [location]);
-
-  const clinicList = [
-    {
-      name: 'Petzone - 283 VVN',
-      star: 4.5,
-      rate: 113,
-      kilometer: 3.8,
-      image:
-        'https://cdn1.vectorstock.com/i/1000x1000/13/20/vet-clinic-with-doctor-vector-21191320.jpg',
-    },
-    {
-      name: 'Petzone - 283 VVN',
-      star: 4.5,
-      rate: 113,
-      kilometer: 3.8,
-      image:
-        'https://cdn1.vectorstock.com/i/1000x1000/13/20/vet-clinic-with-doctor-vector-21191320.jpg',
-    },
-    {
-      name: 'Petzone - 283 VVN',
-      star: 4.5,
-      rate: 113,
-      kilometer: 3.8,
-      image:
-        'https://cdn1.vectorstock.com/i/1000x1000/13/20/vet-clinic-with-doctor-vector-21191320.jpg',
-    },
-    {
-      name: 'Petzone - 283 VVN',
-      star: 4.5,
-      rate: 113,
-      kilometer: 3.8,
-      image:
-        'https://cdn1.vectorstock.com/i/1000x1000/13/20/vet-clinic-with-doctor-vector-21191320.jpg',
-    },
-  ];
 
   const onSearch = () => {
     navigation.navigate('Adoption', { screen: SCREEN.SEARCH });
@@ -457,16 +434,20 @@ const HomeScreen = ({
               style={{
                 display: 'flex',
                 flexDirection: 'row',
-                alignItems: 'center',
+                // alignItems: 'center',
               }}
             >
-              <Text>Location</Text>
+              <MaterialIcons
+                name='location-on'
+                size={24}
+                color={COLORS.primary}
+              />
+              {userData?.district && userData?.province && (
+                <Text style={styles.address}>
+                  {userData?.district + `,\n` + userData?.province}
+                </Text>
+              )}
             </View>
-            {userData?.district && userData?.province && (
-              <Text style={styles.address}>
-                {userData?.district + `,\n` + userData?.province}
-              </Text>
-            )}
           </View>
           <View>
             <TouchableOpacity onPress={onSearch} style={styles.searchWrapper}>
@@ -484,43 +465,83 @@ const HomeScreen = ({
 
         <Title title='Adopt pets' onSeeAll={onAdoptPets} />
 
-        <FlatList
-          data={limitedAdoptPosts}
-          keyExtractor={(item) => item.image}
-          renderItem={renderItemAdopted}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={{ marginTop: scaleSize(20) }}
-        />
+        {isFetchingPosts ? (
+          <FlatList
+            data={[1, 2, 3]}
+            renderItem={() => (
+              <>
+                <SkeletonHome />
+              </>
+            )}
+            ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        ) : (
+          <FlatList
+            data={limitedAdoptPosts}
+            keyExtractor={(item) => item.image}
+            ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+            renderItem={renderItemAdopted}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        )}
 
         <Title title='Pet care videos' onSeeAll={onPetCareVideos} />
 
         <PetCareVideosSlider />
 
-        <View style={{ marginTop: scaleSize(30) }}></View>
-
         <Title title='Nearby veterinary clinic' onSeeAll={onNearlyClinic} />
 
-        <FlatList
-          data={veterinaryList}
-          keyExtractor={(item) => item.image}
-          renderItem={renderItemClinic}
-          ItemSeparatorComponent={() => <View style={{ width: 20 }} />}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={{ marginTop: scaleSize(20) }}
-        />
+        {isFetchingVeterinary ? (
+          <FlatList
+            data={[1, 2, 3]}
+            renderItem={() => <SkeletonHome />}
+            ItemSeparatorComponent={() => <View style={{ width: 20 }} />}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        ) : (
+          <FlatList
+            data={veterinaryList}
+            keyExtractor={(item) => item.image}
+            renderItem={renderItemClinic}
+            ItemSeparatorComponent={() => <View style={{ width: 20 }} />}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        )}
 
         <Title title='Lost pets' onSeeAll={onLostPets} />
 
-        <FlatList
-          data={limitedLostPosts}
-          keyExtractor={(item) => item.image}
-          renderItem={renderItemLost}
-          horizontal={true}
-          showsHorizontalScrollIndicator={false}
-          style={{ marginTop: scaleSize(20) }}
-        />
+        {isFetchingPosts ? (
+          <FlatList
+            data={[1, 2, 3]}
+            renderItem={() => (
+              <>
+                <SkeletonHome />
+              </>
+            )}
+            ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        ) : (
+          <FlatList
+            data={limitedLostPosts}
+            keyExtractor={(item) => item.image}
+            renderItem={renderItemLost}
+            horizontal={true}
+            showsHorizontalScrollIndicator={false}
+            style={{ marginTop: scaleSize(20) }}
+          />
+        )}
 
         <View style={{ paddingBottom: SIZES.bottomPadding }}></View>
       </ScrollView>
@@ -555,9 +576,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   address: {
-    ...FONTS.body4,
+    ...FONTS.body5,
     fontWeight: 'bold',
-    paddingLeft: scaleSize(16),
+    // paddingLeft: scaleSize(16),
     color: COLORS.primary,
   },
   searchWrapper: {
