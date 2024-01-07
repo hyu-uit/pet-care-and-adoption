@@ -1,22 +1,43 @@
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+  ActivityIndicator,
+} from 'react-native';
 import React from 'react';
 import { COLORS, SIZES, STYLES, FONTS, IMAGES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { resetState } from '../../store/shared/shared.slice';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
+import { resetStateNotification } from '../../store/notification/notification.slice';
+import { useRemoveTokenMutation } from '../../store/notification/notification.api';
+import { RootState } from '../../store';
 
 const MenuScreen = ({
   navigation,
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.MENU>) => {
   const dispatch = useDispatch();
 
-  const onLogout = () => {
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
+  const token = useSelector(
+    (state: RootState) => state.notification.deviceToken
+  );
+
+  const [removeToken, { isLoading }] = useRemoveTokenMutation();
+
+  const onLogout = async () => {
     navigation.reset({ index: 0, routes: [{ name: SCREEN.AUTH_STACK }] });
+    await removeToken({ userID: myPhoneNumber, token: token });
     dispatch(resetState());
+    dispatch(resetStateNotification());
   };
   return (
     <View style={styles.container}>
@@ -44,10 +65,16 @@ const MenuScreen = ({
       </TouchableOpacity>
       <TouchableOpacity style={styles.menuWrapper} onPress={onLogout}>
         <View>
-          <Text style={styles.menuTitle}>Logout</Text>
-          <Text style={styles.subTitle}>
-            In case you want to switch account
-          </Text>
+          {isLoading ? (
+            <ActivityIndicator />
+          ) : (
+            <>
+              <Text style={styles.menuTitle}>Logout</Text>
+              <Text style={styles.subTitle}>
+                In case you want to switch account
+              </Text>
+            </>
+          )}
         </View>
         <MaterialIcons
           name='logout'

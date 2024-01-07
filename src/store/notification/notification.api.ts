@@ -63,6 +63,14 @@ export const notificationApi = createApi({
         return response;
       },
     }),
+
+    removeToken: build.mutation<void, { userID: string; token: string }>({
+      query: (body) => ({
+        url: `RemoveToken?userID=${body.userID}&token=${body.token}`,
+        method: HTTP_METHOD.POST,
+        responseHandler: 'text',
+      }),
+    }),
   }),
 });
 
@@ -74,4 +82,5 @@ export const {
   useLazyGetDeviceTokensByUserIdQuery,
   useGetDeviceTokensByUserIdQuery,
   useCreateNotificationMutation,
+  useRemoveTokenMutation,
 } = notificationApi;

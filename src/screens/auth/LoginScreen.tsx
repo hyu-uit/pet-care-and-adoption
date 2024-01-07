@@ -33,6 +33,7 @@ import { firestoreDB } from '../../../firebaseConfig';
 import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { useAddDeviceTokenMutation } from '../../store/notification/notification.api';
+import { setPushToken } from '../../store/notification/notification.slice';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -62,7 +63,6 @@ const LoginScreen = ({
   useEffect(() => {
     registerForPushNotificationsAsync()
       .then((token) => {
-        console.log(token);
         setExpoPushToken(token);
       })
       .catch((err) => console.log(err));
@@ -127,6 +127,7 @@ const LoginScreen = ({
         token: expoPushToken,
       }).unwrap();
       await dispatch(setLoginToken({ user: res.user, token: res.token }));
+      await dispatch(setPushToken(expoPushToken));
     } catch (error) {
       console.log('Login error', error);
       if (

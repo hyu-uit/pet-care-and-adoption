@@ -63,6 +63,7 @@ const BottomTabs = () => {
         tabBarLabelStyle: {
           color: COLORS.primary,
         },
+        tabBarHideOnKeyboard: true,
       }}
     >
       <Tab.Screen

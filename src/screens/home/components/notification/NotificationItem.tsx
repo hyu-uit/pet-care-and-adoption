@@ -39,6 +39,7 @@ const NotificationItem: FC<NotificationProps> = ({
         <View
           style={{
             gap: scaleSize(10),
+            flex: 1,
           }}
         >
           <Text style={[styles.title, { fontFamily: 'CercoDEMO-Bold' }]}>
@@ -57,7 +58,7 @@ export default NotificationItem;
 const styles = StyleSheet.create({
   container: {
     width: '100%',
-    height: scaleSize(100),
+    minHeight: scaleSize(100),
     display: 'flex',
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -91,7 +92,7 @@ const styles = StyleSheet.create({
   title: {
     ...FONTS.body4,
     color: COLORS.black2A3738,
-    width: '80%',
+    // width: '80%',
   },
   dot: {
     width: scaleSize(9),

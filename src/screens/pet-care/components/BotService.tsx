@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { COLORS, FONTS, IMAGES, SIZES } from '../../../config';
 import { scaleSize } from '../../../utils/DeviceUtils';
+import { FontAwesome } from '@expo/vector-icons';
 
 function BotMessageItem({ message, onActionClick }) {
   return (
@@ -201,21 +202,34 @@ function ChatBox({ conversationId }) {
           <View style={{ paddingBottom: SIZES.bottomPadding }}></View>
         </ScrollView>
 
-        {/* <View style={{ marginBottom: SIZES.bottomBarHeight }}>
+        <View
+          style={{
+            marginBottom: SIZES.bottomBarHeight,
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: scaleSize(10),
+          }}
+        >
           <TextInput
             style={{
-              borderColor: 'gray',
+              borderColor: COLORS.secondary,
               borderWidth: 1,
               padding: 10,
               borderRadius: 10,
+              flex: 1,
             }}
-            value={inputValue}
-            onChangeText={setInputValue}
+            value={'abc'}
+            onChangeText={() => {}}
           />
-          <TouchableOpacity onPress={() => handleSendMessage(inputValue)}>
-            <Text>Send</Text>
+          <TouchableOpacity onPress={() => handleSendMessage('')}>
+            <FontAwesome
+              name='send'
+              size={scaleSize(20)}
+              color={COLORS.primary}
+            />
           </TouchableOpacity>
-        </View> */}
+        </View>
       </View>
     )
   );
