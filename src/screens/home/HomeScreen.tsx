@@ -468,9 +468,9 @@ const HomeScreen = ({
         {isFetchingPosts ? (
           <FlatList
             data={[1, 2, 3]}
-            renderItem={() => (
+            renderItem={(item) => (
               <>
-                <SkeletonHome />
+                <SkeletonHome key={item.index} />
               </>
             )}
             ItemSeparatorComponent={() => <View style={{ width: 10 }} />}
@@ -499,7 +499,7 @@ const HomeScreen = ({
         {isFetchingVeterinary ? (
           <FlatList
             data={[1, 2, 3]}
-            renderItem={() => <SkeletonHome />}
+            renderItem={(item) => <SkeletonHome key={item.index} />}
             ItemSeparatorComponent={() => <View style={{ width: 20 }} />}
             horizontal={true}
             showsHorizontalScrollIndicator={false}
@@ -522,9 +522,9 @@ const HomeScreen = ({
         {isFetchingPosts ? (
           <FlatList
             data={[1, 2, 3]}
-            renderItem={() => (
+            renderItem={(item) => (
               <>
-                <SkeletonHome />
+                <SkeletonHome key={item.index} />
               </>
             )}
             ItemSeparatorComponent={() => <View style={{ width: 10 }} />}

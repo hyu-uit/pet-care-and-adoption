@@ -19,7 +19,7 @@ import { usersApi } from './users/users.api';
 import { myPetApi } from './my-pet/my-pet.api';
 import { notificationApi } from './notification/notification.api';
 import { favoritePostApi } from './favorite-post/favorite-post.api';
-import Reactotron from '../ReactotronConfig';
+// import Reactotron from '../ReactotronConfig';
 import sharedReducer from './shared/shared.slice';
 import chatReducer from './chat/chat.slice';
 import notificationReducer from './notification/notification.slice';
@@ -65,7 +65,7 @@ export const store = configureStore({
       favoritePostApi.middleware,
       notificationApi.middleware
     ),
-  enhancers: [Reactotron.createEnhancer!()],
+  // enhancers: [Reactotron.createEnhancer!()],
   devTools: true,
 });
 

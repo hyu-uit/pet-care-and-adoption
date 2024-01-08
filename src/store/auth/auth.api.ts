@@ -14,6 +14,10 @@ export const authApi = createApi({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
     baseUrl: `https://petcareapi.azurewebsites.net/api/Account/`,
+    // headers: {
+    //   'Content-type': 'application/json',
+    // },
+    // mode: 'no-cors',
   }),
   endpoints: (build) => ({
     login: build.mutation<AuthLoginRESP, AuthLoginREQ>({
