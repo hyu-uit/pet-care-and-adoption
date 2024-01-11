@@ -55,15 +55,19 @@ function BotMessageItem({ message, onActionClick }) {
 
 function ChatBox({ conversationId }) {
   const [messages, setMessages] = useState([]);
-  // const [inputValue, setInputValue] = useState('');
+  const [watermarkCurrent, setWatermarkCurrent] = useState('');
+  const [inputValue, setInputValue] = useState('');
   const scrollViewRef = useRef(null);
-
+  const handleInputChange = (text) => {
+    setInputValue(text);
+  };
   useEffect(() => {
     // Scroll to the end when the component mounts or when new messages are added
     scrollViewRef?.current?.scrollToEnd({ animated: true });
   }, [messages]);
 
   function handleSendMessage(value) {
+    setInputValue('');
     setMessages((prev) => [
       ...prev,
       {
@@ -91,21 +95,31 @@ function ChatBox({ conversationId }) {
     )
       .then((res) => res.json())
       .then((resJson) => {
-        if (!resJson?.id) return;
-        const watermark = resJson.id.split('|')[1];
-        fetch(
-          `https://directline.botframework.com/v3/directline/conversations/${conversationId}/activities?watermark=${watermark}`,
-          {
-            headers: {
-              Authorization: 'Bearer ' + TOKEN,
-            },
-          }
-        )
-          .then((res) => res.json())
-          .then((resJson) => {
-            const _messages = resJson.activities;
-            setMessages((prev) => [...prev, ..._messages]);
-          });
+        if (resJson) {
+          const watermarkNew = resJson?.id?.split('|')[1];
+          const watermark = watermarkNew ?? watermarkCurrent;
+          fetch(
+            `https://directline.botframework.com/v3/directline/conversations/${conversationId}/activities?watermark=${watermark}`,
+            {
+              headers: {
+                Authorization: 'Bearer ' + TOKEN,
+              },
+            }
+          )
+            .then((res) => res.json())
+            .then((resJson) => {
+              const _messages = resJson.activities;
+              if (!watermarkNew) {
+                setMessages((prev) => [
+                  ...prev,
+                  ...[_messages[_messages.length - 1]],
+                ]);
+              } else {
+                setMessages((prev) => [...prev, ..._messages]);
+                setWatermarkCurrent(watermark);
+              }
+            });
+        }
       });
     scrollViewRef?.current?.scrollToEnd({ animated: true });
   }
@@ -219,10 +233,12 @@ function ChatBox({ conversationId }) {
               borderRadius: 10,
               flex: 1,
             }}
-            value={'abc'}
-            onChangeText={() => {}}
+            value={inputValue}
+            onChangeText={handleInputChange}
           />
-          <TouchableOpacity onPress={() => handleSendMessage('')}>
+          <TouchableOpacity
+            onPress={() => inputValue && handleSendMessage(inputValue)}
+          >
             <FontAwesome
               name='send'
               size={scaleSize(20)}

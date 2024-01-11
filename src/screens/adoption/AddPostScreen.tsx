@@ -83,6 +83,7 @@ const AddPostScreen = ({
 
   const uriImage = watch('images');
 
+  // const myPhoneNumber = '0848867679';
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );

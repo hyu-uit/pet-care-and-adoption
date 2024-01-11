@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "pet-care-and-adoption",
-    "slug": "pet-care-and-adoption",
+    "slug": "pet-care",
     "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/app-ic.png",
@@ -19,7 +19,7 @@
       }
     },
     "android": {
-      "package": "com.onixpet.uit",
+      "package": "com.petadopt.uit",
       "usescleartexttraffic": true,
       "permissions": [
         "android.permission.ACCESS_FINE_LOCATION",
@@ -31,7 +31,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "versionCode": "4"
+      "versionCode": "5"
     },
     "web": {
       "favicon": "./assets/pet-logo.png"
@@ -54,9 +54,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": "29b02a60-b7a1-4dae-a67c-493fdf74d1d4"
+        "projectId": "27cab8e0-2c54-4196-9321-601424a7a064"
       }
     },
-    "owner": "viht232"
+    "owner": "thevihuynh"
   }
 }

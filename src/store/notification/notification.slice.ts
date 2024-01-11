@@ -13,7 +13,6 @@ export const NotificationSlice = createSlice({
   initialState,
   reducers: {
     setPushToken: (state, { payload }: PayloadAction<string>) => {
-      console.log('store', payload);
       state.deviceToken = payload;
     },
     resetStateNotification: () => initialState,

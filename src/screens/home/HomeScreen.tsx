@@ -46,6 +46,7 @@ import SkeletonHome from '../../components/SkeletonHome';
 const HomeScreen = ({
   navigation,
 }: NativeStackScreenProps<HomeStackParamList, SCREEN.HOME>) => {
+  // const myPhoneNumber = '0848867679';
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
@@ -492,13 +493,14 @@ const HomeScreen = ({
 
         <Title title='Pet care videos' />
 
-        <PetCareVideosSlider />
+        {/* <PetCareVideosSlider /> */}
 
         <Title title='Nearby veterinary clinic' />
 
         {isFetchingVeterinary ? (
           <FlatList
             data={[1, 2, 3]}
+            keyExtractor={(item) => item}
             renderItem={(item) => <SkeletonHome key={item.index} />}
             ItemSeparatorComponent={() => <View style={{ width: 20 }} />}
             horizontal={true}
@@ -522,6 +524,7 @@ const HomeScreen = ({
         {isFetchingPosts ? (
           <FlatList
             data={[1, 2, 3]}
+            keyExtractor={(item) => item}
             renderItem={(item) => (
               <>
                 <SkeletonHome key={item.index} />

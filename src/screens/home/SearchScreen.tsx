@@ -49,6 +49,7 @@ import SkeletonSearch from '../../components/SkeletonSearch';
 const SearchScreen = ({
   navigation,
 }: NativeStackScreenProps<AdoptionStackParamList, SCREEN.SEARCH>) => {
+  // const myPhoneNumber = '0848867679';
   const myPhoneNumber = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );

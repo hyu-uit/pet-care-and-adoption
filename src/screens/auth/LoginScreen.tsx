@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  Alert,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, FONTS, ICONS, SIZES, STYLES } from '../../config';
@@ -17,7 +18,7 @@ import { AuthStackParamList } from '../../navigators/config';
 import { SCREEN } from '../../navigators/AppRoute';
 import { Controller, useForm } from 'react-hook-form';
 import { AuthLoginREQ } from '../../store/auth/request/auth-login.request';
-import { useLoginMutation } from '../../store/auth/auth.api';
+import { useLoginMutation, useTestApiQuery } from '../../store/auth/auth.api';
 import { useDispatch, useSelector } from 'react-redux';
 import { setLoginToken } from '../../store/shared/shared.slice';
 import { AuthLoginRESP } from '../../store/auth/response/auth-login.response';
@@ -34,6 +35,7 @@ import * as Device from 'expo-device';
 import * as Notifications from 'expo-notifications';
 import { useAddDeviceTokenMutation } from '../../store/notification/notification.api';
 import { setPushToken } from '../../store/notification/notification.slice';
+import { useGetAllPostsWithUserQuery } from '../../store/post/post.api';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -53,6 +55,8 @@ const LoginScreen = ({
   } = useForm<AuthLoginREQ>();
 
   const [login, { isLoading }] = useLoginMutation();
+  const { data: testData } = useTestApiQuery();
+  const { data: allPosts } = useGetAllPostsWithUserQuery('0848867679');
   const [addDeviceToken] = useAddDeviceTokenMutation();
   const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
   const dispatch = useDispatch();
@@ -118,15 +122,15 @@ const LoginScreen = ({
   const handleLogin = async (data: AuthLoginREQ) => {
     try {
       const res: AuthLoginRESP = await login(data).unwrap();
-      if (!res.token) {
-        setIsPopupShow(true);
-        return;
-      }
+      // if (!res.token) {
+      //   setIsPopupShow(true);
+      //   return;
+      // }
       await addDeviceToken({
         userID: data.phoneNumber,
         token: expoPushToken,
       }).unwrap();
-      await dispatch(setLoginToken({ user: res.user, token: res.token }));
+      await dispatch(setLoginToken({ user: res.user, token: '' }));
       await dispatch(setPushToken(expoPushToken));
     } catch (error) {
       console.log('Login error', error);
