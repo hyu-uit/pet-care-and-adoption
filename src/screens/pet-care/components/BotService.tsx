@@ -49,6 +49,25 @@ function BotMessageItem({ message, onActionClick }) {
             </Text>
           </TouchableOpacity>
         ))}
+      {message.text.includes("Great!") && (
+        <TouchableOpacity
+          onPress={() => {}}
+          style={{
+            width: "100%",
+            padding: scaleSize(15),
+            backgroundColor: COLORS.secondary,
+            alignSelf: "center",
+            marginTop: scaleSize(20),
+            borderRadius: scaleSize(20),
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ ...FONTS.h5, color: COLORS.whitePrimary }}>
+            Click here to see post!
+          </Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }
@@ -57,6 +76,7 @@ function ChatBox({ conversationId }) {
   const [messages, setMessages] = useState([]);
   const [watermarkCurrent, setWatermarkCurrent] = useState("");
   const [inputValue, setInputValue] = useState("");
+
   const scrollViewRef = useRef(null);
   const handleInputChange = (text) => {
     setInputValue(text);
