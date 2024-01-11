@@ -14,6 +14,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import HandBookItem from './components/HandBookItem';
 import BotService from './components/BotService';
 import { HandBook } from '../../constants/Handbook.constant';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../store';
 
 const PetCareHandBookScreen = () => {
   const [tab, setTab] = useState(0);

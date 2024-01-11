@@ -12,6 +12,7 @@ import { cancelRequestREQ } from './request/cancel-request.request';
 import { getPostsWithRequest } from './request/get-posts-with-request.request';
 import { AcceptRequestREQ } from './request/accept-request.request';
 import { DeniedRequestREQ } from './request/denied-request.request';
+import { SEX } from '../../types/enum/sex.enum';
 
 export const postApi = createApi({
   reducerPath: 'post',
@@ -168,6 +169,17 @@ export const postApi = createApi({
         return [{ type: 'POST', id: 'LIST' }];
       },
     }),
+
+    getPostByBot: build.mutation<
+      getAllPostsWithUserRESP,
+      { userID: string; species: string; sex: SEX; age: number }
+    >({
+      query: (body) => ({
+        url: '/GetPostByBot',
+        method: HTTP_METHOD.POST,
+        body,
+      }),
+    }),
   }),
 });
 
@@ -184,4 +196,5 @@ export const {
   useDeniedRequestMutation,
   useDeletePostMutation,
   useUpdatePostMutation,
+  useGetPostByBotMutation,
 } = postApi;

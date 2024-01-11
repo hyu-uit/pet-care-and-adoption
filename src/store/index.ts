@@ -23,12 +23,14 @@ import { favoritePostApi } from './favorite-post/favorite-post.api';
 import sharedReducer from './shared/shared.slice';
 import chatReducer from './chat/chat.slice';
 import notificationReducer from './notification/notification.slice';
+import botChatReducer from './bot-chat/bot-chat.slice';
 import { petTypeApi } from './pet-type/pet-type.api';
 
 const rootReducer = combineReducers({
   shared: sharedReducer,
   chat: chatReducer,
   notification: notificationReducer,
+  botChat: botChatReducer,
   [authApi.reducerPath]: authApi.reducer,
   [provinceApi.reducerPath]: provinceApi.reducer,
   [postApi.reducerPath]: postApi.reducer,
