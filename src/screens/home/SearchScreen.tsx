@@ -14,7 +14,7 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { COLORS, STYLES, FONTS, SIZES, IMAGES } from '../../config';
 import { scaleSize } from '../../utils/DeviceUtils';
-import { Ionicons } from '@expo/vector-icons';
+import { Feather, Ionicons } from '@expo/vector-icons';
 import CategoryItem from './components/search/CategoryItem';
 import PetSearchCard from './components/search/PetSearchCard';
 import FilterItem from './components/search/FilterItem';
@@ -45,6 +45,8 @@ import {
 import { AddFavoriteREQ } from '../../store/favorite-post/request/add-favorite.request';
 import { RemoveFavoriteREQ } from '../../store/favorite-post/request/remove-favorite.request';
 import SkeletonSearch from '../../components/SkeletonSearch';
+import * as ImagePicker from 'expo-image-picker';
+import PredictModal from './components/search/PredictModal';
 
 const SearchScreen = ({
   navigation,
@@ -72,6 +74,9 @@ const SearchScreen = ({
   const [selectedCategory, setSelectedCategory] = useState<CATEGORY>(
     CATEGORY.ALL
   );
+  const [imageUri, setImageUri] = useState(null);
+  const [isPredictModal, setIsPredictModal] = useState(false);
+  const [predictData, setPredictData] = useState([]);
 
   const [filteredSex, setFilteredSex] = useState<SEX | null>(null);
   const [filteredAge, setFilteredAge] = useState<number[]>([]);
@@ -238,36 +243,6 @@ const SearchScreen = ({
 
   const onSearchName = (text) => {
     setSearchText(text);
-    // if (selectedCategory !== CATEGORY.ALL) {
-    //   switch (selectedCategory) {
-    //     case CATEGORY.CAT:
-    //       const newList1 = allPostList?.filter(
-    //         (post) =>
-    //           post.name.toLowerCase().includes(text.toLowerCase()) &&
-    //           post.species === 'Cat'
-    //       );
-    //       setVisibleData(newList1);
-    //     case CATEGORY.DOG:
-    //       const newList2 = allPostList?.filter(
-    //         (post) =>
-    //           post.name.toLowerCase().includes(text.toLowerCase()) &&
-    //           post.species === 'Dog'
-    //       );
-    //       setVisibleData(newList2);
-    //     case CATEGORY.OTHER:
-    //       const newList3 = allPostList?.filter(
-    //         (post) =>
-    //           post.name.toLowerCase().includes(text.toLowerCase()) &&
-    //           post.species === 'Others'
-    //       );
-    //       setVisibleData(newList3);
-    //   }
-    // } else {
-    //   const newList = allPostList?.filter((post) =>
-    //     post.name.toLowerCase().includes(text.toLowerCase())
-    //   );
-    //   setVisibleData(newList); // Update the visible data based on the search
-    // }
   };
 
   useEffect(() => {
@@ -334,9 +309,60 @@ const SearchScreen = ({
     }
   };
 
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: false,
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      const image = result.assets[0].base64;
+      await predictAnimals(image);
+      setImageUri(result.assets[0].uri);
+      // setImageUri(image);
+    }
+  };
+
+  const predictAnimals = async (base64Image) => {
+    try {
+      const apiUrl = 'http://192.168.1.7:5000/';
+      if (!base64Image) {
+        return;
+      }
+
+      const response = await fetch(`${apiUrl}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          image: base64Image,
+        }),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      const data = await response.json();
+
+      data && (await setPredictData(data));
+      data && setIsPredictModal(true);
+
+      console.log('Prediction result:', data);
+    } catch (error) {
+      console.error('Error:', error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar barStyle='dark-content' />
+      <PredictModal
+        open={isPredictModal}
+        onClose={() => {
+          setIsPredictModal(false);
+        }}
+        uri={imageUri}
+        data={predictData}
+      />
       <FilterModal
         open={filterShown}
         onClose={onCloseFilter}
@@ -420,12 +446,8 @@ const SearchScreen = ({
             placeholder='Search...'
             onChangeText={onSearchName}
           />
-          <TouchableOpacity style={styles.searchButton}>
-            <Ionicons
-              name='search'
-              size={scaleSize(25)}
-              color={COLORS.whitePrimary}
-            />
+          <TouchableOpacity onPress={pickImage} style={styles.searchButton}>
+            <Feather name='camera' size={24} color={COLORS.whitePrimary} />
           </TouchableOpacity>
         </View>
 
