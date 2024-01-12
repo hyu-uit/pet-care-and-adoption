@@ -60,6 +60,7 @@ const LoginScreen = ({
   const [addDeviceToken] = useAddDeviceTokenMutation();
   const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
   const dispatch = useDispatch();
+  const user = useSelector((state: RootState) => state.shared.user.phoneNumber);
 
   //Notification
   const [expoPushToken, setExpoPushToken] = useState('');
@@ -130,8 +131,8 @@ const LoginScreen = ({
         userID: data.phoneNumber,
         token: expoPushToken,
       }).unwrap();
-      await dispatch(setLoginToken({ user: res.user, token: '' }));
       await dispatch(setPushToken(expoPushToken));
+      await dispatch(setLoginToken({ user: res.user, token: '' }));
     } catch (error) {
       console.log('Login error', error);
       if (
@@ -267,6 +268,28 @@ const LoginScreen = ({
           </Text>
         </TouchableOpacity>
       </View>
+
+      <Button
+        onPress={async () => {
+          Alert.alert(user);
+          await dispatch(
+            setLoginToken({
+              user: {
+                phoneNumber: '0848867679',
+                name: 'Thevi',
+                district: 'GR',
+                province: 'KG',
+                avatar:
+                  'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w1200/2023/10/free-images.jpg',
+              },
+              token: 'abcdefgh',
+            })
+          );
+        }}
+        title='Pray'
+        style={{ marginTop: scaleSize(19) }}
+        isLoading={false}
+      ></Button>
     </View>
   );
 };

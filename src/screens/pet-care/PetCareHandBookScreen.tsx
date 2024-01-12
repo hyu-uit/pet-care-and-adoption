@@ -16,10 +16,13 @@ import BotService from './components/BotService';
 import { HandBook } from '../../constants/Handbook.constant';
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store';
+import { useNavigation } from '@react-navigation/native';
+import { SCREEN } from '../../navigators/AppRoute';
 
 const PetCareHandBookScreen = () => {
   const [tab, setTab] = useState(0);
   const handbookData = HandBook;
+  const navigation = useNavigation();
 
   const renderItem = ({ item }) => {
     return <HandBookItem bigTitle={item.bigTitle} sections={item.sections} />;
@@ -50,7 +53,9 @@ const PetCareHandBookScreen = () => {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => setTab(1)}
+          onPress={() => {
+            navigation.navigate(SCREEN.BOT_CHAT);
+          }}
           style={[
             styles.tabWrapper,
             {
@@ -84,7 +89,7 @@ const PetCareHandBookScreen = () => {
           }
         />
       )}
-      {tab === 1 && <BotService />}
+      {/* {tab === 1 && <BotService />} */}
     </SafeAreaView>
   );
 };

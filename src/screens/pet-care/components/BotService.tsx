@@ -12,7 +12,7 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 import { COLORS, FONTS, IMAGES, SIZES } from '../../../config';
 import { scaleSize } from '../../../utils/DeviceUtils';
-import { FontAwesome } from '@expo/vector-icons';
+import { FontAwesome, Ionicons } from '@expo/vector-icons';
 import { useDispatch, useSelector } from 'react-redux';
 import {
   changeAge,
@@ -93,6 +93,8 @@ function BotMessageItem({ message, onActionClick }) {
                 age: botData.age,
               }).unwrap();
 
+              console.log(res);
+
               if (res) {
                 const data = {
                   images: res?.images,
@@ -114,8 +116,9 @@ function BotMessageItem({ message, onActionClick }) {
                 };
 
                 navigation.navigate(SCREEN.PET_DETAIL, { postData: data });
+              } else {
+                navigation.navigate('Adoption');
               }
-              navigation.navigate('Adoption');
               console.log(res);
             } catch (error) {
               console.log(error);
@@ -235,8 +238,52 @@ function ChatBox({ conversationId, setConversationId }) {
   }
   return (
     conversationId && (
-      <View style={{ display: 'flex', flex: 1 }}>
-        {messages.length <= 0 ? (
+      <View
+        style={{
+          display: 'flex',
+          flex: 1,
+          paddingTop: 20,
+          backgroundColor: COLORS.background,
+        }}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginTop: scaleSize(20),
+          }}
+        >
+          <TouchableOpacity>
+            <Ionicons
+              name='chevron-back'
+              size={24}
+              style={{ marginLeft: scaleSize(16) }}
+              color='black'
+            />
+          </TouchableOpacity>
+          {messages.length > 0 && (
+            <TouchableOpacity
+              onPress={async () => {
+                await createNewConversation();
+                setMessages([]);
+              }}
+            >
+              <Text
+                style={{
+                  ...FONTS.body3,
+                  textAlign: 'right',
+                  // marginTop: scaleSize(20),
+                  textDecorationLine: 'underline',
+                  color: COLORS.primary,
+                }}
+              >
+                Create new Chat
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+        {messages.length <= 0 && (
           <TouchableOpacity
             onPress={() => {
               handleSendMessage('Hi there!');
@@ -246,7 +293,7 @@ function ChatBox({ conversationId, setConversationId }) {
               padding: scaleSize(15),
               backgroundColor: COLORS.secondary,
               alignSelf: 'center',
-              marginTop: scaleSize(50),
+              marginTop: scaleSize(20),
               borderRadius: scaleSize(20),
               justifyContent: 'center',
               alignItems: 'center',
@@ -256,30 +303,16 @@ function ChatBox({ conversationId, setConversationId }) {
               Start chatting
             </Text>
           </TouchableOpacity>
-        ) : (
-          <TouchableOpacity
-            onPress={async () => {
-              await createNewConversation();
-              setMessages([]);
-            }}
-          >
-            <Text
-              style={{
-                ...FONTS.body3,
-                textAlign: 'right',
-                marginTop: scaleSize(20),
-                textDecorationLine: 'underline',
-                color: COLORS.primary,
-              }}
-            >
-              Create new Chat
-            </Text>
-          </TouchableOpacity>
         )}
         <View style={{ flex: 1 }}>
           <ScrollView
             ref={scrollViewRef}
-            style={{ flex: 1 }}
+            style={{
+              flex: 1,
+              paddingBottom: SIZES.bottomPadding,
+              paddingHorizontal: 16,
+              backgroundColor: COLORS.background,
+            }}
             showsVerticalScrollIndicator={false}
             onContentSizeChange={() => {
               scrollViewRef.current.scrollToEnd({ animated: true });
@@ -325,18 +358,21 @@ function ChatBox({ conversationId, setConversationId }) {
                 />
               )
             )}
-            <View style={{ paddingBottom: SIZES.bottomBarHeight }}></View>
+            <View style={{ paddingBottom: SIZES.bottomPadding * 2 }}></View>
           </ScrollView>
 
           <KeyboardAvoidingView
-            behavior={Platform.OS === 'ios' ? 'height' : 'height'}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
             style={{
               position: 'absolute',
-              bottom: 20,
+              bottom: 0,
               width: '100%',
               alignSelf: 'center',
+              paddingHorizontal: 10,
+              backgroundColor: COLORS.background,
+              paddingTop: 4,
             }}
-            keyboardVerticalOffset={-10}
+            keyboardVerticalOffset={28}
           >
             {messages.length > 0 && (
               <View
@@ -346,6 +382,7 @@ function ChatBox({ conversationId, setConversationId }) {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   gap: scaleSize(10),
+                  paddingBottom: 40,
                 }}
               >
                 <TextInput

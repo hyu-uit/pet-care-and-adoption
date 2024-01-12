@@ -9,25 +9,42 @@ import { AuthSignupREQ } from './request/auth-signup.request';
 import { AuthVerifyPhoneNumberREQ } from './request/auth-verify-phone-number.request';
 import { CheckOTPResetPasswordREQ } from './request/auth-check-otp-reset-password.request';
 import { NewPasswordREQ } from './request/auth-new-password.request';
+import { AddPostRESP } from '../post/response/add-post.response';
 
 export const authApi = createApi({
+  // reducerPath: 'authApi',
+  // baseQuery: fetchBaseQuery({
+  //   baseUrl: `https://petcareapi.azurewebsites.net/api/Account`,
+  //   // headers: {
+  //   //   'Content-type': 'application/json',
+  //   // },
+  //   mode: 'cors',
+  // }),
+  // endpoints: (build) => ({
   reducerPath: 'authApi',
   baseQuery: fetchBaseQuery({
     baseUrl: `https://petcareapi.azurewebsites.net/api/Account`,
-    headers: {
-      'Content-type': 'application/json',
-    },
   }),
   endpoints: (build) => ({
+    // addPost: build.mutation<AddPostRESP, AddPostREQ>({
+    //   query: (body) => ({
+    //     url: '/AddPost',
+    //     method: HTTP_METHOD.POST,
+    //     body,
+    //   }),
+    //   invalidatesTags: () => {
+    //     return [{ type: 'POST', id: 'LIST' }];
+    //   },
+    // }),
     login: build.mutation<AuthLoginRESP, AuthLoginREQ>({
       query: (body) => ({
         url: '/SignIn',
         method: HTTP_METHOD.POST,
         body,
       }),
-      transformResponse: (response: AuthLoginRESP) => {
-        return response;
-      },
+      // transformResponse: (response: AuthLoginRESP) => {
+      //   return response;
+      // },
     }),
     signup: build.mutation<void, AuthSignupREQ>({
       query: (body) => ({

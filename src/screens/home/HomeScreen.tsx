@@ -493,7 +493,7 @@ const HomeScreen = ({
 
         <Title title='Pet care videos' />
 
-        {/* <PetCareVideosSlider /> */}
+        <PetCareVideosSlider />
 
         <Title title='Nearby veterinary clinic' />
 

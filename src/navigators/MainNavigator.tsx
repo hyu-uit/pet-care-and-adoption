@@ -14,11 +14,14 @@ import PetDetailScreen from '../screens/home/PetDetailScreen';
 import AddMyPetScreen from '../screens/profile/AddMyPetScreen';
 import LostPetsScreen from '../screens/home/LostPetsScreen';
 import UpdateMyPostScreen from '../screens/profile/UpdateMyPostScreen';
+import BotAdvices from '../screens/pet-care/BotAdvices';
 
 const Stack = createNativeStackNavigator();
 
 const MainNavigator = () => {
-  const isLoggedIn = useSelector((state: RootState) => state.shared.isLogined);
+  const isLoggedIn = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
   return (
     <Stack.Navigator
       screenOptions={{
@@ -29,6 +32,7 @@ const MainNavigator = () => {
         <Stack.Screen name={SCREEN.AUTH_STACK} component={AuthNavigator} />
       )}
       <Stack.Screen name={SCREEN.BOTTOM_TABS} component={BottomTabs} />
+      <Stack.Screen name={SCREEN.BOT_CHAT} component={BotAdvices} />
       <Stack.Screen
         name={SCREEN.PET_DETAIL}
         component={PetDetailScreen}

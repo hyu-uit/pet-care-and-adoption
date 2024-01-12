@@ -291,8 +291,7 @@ const SearchScreen = ({
   ];
 
   const onDetail = (item) => {
-    console.log(item);
-    // navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
+    navigation.navigate(SCREEN.PET_DETAIL, { postData: item });
   };
 
   const getAgeRangeIndex = (ageInMonths) => {
