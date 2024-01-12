@@ -6,6 +6,7 @@ import {
   TextInput,
   FlatList,
   Linking,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, SIZES, STYLES, FONTS } from '../../config';
@@ -25,6 +26,7 @@ const NearbyClinicScreen = () => {
   const [veterinaryList, setVeterinaryList] = useState([]);
   const [searchText, setSearchText] = useState('');
   const [visibleData, setVisibleData] = useState(veterinaryList);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -86,6 +88,7 @@ const NearbyClinicScreen = () => {
 
   useEffect(() => {
     const getVeterinary = async () => {
+      setIsLoading(true);
       if (location?.coords) {
         const res = await getNearbyVeterinaryClinics(
           location?.coords.latitude,
@@ -93,6 +96,7 @@ const NearbyClinicScreen = () => {
         );
         setVeterinaryList(res.features);
       }
+      setIsLoading(false);
     };
 
     getVeterinary();
@@ -145,7 +149,7 @@ const NearbyClinicScreen = () => {
   return (
     <View style={styles.container}>
       <View>
-        <View style={[styles.searchWrapper, { marginTop: scaleSize(10) }]}>
+        <View style={[styles.searchWrapper]}>
           <TextInput
             style={[styles.input, { flex: 1 }]}
             placeholder='Search...'
@@ -161,15 +165,24 @@ const NearbyClinicScreen = () => {
         </View>
       </View>
 
-      <FlatList
-        data={visibleData}
-        keyExtractor={(item) => item.name}
-        renderItem={renderItem} //method to render the data in the way you want using styling u need
-        horizontal={false}
-        numColumns={2}
-        showsVerticalScrollIndicator={false}
-        columnWrapperStyle={{ justifyContent: 'space-between' }}
-      />
+      {isLoading ? (
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <ActivityIndicator color={COLORS.primary} />
+        </View>
+      ) : (
+        <FlatList
+          style={{ marginTop: 10 }}
+          data={visibleData}
+          keyExtractor={(item) => item.name}
+          renderItem={renderItem} //method to render the data in the way you want using styling u need
+          horizontal={false}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
+        />
+      )}
     </View>
   );
 };

@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import React, { FC } from 'react';
+import React, { FC, useMemo } from 'react';
 import PetSearchCard from '../../home/components/search/PetSearchCard';
 import { scaleSize } from '../../../utils/DeviceUtils';
 import { SIZES, FONTS, COLORS } from '../../../config';
@@ -13,6 +13,8 @@ import { Foundation } from '@expo/vector-icons';
 import { SCREEN } from '../../../navigators/AppRoute';
 import { useGetMyPetsQuery } from '../../../store/my-pet/my-pet.api';
 import SkeletonSearch from '../../../components/SkeletonSearch';
+import { useSelector } from 'react-redux';
+import { RootState } from '../../../store';
 
 type ProfileMyPetProps = {
   navigation: any;
@@ -20,8 +22,13 @@ type ProfileMyPetProps = {
 
 const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
   const { data: myPets, isFetching } = useGetMyPetsQuery();
+  const myPhoneNumber = useSelector(
+    (state: RootState) => state.shared.user.phoneNumber
+  );
 
-  console.log('my', myPets);
+  const petData = useMemo(() => {
+    return myPets?.filter((item) => item.petInfoModel.userID === myPhoneNumber);
+  }, [myPets]);
 
   const renderItem = ({ item }) => {
     return (
@@ -66,7 +73,7 @@ const ProfileMyPets: FC<ProfileMyPetProps> = ({ navigation }) => {
         />
       ) : (
         <FlatList
-          data={myPets}
+          data={petData}
           keyExtractor={(item) => item.title}
           renderItem={renderItem} //method to render the data in the way you want using styling u need
           horizontal={false}

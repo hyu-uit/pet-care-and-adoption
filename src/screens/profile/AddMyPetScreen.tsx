@@ -289,11 +289,12 @@ const AddMyPetScreen = ({
             : findBreedLabelByValue(data.breed),
           weight: data.weight,
           description: data.description,
-          userID: myPhoneNumber,
+          // userID: myPhoneNumber,
         },
         images: Array.isArray(urlArray)
           ? urlArray.map((image) => ({ image }))
           : [],
+        // images: [],
         history: vaccinatedList.history,
         next: vaccinatedList.next,
       };

@@ -31,7 +31,7 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "versionCode": "5"
+      "versionCode": "6"
     },
     "web": {
       "favicon": "./assets/pet-logo.png"

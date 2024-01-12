@@ -83,10 +83,11 @@ const ProfileRequest = () => {
 
   const onConfirmCancel = async () => {
     try {
-      await cancelRequest({
+      const cancel = await cancelRequest({
         postID: cancelPostID,
         userID: cancelUserID,
       }).unwrap();
+      console.log('cancel', cancel);
       setIsPopupShow(false);
     } catch (error) {
       setIsPopupShow(false);

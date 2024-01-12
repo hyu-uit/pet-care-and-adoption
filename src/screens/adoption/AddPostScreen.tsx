@@ -7,6 +7,8 @@ import {
   TextInput,
   ScrollView,
   FlatList,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { COLORS, IMAGES, SIZES, FONTS, STYLES } from '../../config';
@@ -267,9 +269,9 @@ const AddPostScreen = ({
       await publishPost(body).unwrap();
 
       setIsSuccessPopup(true);
-      setBreeds([]);
+      // setBreeds([]);
       reset();
-      setDistricts([]);
+      // setDistricts([]);
       setImg([]);
       setIsLoading(false);
     } catch (error) {
@@ -285,556 +287,577 @@ const AddPostScreen = ({
   };
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      <Popup
-        title='Published your post'
-        content='Everyone can see your pet now'
-        onCancel={() => {
-          setIsSuccessPopup(false);
-        }}
-        type={POPUP_TYPE.SUCCESS}
-        open={isSuccessPopup}
-      />
-      <Text style={styles.title}>Images</Text>
-      <Controller
-        control={control}
-        name='images'
-        defaultValue={img}
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <View style={styles.imageContainer}>
-            <FlatList
-              data={img}
-              keyExtractor={(item) => item.image}
-              renderItem={renderImage} //method to render the data in the way you want using styling u need
-              horizontal={true}
-              showsHorizontalScrollIndicator={false}
-              ListFooterComponent={renderListFooter}
-            />
-          </View>
-        )}
-        rules={{
-          required: 'Image is required',
-          validate: validateImageExistence,
-        }}
-      />
-      {errors.images && (
-        <Text style={styles.errorText}>{errors.images.message}</Text>
-      )}
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Name</Text>
-      <Controller
-        control={control}
-        name='name'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <TextInput
-            placeholder={`Enter your pet\'s name`}
-            value={value}
-            onChangeText={onChange}
-            secureTextEntry={false}
-            placeholderTextColor={COLORS.grayC2C2CE}
-            style={[styles.input, { marginTop: scaleSize(5) }]}
-          />
-        )}
-        rules={{
-          required: 'Name is required',
-          maxLength: {
-            value: 30,
-            message: 'Please enter name less than 30 characters',
-          },
-        }}
-      />
-      {errors.name && (
-        <Text style={styles.errorText}>{errors.name.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Age</Text>
-      <Controller
-        control={control}
-        name='age'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <View style={{ marginTop: scaleSize(5) }}>
-            <View style={styles.unitWrapper}>
-              <Text style={styles.unit}>Month</Text>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+      keyboardVerticalOffset={100}
+    >
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <Popup
+          title='Published your post'
+          content='Everyone can see your pet now'
+          onCancel={() => {
+            setIsSuccessPopup(false);
+          }}
+          type={POPUP_TYPE.SUCCESS}
+          open={isSuccessPopup}
+        />
+        <Text style={styles.title}>Images</Text>
+        <Controller
+          control={control}
+          name='images'
+          defaultValue={img}
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <View style={styles.imageContainer}>
+              <FlatList
+                data={img}
+                keyExtractor={(item) => item.image}
+                renderItem={renderImage} //method to render the data in the way you want using styling u need
+                horizontal={true}
+                showsHorizontalScrollIndicator={false}
+                ListFooterComponent={renderListFooter}
+              />
             </View>
+          )}
+          rules={{
+            required: 'Image is required',
+            validate: validateImageExistence,
+          }}
+        />
+        {errors.images && (
+          <Text style={styles.errorText}>{errors.images.message}</Text>
+        )}
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Name</Text>
+        <Controller
+          control={control}
+          name='name'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
             <TextInput
-              placeholder={`Enter your pet\'s age`}
-              onChangeText={onChange}
+              placeholder={`Enter your pet\'s name`}
               value={value}
+              onChangeText={onChange}
               secureTextEntry={false}
               placeholderTextColor={COLORS.grayC2C2CE}
-              style={[styles.input]}
-              keyboardType='number-pad'
+              style={[styles.input, { marginTop: scaleSize(5) }]}
             />
-          </View>
+          )}
+          rules={{
+            required: 'Name is required',
+            maxLength: {
+              value: 30,
+              message: 'Please enter name less than 30 characters',
+            },
+          }}
+        />
+        {errors.name && (
+          <Text style={styles.errorText}>{errors.name.message}</Text>
         )}
-        rules={{
-          required: 'Age is required',
-          pattern: {
-            value: /^[0-9]*(\.[0-9]*)?$/,
-            message: 'Only numeric values are allowed',
-          },
-        }}
-      />
-      {errors.age && <Text style={styles.errorText}>{errors.age.message}</Text>}
 
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Specie</Text>
-      <Controller
-        control={control}
-        name='specie'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={species}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select specie'
-            value={value}
-            placeholderStyle={{ color: COLORS.grayPrimary }}
-            style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-            ]}
-            onChange={(value) => {
-              onChange(value);
-              getBreeds(value.value);
-            }}
-            containerStyle={{
-              minHeight: scaleSize(100),
-              borderRadius: scaleSize(10),
-            }}
-          />
-        )}
-        rules={{
-          required: 'Specie is required',
-        }}
-      />
-      {errors.specie && (
-        <Text style={styles.errorText}>{errors.specie.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Breed</Text>
-      <Controller
-        control={control}
-        name='breed'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={breeds}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select breed'
-            placeholderStyle={{ color: COLORS.grayPrimary }}
-            style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-            ]}
-            onChange={onChange}
-            containerStyle={{
-              minHeight: scaleSize(100),
-              borderRadius: scaleSize(10),
-            }}
-          />
-        )}
-        rules={{
-          required: 'Breed is required',
-        }}
-      />
-      {errors.breed && (
-        <Text style={styles.errorText}>{errors.breed.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Weight</Text>
-      <Controller
-        control={control}
-        name='weight'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <View style={{ marginTop: scaleSize(5) }}>
-            <View style={styles.unitWrapper}>
-              <Text style={styles.unit}>Kg</Text>
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Age</Text>
+        <Controller
+          control={control}
+          name='age'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <View style={{ marginTop: scaleSize(5) }}>
+              <View style={styles.unitWrapper}>
+                <Text style={styles.unit}>Month</Text>
+              </View>
+              <TextInput
+                placeholder={`Enter your pet\'s age`}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry={false}
+                placeholderTextColor={COLORS.grayC2C2CE}
+                style={[styles.input]}
+                keyboardType='number-pad'
+              />
             </View>
-            <TextInput
-              placeholder={`Enter your pet\'s weight`}
-              onChangeText={onChange}
-              value={value}
-              secureTextEntry={false}
-              placeholderTextColor={COLORS.grayC2C2CE}
-              style={[styles.input]}
-              // keyboardType='numbers-and-punctuation'
-              keyboardType='numeric'
-            />
-          </View>
+          )}
+          rules={{
+            required: 'Age is required',
+            pattern: {
+              value: /^[0-9]*(\.[0-9]*)?$/,
+              message: 'Only numeric values are allowed',
+            },
+          }}
+        />
+        {errors.age && (
+          <Text style={styles.errorText}>{errors.age.message}</Text>
         )}
-        rules={{
-          required: 'Weight is required',
-          pattern: {
-            value: /^[0-9]+(?:,[0-9]+)?$/,
-            message:
-              'Only numeric values with a comma as decimal separator are allowed',
-          },
-        }}
-      />
-      {errors.weight && (
-        <Text style={styles.errorText}>{errors.weight.message}</Text>
-      )}
 
-      <View style={styles.selectionContainer}>
-        <View>
-          <Text style={styles.title}>Sex</Text>
-          <View style={{ marginTop: scaleSize(5) }}>
-            <Controller
-              control={control}
-              name='sex'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === SEX.MALE ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(SEX.MALE);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === SEX.MALE
-                            ? COLORS.whitePrimary
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    Male
-                  </Text>
-                </TouchableOpacity>
-              )}
-              rules={{
-                required: 'Sex is required',
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Specie</Text>
+        <Controller
+          control={control}
+          name='specie'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <Dropdown
+              data={species}
+              labelField={'label'}
+              valueField={'value'}
+              placeholder='Select specie'
+              value={value}
+              placeholderStyle={{ color: COLORS.grayPrimary }}
+              style={[
+                styles.input,
+                { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+              ]}
+              onChange={(value) => {
+                onChange(value);
+                getBreeds(value.value);
+              }}
+              containerStyle={{
+                minHeight: scaleSize(100),
+                borderRadius: scaleSize(10),
               }}
             />
-            {errors.sex && (
-              <Text style={styles.errorText}>{errors.sex.message}</Text>
-            )}
+          )}
+          rules={{
+            required: 'Specie is required',
+          }}
+        />
+        {errors.specie && (
+          <Text style={styles.errorText}>{errors.specie.message}</Text>
+        )}
 
-            <Controller
-              control={control}
-              name='sex'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === SEX.FEMALE ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(SEX.FEMALE);
-                  }}
-                >
-                  <Text
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Breed</Text>
+        <Controller
+          control={control}
+          name='breed'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <Dropdown
+              data={breeds}
+              labelField={'label'}
+              valueField={'value'}
+              placeholder='Select breed'
+              placeholderStyle={{ color: COLORS.grayPrimary }}
+              style={[
+                styles.input,
+                { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+              ]}
+              onChange={onChange}
+              containerStyle={{
+                minHeight: scaleSize(100),
+                borderRadius: scaleSize(10),
+              }}
+            />
+          )}
+          rules={{
+            required: 'Breed is required',
+          }}
+        />
+        {errors.breed && (
+          <Text style={styles.errorText}>{errors.breed.message}</Text>
+        )}
+
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Weight</Text>
+        <Controller
+          control={control}
+          name='weight'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <View style={{ marginTop: scaleSize(5) }}>
+              <View style={styles.unitWrapper}>
+                <Text style={styles.unit}>Kg</Text>
+              </View>
+              <TextInput
+                placeholder={`Enter your pet\'s weight`}
+                onChangeText={onChange}
+                value={value}
+                secureTextEntry={false}
+                placeholderTextColor={COLORS.grayC2C2CE}
+                style={[styles.input]}
+                // keyboardType='numbers-and-punctuation'
+                keyboardType='numeric'
+              />
+            </View>
+          )}
+          rules={{
+            required: 'Weight is required',
+            pattern: {
+              value: /^[0-9]+(?:,[0-9]+)?$/,
+              message:
+                'Only numeric values with a comma as decimal separator are allowed',
+            },
+          }}
+        />
+        {errors.weight && (
+          <Text style={styles.errorText}>{errors.weight.message}</Text>
+        )}
+
+        <View style={styles.selectionContainer}>
+          <View>
+            <Text style={styles.title}>Sex</Text>
+            <View style={{ marginTop: scaleSize(5) }}>
+              <Controller
+                control={control}
+                name='sex'
+                render={({
+                  field: { value, onBlur, onChange },
+                  fieldState: { error },
+                }) => (
+                  <TouchableOpacity
                     style={[
-                      styles.optionText,
+                      styles.optionWrapper,
                       {
-                        color:
+                        backgroundColor:
+                          value === SEX.MALE ? COLORS.primary : COLORS.tertiary,
+                      },
+                    ]}
+                    onPress={() => {
+                      onChange(SEX.MALE);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color:
+                            value === SEX.MALE
+                              ? COLORS.whitePrimary
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      Male
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                rules={{
+                  required: 'Sex is required',
+                }}
+              />
+              {errors.sex && (
+                <Text style={styles.errorText}>{errors.sex.message}</Text>
+              )}
+
+              <Controller
+                control={control}
+                name='sex'
+                render={({
+                  field: { value, onBlur, onChange },
+                  fieldState: { error },
+                }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.optionWrapper,
+                      {
+                        backgroundColor:
                           value === SEX.FEMALE
-                            ? COLORS.whitePrimary
-                            : COLORS.primary,
+                            ? COLORS.primary
+                            : COLORS.tertiary,
                       },
                     ]}
+                    onPress={() => {
+                      onChange(SEX.FEMALE);
+                    }}
                   >
-                    Female
-                  </Text>
-                </TouchableOpacity>
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color:
+                            value === SEX.FEMALE
+                              ? COLORS.whitePrimary
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      Female
+                    </Text>
+                  </TouchableOpacity>
+                )}
+                rules={{
+                  required: 'Sex is required',
+                }}
+              />
+              {errors.sex && (
+                <Text style={styles.errorText}>{errors.sex.message}</Text>
               )}
-              rules={{
-                required: 'Sex is required',
+            </View>
+          </View>
+
+          <View>
+            <Text style={styles.title}>Option</Text>
+            <View style={{ marginTop: scaleSize(5) }}>
+              <Controller
+                control={control}
+                name='isAdopt'
+                render={({
+                  field: { value, onBlur, onChange },
+                  fieldState: { error },
+                }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.optionWrapper,
+                      {
+                        backgroundColor:
+                          value === true ? COLORS.primary : COLORS.tertiary,
+                      },
+                    ]}
+                    onPress={() => {
+                      onChange(true);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color:
+                            value === true
+                              ? COLORS.whitePrimary
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      Adopt
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name='isAdopt'
+                render={({
+                  field: { value, onBlur, onChange },
+                  fieldState: { error },
+                }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.optionWrapper,
+                      {
+                        backgroundColor:
+                          value === false ? COLORS.primary : COLORS.tertiary,
+                      },
+                    ]}
+                    onPress={() => {
+                      onChange(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color:
+                            value === false
+                              ? COLORS.whitePrimary
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      Lost
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+          <View>
+            <Text style={styles.title}>Vaccinated</Text>
+            <View style={{ marginTop: scaleSize(5) }}>
+              <Controller
+                control={control}
+                name='isVaccinated'
+                render={({
+                  field: { value, onBlur, onChange },
+                  fieldState: { error },
+                }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.optionWrapper,
+                      {
+                        backgroundColor:
+                          value === true ? COLORS.primary : COLORS.tertiary,
+                      },
+                    ]}
+                    onPress={() => {
+                      onChange(true);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color:
+                            value === true
+                              ? COLORS.whitePrimary
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      Yes
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name='isVaccinated'
+                render={({
+                  field: { value, onBlur, onChange },
+                  fieldState: { error },
+                }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.optionWrapper,
+                      {
+                        backgroundColor:
+                          value === false ? COLORS.primary : COLORS.tertiary,
+                      },
+                    ]}
+                    onPress={() => {
+                      onChange(false);
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.optionText,
+                        {
+                          color:
+                            value === false
+                              ? COLORS.whitePrimary
+                              : COLORS.primary,
+                        },
+                      ]}
+                    >
+                      No
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          </View>
+        </View>
+
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>
+          Location
+        </Text>
+
+        <Controller
+          control={control}
+          name='province'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <Dropdown
+              data={provinces}
+              labelField={'label'}
+              valueField={'value'}
+              placeholder='Select province'
+              placeholderStyle={{ color: COLORS.grayPrimary }}
+              style={[
+                styles.input,
+                { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+              ]}
+              value={value}
+              onChange={(value) => {
+                onChange(value);
+                onSelectProvince(value);
+              }}
+              containerStyle={{
+                height: scaleSize(200),
+                borderRadius: scaleSize(10),
               }}
             />
-            {errors.sex && (
-              <Text style={styles.errorText}>{errors.sex.message}</Text>
-            )}
-          </View>
-        </View>
-
-        <View>
-          <Text style={styles.title}>Option</Text>
-          <View style={{ marginTop: scaleSize(5) }}>
-            <Controller
-              control={control}
-              name='isAdopt'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === true ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(true);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === true ? COLORS.whitePrimary : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    Adopt
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name='isAdopt'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === false ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(false);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === false
-                            ? COLORS.whitePrimary
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    Lost
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-        <View>
-          <Text style={styles.title}>Vaccinated</Text>
-          <View style={{ marginTop: scaleSize(5) }}>
-            <Controller
-              control={control}
-              name='isVaccinated'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === true ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(true);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === true ? COLORS.whitePrimary : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    Yes
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name='isVaccinated'
-              render={({
-                field: { value, onBlur, onChange },
-                fieldState: { error },
-              }) => (
-                <TouchableOpacity
-                  style={[
-                    styles.optionWrapper,
-                    {
-                      backgroundColor:
-                        value === false ? COLORS.primary : COLORS.tertiary,
-                    },
-                  ]}
-                  onPress={() => {
-                    onChange(false);
-                  }}
-                >
-                  <Text
-                    style={[
-                      styles.optionText,
-                      {
-                        color:
-                          value === false
-                            ? COLORS.whitePrimary
-                            : COLORS.primary,
-                      },
-                    ]}
-                  >
-                    No
-                  </Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        </View>
-      </View>
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Location</Text>
-
-      <Controller
-        control={control}
-        name='province'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={provinces}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select province'
-            placeholderStyle={{ color: COLORS.grayPrimary }}
-            style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-            ]}
-            value={value}
-            onChange={(value) => {
-              onChange(value);
-              onSelectProvince(value);
-            }}
-            containerStyle={{
-              height: scaleSize(200),
-              borderRadius: scaleSize(10),
-            }}
-          />
+          )}
+          rules={{
+            required: 'Province is required',
+          }}
+        />
+        {errors.province && (
+          <Text style={styles.errorText}>{errors.province.message}</Text>
         )}
-        rules={{
-          required: 'Province is required',
-        }}
-      />
-      {errors.province && (
-        <Text style={styles.errorText}>{errors.province.message}</Text>
-      )}
 
-      <Controller
-        control={control}
-        name='district'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <Dropdown
-            data={districts}
-            labelField={'label'}
-            valueField={'value'}
-            placeholder='Select district'
-            placeholderStyle={{ color: COLORS.grayPrimary }}
-            style={[
-              styles.input,
-              { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
-            ]}
-            onChange={onChange}
-            containerStyle={{
-              height: scaleSize(200),
-              borderRadius: scaleSize(10),
-            }}
-          />
-        )}
-        rules={{
-          required: 'District is required',
-        }}
-      />
-      {errors.district && (
-        <Text style={styles.errorText}>{errors.district.message}</Text>
-      )}
-
-      <Text style={[styles.title, { marginTop: scaleSize(20) }]}>Describe</Text>
-      <Controller
-        control={control}
-        name='description'
-        render={({
-          field: { value, onBlur, onChange },
-          fieldState: { error },
-        }) => (
-          <TextInput
-            placeholder={`Description about this pet`}
-            onChangeText={onChange}
-            value={value}
-            secureTextEntry={false}
-            placeholderTextColor={COLORS.grayC2C2CE}
-            style={[
-              styles.input,
-              {
-                marginTop: scaleSize(5),
+        <Controller
+          control={control}
+          name='district'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <Dropdown
+              data={districts}
+              labelField={'label'}
+              valueField={'value'}
+              placeholder='Select district'
+              placeholderStyle={{ color: COLORS.grayPrimary }}
+              style={[
+                styles.input,
+                { paddingLeft: scaleSize(20), marginTop: scaleSize(10) },
+              ]}
+              onChange={onChange}
+              containerStyle={{
                 height: scaleSize(200),
-              },
-            ]}
-            multiline={true}
-          />
+                borderRadius: scaleSize(10),
+              }}
+            />
+          )}
+          rules={{
+            required: 'District is required',
+          }}
+        />
+        {errors.district && (
+          <Text style={styles.errorText}>{errors.district.message}</Text>
         )}
-      />
 
-      <Button
-        onPress={handleSubmit(handleUpload.bind(null))}
-        title='Publish'
-        style={{ marginTop: scaleSize(19), marginBottom: SIZES.bottomPadding }}
-        isLoading={isLoading}
-      />
-    </ScrollView>
+        <Text style={[styles.title, { marginTop: scaleSize(20) }]}>
+          Describe
+        </Text>
+        <Controller
+          control={control}
+          name='description'
+          render={({
+            field: { value, onBlur, onChange },
+            fieldState: { error },
+          }) => (
+            <TextInput
+              placeholder={`Description about this pet`}
+              onChangeText={onChange}
+              value={value}
+              secureTextEntry={false}
+              placeholderTextColor={COLORS.grayC2C2CE}
+              style={[
+                styles.input,
+                {
+                  marginTop: scaleSize(5),
+                  height: scaleSize(200),
+                },
+              ]}
+              multiline={true}
+            />
+          )}
+        />
+
+        <Button
+          onPress={handleSubmit(handleUpload.bind(null))}
+          title='Publish'
+          style={{
+            marginTop: scaleSize(19),
+            marginBottom: SIZES.bottomPadding,
+          }}
+          isLoading={isLoading}
+        />
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
 

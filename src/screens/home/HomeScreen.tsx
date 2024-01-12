@@ -51,6 +51,8 @@ const HomeScreen = ({
     (state: RootState) => state.shared.user.phoneNumber
   );
 
+  console.log('home', myPhoneNumber);
+
   const {
     data: allPosts,
     refetch,
@@ -493,9 +495,9 @@ const HomeScreen = ({
 
         <Title title='Pet care videos' />
 
-        <PetCareVideosSlider />
+        {/* <PetCareVideosSlider /> */}
 
-        <Title title='Nearby veterinary clinic' />
+        <Title title='Nearby veterinary clinic' onSeeAll={onNearlyClinic} />
 
         {isFetchingVeterinary ? (
           <FlatList
@@ -519,7 +521,7 @@ const HomeScreen = ({
           />
         )}
 
-        <Title title='Lost pets' />
+        <Title title='Lost pets' onSeeAll={onLostPets} />
 
         {isFetchingPosts ? (
           <FlatList

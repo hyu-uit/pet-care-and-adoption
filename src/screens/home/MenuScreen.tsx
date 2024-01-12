@@ -34,6 +34,7 @@ const MenuScreen = ({
   const [removeToken, { isLoading }] = useRemoveTokenMutation();
 
   const onLogout = async () => {
+    console.log(myPhoneNumber);
     navigation.reset({ index: 0, routes: [{ name: SCREEN.AUTH_STACK }] });
     await removeToken({ userID: myPhoneNumber, token: token });
     dispatch(resetState());

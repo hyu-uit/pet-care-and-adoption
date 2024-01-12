@@ -22,6 +22,8 @@ const MainNavigator = () => {
   const isLoggedIn = useSelector(
     (state: RootState) => state.shared.user.phoneNumber
   );
+
+  console.log(isLoggedIn);
   return (
     <Stack.Navigator
       screenOptions={{

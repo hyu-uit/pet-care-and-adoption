@@ -20,12 +20,12 @@ export const myPetApi = createApi({
         return [{ type: 'MY_PET', id: 'LIST' }];
       },
     }),
-    getMyPets: build.query<AddMyPetREQ, void>({
+    getMyPets: build.query<AddMyPetREQ[], void>({
       query: () => ({
         url: '',
         method: HTTP_METHOD.GET,
       }),
-      transformResponse: (response: AddMyPetREQ) => {
+      transformResponse: (response: AddMyPetREQ[]) => {
         return response;
       },
       providesTags: () => {
@@ -47,7 +47,7 @@ export const myPetApi = createApi({
 
     updateMyPet: build.mutation<void, { petID: string; data: AddMyPetREQ }>({
       query: (body) => ({
-        url: `/UpdatePet${body.petID}`,
+        url: `/UpdatePet/${body.petID}`,
         method: HTTP_METHOD.PUT,
         body: body.data,
         responseHandler: 'text',

@@ -153,6 +153,7 @@ function ChatBox({ conversationId, setConversationId }) {
   const [watermarkCurrent, setWatermarkCurrent] = useState('');
   const [inputValue, setInputValue] = useState('');
   const dispatch = useDispatch();
+  const navigation = useNavigation();
 
   function createNewConversation() {
     fetch('https://directline.botframework.com/v3/directline/conversations', {
@@ -254,11 +255,15 @@ function ChatBox({ conversationId, setConversationId }) {
             marginTop: scaleSize(20),
           }}
         >
-          <TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => {
+              navigation.goBack();
+            }}
+          >
             <Ionicons
               name='chevron-back'
-              size={24}
-              style={{ marginLeft: scaleSize(16) }}
+              size={30}
+              style={{ marginLeft: scaleSize(16), marginTop: 10 }}
               color='black'
             />
           </TouchableOpacity>
@@ -305,61 +310,75 @@ function ChatBox({ conversationId, setConversationId }) {
           </TouchableOpacity>
         )}
         <View style={{ flex: 1 }}>
-          <ScrollView
-            ref={scrollViewRef}
-            style={{
-              flex: 1,
-              paddingBottom: SIZES.bottomPadding,
-              paddingHorizontal: 16,
-              backgroundColor: COLORS.background,
-            }}
-            showsVerticalScrollIndicator={false}
-            onContentSizeChange={() => {
-              scrollViewRef.current.scrollToEnd({ animated: true });
-            }}
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            // style={{
+            //   position: 'absolute',
+            //   bottom: 0,
+            //   width: '100%',
+            //   alignSelf: 'center',
+            //   paddingHorizontal: 10,
+            //   backgroundColor: COLORS.background,
+            //   paddingTop: 4,
+            // }}
+            // keyboardVerticalOffset={28}
           >
-            {messages.map((m, index) =>
-              m.isFromMe ? (
-                <View
-                  style={{
-                    justifyContent: 'flex-end',
-                    alignItems: 'center',
-                    backgroundColor: COLORS.tertiary,
-                    padding: scaleSize(20),
-                    marginVertical: scaleSize(20),
-                    borderRadius: scaleSize(10),
-                    flexDirection: 'row',
-                  }}
-                >
-                  <Text
-                    key={index}
+            <ScrollView
+              ref={scrollViewRef}
+              style={{
+                // flex: 1,
+                paddingBottom: SIZES.bottomPadding,
+                paddingHorizontal: 16,
+                backgroundColor: COLORS.background,
+              }}
+              showsVerticalScrollIndicator={false}
+              onContentSizeChange={() => {
+                scrollViewRef.current.scrollToEnd({ animated: true });
+              }}
+            >
+              {messages.map((m, index) =>
+                m.isFromMe ? (
+                  <View
                     style={{
-                      ...FONTS.body3,
-                      color: COLORS.primary,
-                      marginRight: scaleSize(5),
+                      justifyContent: 'flex-end',
+                      alignItems: 'center',
+                      backgroundColor: COLORS.tertiary,
+                      padding: scaleSize(20),
+                      marginVertical: scaleSize(20),
+                      borderRadius: scaleSize(10),
+                      flexDirection: 'row',
                     }}
                   >
-                    {m.text}
-                  </Text>
-                  <Image
-                    source={IMAGES.PET_USER}
-                    style={{
-                      width: scaleSize(30),
-                      height: scaleSize(30),
-                      alignSelf: 'flex-end',
-                    }}
+                    <Text
+                      key={index}
+                      style={{
+                        ...FONTS.body3,
+                        color: COLORS.primary,
+                        marginRight: scaleSize(5),
+                      }}
+                    >
+                      {m.text}
+                    </Text>
+                    <Image
+                      source={IMAGES.PET_USER}
+                      style={{
+                        width: scaleSize(30),
+                        height: scaleSize(30),
+                        alignSelf: 'flex-end',
+                      }}
+                    />
+                  </View>
+                ) : (
+                  <BotMessageItem
+                    key={index}
+                    message={m}
+                    onActionClick={handleSendMessage}
                   />
-                </View>
-              ) : (
-                <BotMessageItem
-                  key={index}
-                  message={m}
-                  onActionClick={handleSendMessage}
-                />
-              )
-            )}
-            <View style={{ paddingBottom: SIZES.bottomPadding * 2 }}></View>
-          </ScrollView>
+                )
+              )}
+              <View style={{ paddingBottom: SIZES.bottomPadding * 2 }}></View>
+            </ScrollView>
+          </KeyboardAvoidingView>
 
           <KeyboardAvoidingView
             behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -372,7 +391,7 @@ function ChatBox({ conversationId, setConversationId }) {
               backgroundColor: COLORS.background,
               paddingTop: 4,
             }}
-            keyboardVerticalOffset={28}
+            keyboardVerticalOffset={45}
           >
             {messages.length > 0 && (
               <View

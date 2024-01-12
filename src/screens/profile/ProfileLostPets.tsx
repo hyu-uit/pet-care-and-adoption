@@ -54,14 +54,13 @@ const ProfileLostPets = () => {
       return [];
     }
 
-    console.log(allPosts);
-
     return allPosts
       .filter(
         (item) =>
           (item.postAdoptModel.province === myProvince ||
             item.postAdoptModel.district === myDistrict) &&
-          !item.postAdoptModel.isAdopt
+          !item.postAdoptModel.isAdopt &&
+          item.postAdoptModel.userID !== myPhoneNumber
       )
       .map((post) => ({
         images: post.images,

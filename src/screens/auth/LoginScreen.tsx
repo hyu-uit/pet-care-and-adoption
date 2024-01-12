@@ -101,7 +101,7 @@ const LoginScreen = ({
       // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
       token = (
         await Notifications.getExpoPushTokenAsync({
-          projectId: '29b02a60-b7a1-4dae-a67c-493fdf74d1d4',
+          projectId: '27cab8e0-2c54-4196-9321-601424a7a064',
         })
       ).data;
       console.log(token);
@@ -127,12 +127,25 @@ const LoginScreen = ({
       //   setIsPopupShow(true);
       //   return;
       // }
-      await addDeviceToken({
-        userID: data.phoneNumber,
-        token: expoPushToken,
-      }).unwrap();
-      await dispatch(setPushToken(expoPushToken));
-      await dispatch(setLoginToken({ user: res.user, token: '' }));
+      // const dev = await addDeviceToken({
+      //   userID: data.phoneNumber,
+      //   token: expoPushToken,
+      // }).unwrap();
+      console.log('add dev', res);
+      // await dispatch(setPushToken(expoPushToken));
+      await dispatch(
+        setLoginToken({
+          user: {
+            name: res.name,
+            // address: '',
+            phoneNumber: res.userID,
+            province: res.province,
+            district: res.district,
+            avatar: res.avatar,
+          },
+          token: '',
+        })
+      );
     } catch (error) {
       console.log('Login error', error);
       if (
@@ -269,7 +282,7 @@ const LoginScreen = ({
         </TouchableOpacity>
       </View>
 
-      <Button
+      {/* <Button
         onPress={async () => {
           Alert.alert(user);
           await dispatch(
@@ -289,7 +302,7 @@ const LoginScreen = ({
         title='Pray'
         style={{ marginTop: scaleSize(19) }}
         isLoading={false}
-      ></Button>
+      ></Button> */}
     </View>
   );
 };

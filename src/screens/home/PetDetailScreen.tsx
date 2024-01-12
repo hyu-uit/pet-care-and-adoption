@@ -80,6 +80,7 @@ const PetDetailScreen = ({
   const onSendNotification = async () => {
     try {
       if (deviceTokens?.length > 0) {
+        let body = {};
         for (let i = 0; i < deviceTokens.length; i++) {
           const message = {
             to: deviceTokens[i],
@@ -88,14 +89,13 @@ const PetDetailScreen = ({
             body: `${postedBy && postedBy?.name} sent you a adopted request`,
           };
 
-          const body: CreateNotificationREQ = {
+          body = {
             title: 'New Adopted Request',
             content: `${postedBy && postedBy?.name} sent you a adopted request`,
             senderID: myPhoneNumber,
             receiverID: postDetail?.userID,
           };
-
-          await createNotification(body).unwrap();
+          console.log('send', deviceTokens[i]);
 
           await fetch('https://exp.host/--/api/v2/push/send', {
             method: 'POST',
@@ -108,6 +108,7 @@ const PetDetailScreen = ({
             body: JSON.stringify(message),
           });
         }
+        body && (await createNotification(body).unwrap());
       }
     } catch (error) {
       console.log(error);
@@ -315,7 +316,7 @@ const PetDetailScreen = ({
           </View>
         </View>
       </View>
-      <ScrollView>
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View
           style={[
             styles.horizontalWrapper,
@@ -436,7 +437,12 @@ const PetDetailScreen = ({
         </View>
         <Text style={styles.comment}>{postDetail.description}</Text>
         {postDetail?.isAdopt && (
-          <View style={{ paddingHorizontal: SIZES.padding }}>
+          <View
+            style={{
+              paddingHorizontal: SIZES.padding,
+              paddingBottom: SIZES.bottomPadding,
+            }}
+          >
             <TouchableOpacity
               style={[
                 styles.button,
@@ -491,12 +497,12 @@ const styles = StyleSheet.create({
   },
   infoContainer: {
     width: scaleSize(342),
-    height: scaleSize(118),
+    minHeight: scaleSize(118),
     padding: scaleSize(15),
     backgroundColor: COLORS.whitePrimary,
     borderRadius: scaleSize(15),
     position: 'absolute',
-    bottom: -scaleSize(77),
+    bottom: -scaleSize(90),
     left: SIZES.WindowWidth / 2 - scaleSize(342) / 2,
     borderWidth: scaleSize(1),
     borderColor: COLORS.grayLight,
