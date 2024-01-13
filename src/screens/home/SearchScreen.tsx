@@ -47,6 +47,8 @@ import { RemoveFavoriteREQ } from '../../store/favorite-post/request/remove-favo
 import SkeletonSearch from '../../components/SkeletonSearch';
 import * as ImagePicker from 'expo-image-picker';
 import PredictModal from './components/search/PredictModal';
+import { Camera } from 'expo-camera';
+import * as MediaLibrary from 'expo-media-library';
 
 const SearchScreen = ({
   navigation,
@@ -84,6 +86,8 @@ const SearchScreen = ({
     null
   );
   const [refreshing, setRefreshing] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
+  const [cameraRef, setCameraRef] = useState(null);
 
   const [allPostList, setAllPostList] = useState([]);
 
@@ -327,7 +331,7 @@ const SearchScreen = ({
 
   const predictAnimals = async (base64Image) => {
     try {
-      const apiUrl = 'http://192.168.1.7:5000/';
+      const apiUrl = 'http://192.168.1.22:5000/';
       if (!base64Image) {
         return;
       }
@@ -349,6 +353,29 @@ const SearchScreen = ({
       console.log('Prediction result:', data);
     } catch (error) {
       console.error('Error:', error.message);
+    }
+  };
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await Camera.requestPermissionsAsync();
+      setHasPermission(status === 'granted');
+    })();
+  }, []);
+
+  const takePicture = async () => {
+    if (cameraRef) {
+      const photo = await cameraRef.takePictureAsync();
+      savePicture(photo);
+    }
+  };
+
+  const savePicture = async (photo) => {
+    const { status } = await MediaLibrary.requestPermissionsAsync();
+    if (status === 'granted') {
+      const asset = await MediaLibrary.createAssetAsync(photo.uri);
+      // You can use asset.uri to get the URI of the saved image
+      console.log('Image saved to:', asset.uri);
     }
   };
 

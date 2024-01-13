@@ -61,7 +61,7 @@ function PredictModal({ open, onClose, data, uri }: PredictModalProps) {
                     <Text style={[styles.name, { flex: 1 }]}>{item}</Text>
                   </View>
                   <Text style={styles.score}>
-                    {data.speciesScores[index].toFixed(3) * 100}%
+                    {(data.speciesScores[index] * 100).toFixed(3)}%
                   </Text>
                 </View>
               ))}
