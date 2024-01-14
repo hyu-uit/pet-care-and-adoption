@@ -7,35 +7,38 @@ import {
   TouchableOpacity,
   Platform,
   Alert,
-} from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { COLORS, FONTS, ICONS, SIZES, STYLES } from '../../config';
-import { scaleSize } from '../../utils/DeviceUtils';
-import Button from '../../components/Button';
-import { ButtonVariant } from '../../enums/ButtonVariant.enum';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '../../navigators/config';
-import { SCREEN } from '../../navigators/AppRoute';
-import { Controller, useForm } from 'react-hook-form';
-import { AuthLoginREQ } from '../../store/auth/request/auth-login.request';
-import { useLoginMutation, useTestApiQuery } from '../../store/auth/auth.api';
-import { useDispatch, useSelector } from 'react-redux';
-import { setLoginToken } from '../../store/shared/shared.slice';
-import { AuthLoginRESP } from '../../store/auth/response/auth-login.response';
+} from "react-native";
+import React, { useEffect, useState } from "react";
+import { COLORS, FONTS, ICONS, SIZES, STYLES } from "../../config";
+import { scaleSize } from "../../utils/DeviceUtils";
+import Button from "../../components/Button";
+import { ButtonVariant } from "../../enums/ButtonVariant.enum";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import { AuthStackParamList } from "../../navigators/config";
+import { SCREEN } from "../../navigators/AppRoute";
+import { Controller, useForm } from "react-hook-form";
+import { AuthLoginREQ } from "../../store/auth/request/auth-login.request";
+import { useLoginMutation, useTestApiQuery } from "../../store/auth/auth.api";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoginToken } from "../../store/shared/shared.slice";
+import { AuthLoginRESP } from "../../store/auth/response/auth-login.response";
 import {
   isBadRequestError,
   isEntityError,
   isUnauthorizedError,
-} from '../../utils/helpers/rtk-query.helper';
-import Popup from '../../components/Popup';
-import { RootState } from '../../store';
-import { doc, setDoc } from 'firebase/firestore';
-import { firestoreDB } from '../../../firebaseConfig';
-import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
-import { useAddDeviceTokenMutation } from '../../store/notification/notification.api';
-import { setPushToken } from '../../store/notification/notification.slice';
-import { useGetAllPostsWithUserQuery } from '../../store/post/post.api';
+} from "../../utils/helpers/rtk-query.helper";
+import Popup from "../../components/Popup";
+import { RootState } from "../../store";
+import { doc, setDoc } from "firebase/firestore";
+import { firestoreDB } from "../../../firebaseConfig";
+import * as Device from "expo-device";
+import * as Notifications from "expo-notifications";
+import { useAddDeviceTokenMutation } from "../../store/notification/notification.api";
+import { setPushToken } from "../../store/notification/notification.slice";
+import { useGetAllPostsWithUserQuery } from "../../store/post/post.api";
+import axios from "axios";
+import * as ImagePicker from "expo-image-picker";
+import * as FileSystem from "expo-file-system";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -56,14 +59,14 @@ const LoginScreen = ({
 
   const [login, { isLoading }] = useLoginMutation();
   const { data: testData } = useTestApiQuery();
-  const { data: allPosts } = useGetAllPostsWithUserQuery('0848867679');
+  const { data: allPosts } = useGetAllPostsWithUserQuery("0848867679");
   const [addDeviceToken] = useAddDeviceTokenMutation();
   const [isPopupShow, setIsPopupShow] = useState<boolean>(false);
   const dispatch = useDispatch();
   const user = useSelector((state: RootState) => state.shared.user.phoneNumber);
 
   //Notification
-  const [expoPushToken, setExpoPushToken] = useState('');
+  const [expoPushToken, setExpoPushToken] = useState("");
 
   useEffect(() => {
     registerForPushNotificationsAsync()
@@ -76,12 +79,12 @@ const LoginScreen = ({
   async function registerForPushNotificationsAsync() {
     let token;
 
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
+    if (Platform.OS === "android") {
+      await Notifications.setNotificationChannelAsync("default", {
+        name: "default",
         importance: Notifications.AndroidImportance.MAX,
         vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
+        lightColor: "#FF231F7C",
       });
     }
 
@@ -89,24 +92,24 @@ const LoginScreen = ({
       const { status: existingStatus } =
         await Notifications.getPermissionsAsync();
       let finalStatus = existingStatus;
-      if (existingStatus !== 'granted') {
+      if (existingStatus !== "granted") {
         const { status } = await Notifications.requestPermissionsAsync();
         finalStatus = status;
       }
-      if (finalStatus !== 'granted') {
-        alert('Failed to get push token for push notification!');
+      if (finalStatus !== "granted") {
+        alert("Failed to get push token for push notification!");
         return;
       }
       // Learn more about projectId:
       // https://docs.expo.dev/push-notifications/push-notifications-setup/#configure-projectid
       token = (
         await Notifications.getExpoPushTokenAsync({
-          projectId: '29b02a60-b7a1-4dae-a67c-493fdf74d1d4',
+          projectId: "29b02a60-b7a1-4dae-a67c-493fdf74d1d4",
         })
       ).data;
       console.log(token);
     } else {
-      alert('Must use physical device for Push Notifications');
+      alert("Must use physical device for Push Notifications");
     }
 
     return token;
@@ -132,9 +135,9 @@ const LoginScreen = ({
         token: expoPushToken,
       }).unwrap();
       await dispatch(setPushToken(expoPushToken));
-      await dispatch(setLoginToken({ user: res.user, token: '' }));
+      await dispatch(setLoginToken({ user: res.user, token: "" }));
     } catch (error) {
-      console.log('Login error', error);
+      console.log("Login error", error);
       if (
         isBadRequestError(error) ||
         isEntityError(error) ||
@@ -149,6 +152,84 @@ const LoginScreen = ({
     setIsPopupShow(false);
   };
 
+  const [imageUri, setImageUri] = useState(null);
+
+  const pickImage = async () => {
+    // No permissions request is necessary for launching the image library
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: false,
+      quality: 1,
+      base64: true,
+    });
+
+    if (!result.canceled) {
+      // const image = result.assets[0].base64;
+      const image = result.assets[0].base64;
+      setImageUri(image);
+    }
+  };
+
+  const python = async () => {
+    //  try {
+    //    // Assuming your Flask server is running on localhost:5000
+    //    const apiUrl = 'http://192.168.1.11:5000/';
+
+    //    // Assuming you have the image file path in 'imagePath'
+    //    const imageUri = 'nhan-biet-duoc-su-nguy-hiem-den-tu-con-nguoi-873240.jpg';  // Replace with your actual image file path
+
+    //    const response = await fetch(`${apiUrl}`, {
+    //      method: 'POST',
+    //      body: JSON.stringify({
+    //       key: 'value',
+    //       number: 42,
+    //     }),
+    //      headers: {
+    //       'Content-Type': 'application/json',
+    //       },
+    //     });
+
+    //     const data = await response.json()
+    //     console.log('call',data)
+    //   // const response = await axios.post(`${apiUrl}/`, {file:'abc'}, {
+    //   //   headers: {
+    //   //     'Content-Type': 'multipart/form-data',
+    //   //   },
+    //   // });
+
+    //     // const resultData = await response.json();
+    //     // console.log(resultData)
+    //   } catch (error) {
+    //     console.error('Error:', error);
+    //   }
+    try {
+      console.log(imageUri)
+      const apiUrl = "http://192.168.1.11:5000/";
+      if (!imageUri) {
+        pickImage();
+        return;
+      }
+
+      // const imageBase64 = await FileSystem.readAsStringAsync(imageUri, {
+      //   encoding: FileSystem.EncodingType.Base64,
+      // });
+
+      const response = await fetch(`${apiUrl}`, {
+        method: "POST",
+        body: JSON.stringify({
+          image: imageUri,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const data = await response.json();
+      console.log("Prediction result:", data);
+    } catch (error) {
+      console.error("Error:", error.message);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Popup
@@ -157,46 +238,46 @@ const LoginScreen = ({
         onSubmit={() => {
           onClosePopup();
         }}
-        title='Login failed'
-        content='Please check your information and try it again!'
+        title="Login failed"
+        content="Please check your information and try it again!"
       />
       <Text style={styles.title}>Login</Text>
       <Text style={styles.subTitle}>Enter your username and password</Text>
 
       <Controller
         control={control}
-        name='phoneNumber'
+        name="phoneNumber"
         render={({
           field: { value, onBlur, onChange },
           fieldState: { error },
         }) => (
           <View style={styles.inputWrapper}>
             <Image
-              source={require('../../assets/icons/user.png')}
+              source={require("../../assets/icons/user.png")}
               height={10}
               width={10}
               style={styles.icon}
             />
             <TextInput
-              placeholder={'Enter your phone number'}
+              placeholder={"Enter your phone number"}
               onChangeText={onChange}
               value={value}
               secureTextEntry={false}
               placeholderTextColor={COLORS.grayC2C2CE}
               style={[styles.input]}
-              keyboardType='numeric'
+              keyboardType="numeric"
             />
           </View>
         )}
         rules={{
-          required: 'Phone number is required',
+          required: "Phone number is required",
           minLength: {
             value: 10,
-            message: 'Please enter phone number with 10 characters',
+            message: "Please enter phone number with 10 characters",
           },
           maxLength: {
             value: 10,
-            message: 'Please enter phone number with 10 characters',
+            message: "Please enter phone number with 10 characters",
           },
         }}
       />
@@ -206,20 +287,20 @@ const LoginScreen = ({
 
       <Controller
         control={control}
-        name='password'
+        name="password"
         render={({
           field: { value, onBlur, onChange },
           fieldState: { error },
         }) => (
           <View style={[styles.inputWrapper, { marginTop: scaleSize(10) }]}>
             <Image
-              source={require('../../assets/icons/lock.png')}
+              source={require("../../assets/icons/lock.png")}
               height={10}
               width={10}
               style={styles.icon}
             />
             <TextInput
-              placeholder={'Enter your password'}
+              placeholder={"Enter your password"}
               onChangeText={onChange}
               value={value}
               secureTextEntry={true}
@@ -229,19 +310,19 @@ const LoginScreen = ({
           </View>
         )}
         rules={{
-          required: 'Password is required',
+          required: "Password is required",
           minLength: {
             value: 1,
-            message: 'At least 6 characters',
+            message: "At least 6 characters",
           },
           maxLength: {
             value: 255,
-            message: 'Password should not over 255 characters',
+            message: "Password should not over 255 characters",
           },
           pattern: {
             value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.{6,})/,
             message:
-              'Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 special character',
+              "Password must contain at least 1 uppercase letter, 1 lowercase letter, and 1 special character",
           },
         }}
       />
@@ -255,7 +336,7 @@ const LoginScreen = ({
 
       <Button
         onPress={handleSubmit(handleLogin.bind(null))}
-        title='Login'
+        title="Login"
         style={{ marginTop: scaleSize(19) }}
         isLoading={isLoading}
       />
@@ -271,22 +352,23 @@ const LoginScreen = ({
 
       <Button
         onPress={async () => {
-          Alert.alert(user);
-          await dispatch(
-            setLoginToken({
-              user: {
-                phoneNumber: '0848867679',
-                name: 'Thevi',
-                district: 'GR',
-                province: 'KG',
-                avatar:
-                  'https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w1200/2023/10/free-images.jpg',
-              },
-              token: 'abcdefgh',
-            })
-          );
+          // Alert.alert(user);
+          // await dispatch(
+          //   setLoginToken({
+          //     user: {
+          //       phoneNumber: "0848867679",
+          //       name: "Thevi",
+          //       district: "GR",
+          //       province: "KG",
+          //       avatar:
+          //         "https://buffer.com/cdn-cgi/image/w=1000,fit=contain,q=90,f=auto/library/content/images/size/w1200/2023/10/free-images.jpg",
+          //     },
+          //     token: "abcdefgh",
+          //   })
+          // );
+          python();
         }}
-        title='Pray'
+        title="Pray"
         style={{ marginTop: scaleSize(19) }}
         isLoading={false}
       ></Button>
@@ -318,33 +400,33 @@ const styles = StyleSheet.create({
     paddingLeft: scaleSize(58),
   },
   inputWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: scaleSize(20),
   },
   icon: {
     ...STYLES.icon,
-    position: 'absolute',
+    position: "absolute",
     zIndex: 100,
     left: scaleSize(24),
   },
   forgot: {
     ...FONTS.body4,
     color: COLORS.primary,
-    textAlign: 'right',
+    textAlign: "right",
     marginTop: scaleSize(20),
   },
   noAccount: {
     ...FONTS.body4,
     color: COLORS.gray828282,
-    textAlign: 'center',
+    textAlign: "center",
   },
   noAccountWrapper: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: scaleSize(10),
   },
   errorText: {
